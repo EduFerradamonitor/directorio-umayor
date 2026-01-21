@@ -3,7 +3,7 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# 🔑 Datos de Supabase
+# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
@@ -13,90 +13,93 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 @app.route("/")
 def home():
     return """
-    <html>
-    <head>
-        <title>Directorio UMAYOR</title>
-        <style>
-            body { font-family: Arial; padding: 20px; }
-            input { width: 300px; padding: 6px; }
-            button { padding: 6px 10px; }
-            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-            th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-            th { background: #f2f2f2; }
-        </style>
-    </head>
-    <body>
-        <h1>Directorio UMAYOR</h1>
+    <h1>Directorio UMAYOR</h1>
 
-        <input id="busqueda" placeholder="Escribe medicina, vet, tem...">
-        <button onclick="buscar()">Buscar</button>
+    <input id="busqueda" placeholder="Escribe medicina, vet, tem..." style="width:300px;">
 
-        <div id="resultado"></div>
+    <select id="sede">
+        <option value="">Todas las sedes</option>
+        <option value="Santiago">Santiago</option>
+        <option value="Temuco">Temuco</option>
+    </select>
 
-        <script>
-        function buscar() {
-            const q = document.getElementById("busqueda").value;
+    <button onclick="buscar()">Buscar</button>
 
-            fetch("/buscar?q=" + q)
-            .then(r => r.json())
-            .then(data => {
-                let html = "";
+    <br><br>
 
-                if (data.length === 0) {
-                    html = "<p>No se encontraron resultados.</p>";
-                } else {
-                    html = "<table><tr>" +
-                        "<th>Nombre</th>" +
-                        "<th>Escuela</th>" +
-                        "<th>Cargo</th>" +
-                        "<th>Campus</th>" +
-                        "<th>Facultad</th>" +
-                        "<th>Correo Director</th>" +
-                        "<th>Secretaria</th>" +
-                        "<th>Correo Secretaria</th>" +
-                        "</tr>";
+    <table border="1" cellpadding="6">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Escuela</th>
+                <th>Cargo</th>
+                <th>Campus</th>
+                <th>Correo Director</th>
+                <th>Secretaria</th>
+                <th>Correo Secretaria</th>
+                <th>Sede</th>
+                <th>Restricción</th>
+            </tr>
+        </thead>
+        <tbody id="tabla"></tbody>
+    </table>
 
-                    data.forEach(d => {
-                        html += "<tr>" +
-                            "<td>" + (d.nombre || "") + "</td>" +
-                            "<td>" + (d.escuela || "") + "</td>" +
-                            "<td>" + (d.cargo || "") + "</td>" +
-                            "<td>" + (d.campus || "") + "</td>" +
-                            "<td>" + (d.facultad || "") + "</td>" +
-                            "<td>" + (d["correo director"] || "") + "</td>" +
-                            "<td>" + (d.secretaria || "") + "</td>" +
-                            "<td>" + (d["correo secretaria"] || "") + "</td>" +
-                        "</tr>";
-                    });
+    <script>
+    function buscar() {
+        const q = document.getElementById("busqueda").value;
+        const sede = document.getElementById("sede").value;
 
-                    html += "</table>";
-                }
+        fetch(`/buscar?q=${q}&sede=${sede}`)
+        .then(r => r.json())
+        .then(data => {
+            const tabla = document.getElementById("tabla");
+            tabla.innerHTML = "";
 
-                document.getElementById("resultado").innerHTML = html;
+            data.forEach(d => {
+                const fila = `
+                <tr>
+                    <td>${d.nombre || ""}</td>
+                    <td>${d.escuela || ""}</td>
+                    <td>${d.cargo || ""}</td>
+                    <td>${d.campus || ""}</td>
+                    <td>${d["correo director"] || ""}</td>
+                    <td>${d.secretaria || ""}</td>
+                    <td>${d["correo secretaria"] || ""}</td>
+                    <td>${d.sede || ""}</td>
+                    <td>${d["consultar antes de entregar contactos"] || ""}</td>
+                </tr>
+                `;
+                tabla.innerHTML += fila;
             });
-        }
-        </script>
-    </body>
-    </html>
+        });
+    }
+    </script>
     """
 
-# 🔍 Buscador
+# 🔍 Buscador con filtro por sede
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").lower()
+    sede = request.args.get("sede", "")
 
     if len(q) < 3:
         return jsonify([])
 
-    data = supabase.table("directorio_umayor") \
+    query = supabase.table("directorio_umayor") \
         .select("*") \
-        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%") \
-        .execute()
+        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%")
+
+    if sede:
+        query = query.eq("sede", sede)
+
+    data = query.execute()
 
     return jsonify(data.data)
 
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
+
 
 
