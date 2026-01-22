@@ -24,12 +24,23 @@ def home():
                 background: #f3f6f9;
             }
             .card {
-                max-width: 900px;
-                margin: 50px auto;
+                max-width: 850px;
+                margin: 40px auto;
                 background: white;
                 padding: 30px;
                 border-radius: 12px;
                 box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            .logo {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            .logo img {
+                max-width: 180px;
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 25px;
             }
             input, select, button {
                 width: 100%;
@@ -50,6 +61,7 @@ def home():
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 20px;
+                font-size: 14px;
             }
             th, td {
                 border: 1px solid #ddd;
@@ -60,13 +72,20 @@ def home():
                 background: #005baa;
                 color: white;
             }
+            .restriccion {
+                font-weight: bold;
+            }
+            .verde { color: #2e7d32; }
+            .naranja { color: #f57c00; }
+            .rojo { color: #c62828; }
         </style>
     </head>
     <body>
         <div class="card">
 
-            <!-- LOGO -->
-            <img src="/static/img/logum.jpg" style="max-width:180px; margin-bottom:15px;">
+            <div class="logo">
+                <img src="/static/img/logum.jpg" alt="Universidad Mayor">
+            </div>
 
             <h1>📘 Directorio UMAYOR</h1>
 
@@ -74,8 +93,8 @@ def home():
 
             <select id="sede">
                 <option value="">Todas las sedes</option>
-                <option value="Santiago">Santiago</option>
-                <option value="Temuco">Temuco</option>
+                <option value="santiago">Santiago</option>
+                <option value="temuco">Temuco</option>
             </select>
 
             <button onclick="buscar()">Buscar</button>
@@ -85,6 +104,24 @@ def home():
         </div>
 
         <script>
+        function iconoRestriccion(texto) {
+            if (!texto) return "<span class='restriccion naranja'>🟠 Sin información</span>";
+
+            texto = texto.toLowerCase();
+
+            if (texto.includes("solo correo")) {
+                return "<span class='restriccion verde'>🟢 Solo correo secretaría</span>";
+            }
+            if (texto.includes("validacion")) {
+                return "<span class='restriccion naranja'>🟠 Con validación previa</span>";
+            }
+            if (texto.includes("autorizacion")) {
+                return "<span class='restriccion rojo'>🔴 Autorización expresa</span>";
+            }
+
+            return "<span class='restriccion naranja'>🟠 " + texto + "</span>";
+        }
+
         function buscar() {
             const q = document.getElementById("busqueda").value;
             const sede = document.getElementById("sede").value;
@@ -130,35 +167,12 @@ def home():
             document.getElementById("sede").value = "";
             document.getElementById("resultados").innerHTML = "";
         }
-
-        // 🚦 Semáforo de restricciones
-        function iconoRestriccion(valor) {
-            if (!valor) {
-                return "🟠 Sin restricción";
-            }
-
-            valor = valor.toLowerCase();
-
-            if (valor.includes("solo correo")) {
-                return "🟢 Solo correo Secretaría";
-            }
-
-            if (valor.includes("validación")) {
-                return "🟡 Requiere validación";
-            }
-
-            if (valor.includes("autorización")) {
-                return "🔴 Requiere autorización";
-            }
-
-            return "🟠 Sin restricción";
-        }
         </script>
     </body>
     </html>
     """
 
-# 🔍 Buscador con filtro por sede
+# 🔍 Buscador con filtros correctos
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").strip().lower()
@@ -189,6 +203,8 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
 
 
 
