@@ -64,7 +64,9 @@ def home():
     </head>
     <body>
         <div class="card">
-        <img src="/static/img/logum.jpg" style="max-width:180px; margin-bottom:15px;">
+
+            <!-- LOGO -->
+            <img src="/static/img/logum.jpg" style="max-width:180px; margin-bottom:15px;">
 
             <h1>📘 Directorio UMAYOR</h1>
 
@@ -110,7 +112,7 @@ def home():
                         <td>${r.secretaria || ""}</td>
                         <td>${r.correo_secretaria || ""}</td>
                         <td>${r.sede || ""}</td>
-                        <td>${r.consultar_antes_de_entregar_contactos || ""}</td>
+                        <td>${iconoRestriccion(r.consultar_antes_de_entregar_contactos)}</td>
                     </tr>`;
                 });
 
@@ -128,30 +130,42 @@ def home():
             document.getElementById("sede").value = "";
             document.getElementById("resultados").innerHTML = "";
         }
+
+        // 🚦 Semáforo de restricciones
+        function iconoRestriccion(valor) {
+            if (!valor) {
+                return "🟠 Sin restricción";
+            }
+
+            valor = valor.toLowerCase();
+
+            if (valor.includes("solo correo")) {
+                return "🟢 Solo correo Secretaría";
+            }
+
+            if (valor.includes("validación")) {
+                return "🟡 Requiere validación";
+            }
+
+            if (valor.includes("autorización")) {
+                return "🔴 Requiere autorización";
+            }
+
+            return "🟠 Sin restricción";
+        }
         </script>
     </body>
     </html>
     """
 
-# 🔍 Buscador MEJORADO
+# 🔍 Buscador con filtro por sede
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").strip().lower()
-    sede = request.args.get("sede", "").strip()
+    sede = request.args.get("sede", "").strip().lower()
 
     if len(q) < 2:
         return jsonify([])
-
-    # 🔁 Sinónimos / abreviaciones
-    sinonimos = {
-        "vt": "veterinaria",
-        "vet": "veterinaria",
-        "psico": "psicologia",
-        "ing": "ingenieria",
-        "kine": "kinesiologia"
-    }
-
-    q = sinonimos.get(q, q)
 
     query = (
         supabase
@@ -165,7 +179,6 @@ def buscar():
         )
     )
 
-    # 🔎 Filtro flexible por sede
     if sede:
         query = query.ilike("sede", f"%{sede}%")
 
@@ -176,6 +189,7 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
