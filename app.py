@@ -64,6 +64,8 @@ def home():
     </head>
     <body>
         <div class="card">
+        <img src="/static/img/logum.jpg" style="max-width:180px; margin-bottom:15px;">
+
             <h1>📘 Directorio UMAYOR</h1>
 
             <input id="busqueda" placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)">
@@ -174,6 +176,7 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
