@@ -1,7 +1,5 @@
 from flask import Flask, request, jsonify, render_template_string
 from supabase import create_client
-import unicodedata
-import re
 
 app = Flask(__name__)
 
@@ -10,17 +8,6 @@ SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🧼 Limpieza de texto
-def limpiar(texto):
-    if not texto:
-        return ""
-    texto = texto.lower()
-    texto = unicodedata.normalize("NFD", texto)
-    texto = re.sub(r"[\u0300-\u036f]", "", texto)
-    texto = re.sub(r"[^a-z0-9]", "", texto)
-    return texto
-
-# 🏠 Interfaz principal
 @app.route("/")
 def home():
     return render_template_string("""
@@ -59,7 +46,7 @@ def home():
             .then(r => r.json())
             .then(data => {
                 if (data.length === 0) {
-                    document.getElementById("resultado").innerHTML = 
+                    document.getElementById("resultado").innerHTML =
                         "<p>No se encontraron resultados.</p>";
                     return;
                 }
@@ -98,42 +85,23 @@ def home():
     </html>
     """)
 
-# 🔍 Buscador inteligente
 @app.route("/buscar")
 def buscar():
-    q = limpiar(request.args.get("q", ""))
+    q = request.args.get("q", "")
     sede = request.args.get("sede", "")
 
     if len(q) < 3:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas").select("*")
+    query = supabase.table("directorio_escuelas").select("*") \
+        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%")
 
     if sede:
         query = query.eq("sede", sede)
 
     data = query.execute().data
-    resultados = []
+    return jsonify(data)
 
-    for r in data:
-        texto = limpiar(
-            (r.get("nombre","") +
-             r.get("escuela","") +
-             r.get("cargo","") +
-             r.get("Campus",""))
-        )
-
-        # Búsqueda por fragmentos
-        fragmentos = [q[i:i+3] for i in range(len(q)-2)]
-
-        if any(f in texto for f in fragmentos):
-            resultados.append(r)
-
-    return jsonify(resultados)
-
-# ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
