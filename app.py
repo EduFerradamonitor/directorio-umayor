@@ -135,22 +135,63 @@ def buscar():
     if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas").select("*") \
-        .or_(f"""
-            nombre.ilike.%{q}%,
-            escuela.ilike.%{q}%,
-            escuela_busqueda.ilike.%{q}%,
-            cargo.ilike.%{q}%
-        """)
+    try:
+        query = supabase.table("directorio_escuelas").select("*") \
+            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
 
-    if sede:
-        query = query.eq("sede", sede)
+        if sede:
+            query = query.eq("sede", sede)
 
-    data = query.execute().data
-    return jsonify(data)
+        data = query.execute().data
+        return jsonify(data)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    except Exception as e:
+        print("ERROR SUPABASE:", e)
+        return jsonify({"error": "Error interno del servidor"}), 500
+@app.route("/buscar")
+def buscar():
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip()
+
+    if len(q) < 2:
+        return jsonify([])
+
+    try:
+        query = supabase.table("directorio_escuelas").select("*") \
+            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
+
+        if sede:
+            query = query.eq("sede", sede)
+
+        data = query.execute().data
+        return jsonify(data)
+
+    except Exception as e:
+        print("ERROR SUPABASE:", e)
+        return jsonify({"error": "Error interno del servidor"}), 500
+@app.route("/buscar")
+def buscar():
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip()
+
+    if len(q) < 2:
+        return jsonify([])
+
+    try:
+        query = supabase.table("directorio_escuelas").select("*") \
+            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
+
+        if sede:
+            query = query.eq("sede", sede)
+
+        data = query.execute().data
+        return jsonify(data)
+
+    except Exception as e:
+        print("ERROR SUPABASE:", e)
+        return jsonify({"error": "Error interno del servidor"}), 500
+
+
 
 
 
