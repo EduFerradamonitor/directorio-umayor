@@ -1,11 +1,12 @@
 from flask import Flask, request, jsonify
 from supabase import create_client
+import os
 
 app = Flask(__name__)
 
-# 🔑 Datos Supabase
+# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
+SUPABASE_KEY = "TU_API_KEY_AQUI"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -13,26 +14,28 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 @app.route("/")
 def home():
     return """
+    <!DOCTYPE html>
     <html>
     <head>
+        <meta charset="UTF-8">
+        <title>Directorio UMAYOR</title>
         <style>
             body {
                 font-family: Calibri, Arial, sans-serif;
-                background: #f4f6f8;
-                padding: 30px;
+                background: #f3f6f9;
             }
-            .box {
+            .card {
+                max-width: 800px;
+                margin: 50px auto;
                 background: white;
-                padding: 20px;
-                border-radius: 10px;
-                max-width: 900px;
-                margin: auto;
-                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
             }
             input, select, button {
-                padding: 10px;
-                margin: 5px 0;
                 width: 100%;
+                padding: 12px;
+                margin: 10px 0;
                 font-size: 16px;
             }
             button {
@@ -41,24 +44,30 @@ def home():
                 border: none;
                 cursor: pointer;
             }
-            button:hover {
-                background: #004080;
+            button.secondary {
+                background: #999;
             }
-            .resultado {
+            table {
+                width: 100%;
+                border-collapse: collapse;
                 margin-top: 20px;
-                white-space: pre-wrap;
-                font-size: 14px;
-                background: #eef2f5;
-                padding: 15px;
-                border-radius: 8px;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background: #005baa;
+                color: white;
             }
         </style>
     </head>
     <body>
-        <div class="box">
-            <h2>📘 Directorio UMAYOR</h2>
+        <div class="card">
+            <h1>📘 Directorio UMAYOR</h1>
 
-            <input id="busqueda" placeholder="Ej: medicina, veter, fono, admi...">
+            <input id="busqueda" placeholder="Escriba el nombre de la escuela">
 
             <select id="sede">
                 <option value="">Todas las sedes</option>
@@ -67,9 +76,9 @@ def home():
             </select>
 
             <button onclick="buscar()">Buscar</button>
-            <button onclick="limpiar()" style="background:#999;">Borrar</button>
+            <button class="secondary" onclick="borrar()">Borrar</button>
 
-            <div id="resultado" class="resultado"></div>
+            <div id="resultados"></div>
         </div>
 
         <script>
@@ -81,51 +90,56 @@ def home():
             .then(r => r.json())
             .then(data => {
                 if (data.length === 0) {
-                    document.getElementById("resultado").textContent = "No se encontraron resultados.";
+                    document.getElementById("resultados").innerHTML = "<p>No se encontraron resultados.</p>";
                     return;
                 }
 
-                let texto = "";
-                data.forEach(d => {
-                    texto += 
-`Nombre: ${d.nombre}
-Escuela: ${d.escuela}
-Cargo: ${d.cargo}
-Campus: ${d.campus}
-Correo Director: ${d.correo_director}
-Secretaria: ${d.secretaria}
-Correo Secretaria: ${d.correo_secretaria}
-Sede: ${d.sede}
-Restricción: ${d.consultar_antes_de_entregar_contactos}
------------------------------\n`;
+                let html = "<table><tr>" +
+                    "<th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th>" +
+                    "<th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>" +
+                    "<th>Sede</th><th>Restricción</th></tr>";
+
+                data.forEach(r => {
+                    html += `<tr>
+                        <td>${r.nombre || ""}</td>
+                        <td>${r.escuela || ""}</td>
+                        <td>${r.cargo || ""}</td>
+                        <td>${r.Campus || ""}</td>
+                        <td>${r.correo_director || ""}</td>
+                        <td>${r.secretaria || ""}</td>
+                        <td>${r.correo_secretaria || ""}</td>
+                        <td>${r.sede || ""}</td>
+                        <td>${r.consultar_antes_de_entregar_contactos || ""}</td>
+                    </tr>`;
                 });
 
-                document.getElementById("resultado").textContent = texto;
+                html += "</table>";
+                document.getElementById("resultados").innerHTML = html;
             });
         }
 
-        function limpiar() {
+        function borrar() {
             document.getElementById("busqueda").value = "";
             document.getElementById("sede").value = "";
-            document.getElementById("resultado").textContent = "";
+            document.getElementById("resultados").innerHTML = "";
         }
         </script>
     </body>
     </html>
     """
+    
 
 # 🔍 Buscador
 @app.route("/buscar")
 def buscar():
-    q = request.args.get("q", "").lower()
-    sede = request.args.get("sede", "")
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip()
 
-    if len(q) < 3:
+    if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas") \
-        .select("nombre, escuela, cargo, campus, correo_director, secretaria, correo_secretaria, sede, consultar_antes_de_entregar_contactos") \
-    .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
+    query = supabase.table("directorio_escuelas").select("*") \
+        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
 
     if sede:
         query = query.eq("sede", sede)
@@ -133,9 +147,11 @@ def buscar():
     data = query.execute().data
     return jsonify(data)
 
+
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
