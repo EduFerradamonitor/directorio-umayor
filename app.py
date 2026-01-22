@@ -3,11 +3,13 @@ from supabase import create_client
 
 app = Flask(__name__)
 
+# 🔑 Credenciales Supabase (USA LA PUBLISHABLE KEY)
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
+SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# 🏠 Página principal
 @app.route("/")
 def home():
     return """
@@ -48,7 +50,6 @@ def home():
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 20px;
-                font-size: 14px;
             }
             th, td {
                 border: 1px solid #ddd;
@@ -65,7 +66,7 @@ def home():
         <div class="card">
             <h1>📘 Directorio UMAYOR</h1>
 
-            <input id="busqueda" placeholder="Ingrese escuela aqui">
+            <input id="busqueda" placeholder="¿Que escuela busca?">
 
             <select id="sede">
                 <option value="">Todas las sedes</option>
@@ -84,24 +85,23 @@ def home():
             const q = document.getElementById("busqueda").value;
             const sede = document.getElementById("sede").value;
 
-            fetch(`/buscar?q=${q}&sede=${sede}`)
+            fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
             .then(r => r.json())
             .then(data => {
-                if (data.length === 0) {
-                    document.getElementById("resultados").innerHTML =
-                        "<p>No se encontraron resultados.</p>";
+                if (!data || data.length === 0) {
+                    document.getElementById("resultados").innerHTML = "<p>No se encontraron resultados.</p>";
                     return;
                 }
 
                 let html = "<table><tr>" +
                     "<th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th>" +
-                    "<th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>" +
+                    "<th>Correo Director</th><th>Secretaría</th><th>Correo Secretaría</th>" +
                     "<th>Sede</th><th>Restricción</th></tr>";
 
                 data.forEach(r => {
                     html += `<tr>
                         <td>${r.nombre || ""}</td>
-                        <td>${r.escuela_busqueda || ""}</td>
+                        <td>${r.escuela_busqueda || r.escuela || ""}</td>
                         <td>${r.cargo || ""}</td>
                         <td>${r.Campus || ""}</td>
                         <td>${r.correo_director || ""}</td>
@@ -114,6 +114,10 @@ def home():
 
                 html += "</table>";
                 document.getElementById("resultados").innerHTML = html;
+            })
+            .catch(err => {
+                document.getElementById("resultados").innerHTML = "<p>Error al consultar los datos.</p>";
+                console.error(err);
             });
         }
 
@@ -127,6 +131,7 @@ def home():
     </html>
     """
 
+# 🔍 Buscador
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").strip().lower()
@@ -135,66 +140,28 @@ def buscar():
     if len(q) < 2:
         return jsonify([])
 
-    try:
-        query = supabase.table("directorio_escuelas").select("*") \
-            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
+    query = (
+        supabase
+        .table("directorio_escuelas")
+        .select("*")
+        .or_(
+            f"nombre.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
+            f"escuela_busqueda.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
+    )
 
-        if sede:
-            query = query.eq("sede", sede)
+    if sede:
+        query = query.eq("sede", sede)
 
-        data = query.execute().data
-        return jsonify(data)
+    result = query.execute()
 
-    except Exception as e:
-        print("ERROR SUPABASE:", e)
-        return jsonify({"error": "Error interno del servidor"}), 500
-@app.route("/buscar")
-def buscar():
-    q = request.args.get("q", "").strip().lower()
-    sede = request.args.get("sede", "").strip()
-
-    if len(q) < 2:
-        return jsonify([])
-
-    try:
-        query = supabase.table("directorio_escuelas").select("*") \
-            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
-
-        if sede:
-            query = query.eq("sede", sede)
-
-        data = query.execute().data
-        return jsonify(data)
-
-    except Exception as e:
-        print("ERROR SUPABASE:", e)
-        return jsonify({"error": "Error interno del servidor"}), 500
-@app.route("/buscar")
-def buscar():
-    q = request.args.get("q", "").strip().lower()
-    sede = request.args.get("sede", "").strip()
-
-    if len(q) < 2:
-        return jsonify([])
-
-    try:
-        query = supabase.table("directorio_escuelas").select("*") \
-            .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
-
-        if sede:
-            query = query.eq("sede", sede)
-
-        data = query.execute().data
-        return jsonify(data)
-
-    except Exception as e:
-        print("ERROR SUPABASE:", e)
-        return jsonify({"error": "Error interno del servidor"}), 500
+    return jsonify(result.data if result.data else [])
 
 
-
-
-
-
+# ▶️ Ejecutar
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
