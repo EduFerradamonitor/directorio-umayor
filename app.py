@@ -3,7 +3,6 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
@@ -54,15 +53,15 @@ HTML = """
 
     {% for r in resultados %}
     <tr>
-        <td>{{ r.nombre }}</td>
-        <td>{{ r.escuela }}</td>
-        <td>{{ r.cargo }}</td>
-        <td>{{ r.campus }}</td>
-        <td>{{ r.correo_director }}</td>
-        <td>{{ r.secretaria }}</td>
-        <td>{{ r.correo_secretaria }}</td>
-        <td>{{ r.sede }}</td>
-        <td>{{ r.consultar_antes_de_entregar_contactos }}</td>
+        <td>{{ r["nombre"] }}</td>
+        <td>{{ r["escuela"] }}</td>
+        <td>{{ r["cargo"] }}</td>
+        <td>{{ r["campus"] }}</td>
+        <td>{{ r["correo director"] }}</td>
+        <td>{{ r["secretaria"] }}</td>
+        <td>{{ r["correo secretaria"] }}</td>
+        <td>{{ r["sede"] }}</td>
+        <td>{{ r["consultar antes de entregar contactos"] }}</td>
     </tr>
     {% endfor %}
 </table>
@@ -85,7 +84,7 @@ def buscar():
         return render_template_string(HTML, resultados=[])
 
     query = supabase.table("directorio_escuelas").select(
-        "nombre, escuela, cargo, campus, correo_director, secretaria, correo_secretaria, sede, consultar_antes_de_entregar_contactos"
+        'nombre, escuela, cargo, campus, "correo director", secretaria, "correo secretaria", sede, "consultar antes de entregar contactos"'
     ).or_(
         f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%"
     )
