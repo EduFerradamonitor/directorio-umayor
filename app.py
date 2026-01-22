@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string
+from flask import Flask, request, jsonify
 from supabase import create_client
 
 app = Flask(__name__)
@@ -8,95 +8,72 @@ SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Directorio UMAYOR</title>
-    <style>
-        body { font-family: Arial; }
-        input, select, button { padding: 8px; margin: 5px; }
-        table { border-collapse: collapse; width: 100%; margin-top: 15px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
-</head>
-<body>
-
-<h1>Directorio UMAYOR</h1>
-
-<form method="get" action="/buscar">
-    <input name="q" placeholder="Escribe: medicina, vet, derecho..." required>
-    
-    <select name="sede">
-        <option value="">Todas</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
-    </select>
-
-    <button type="submit">Buscar</button>
-</form>
-
-{% if resultados %}
-<table>
-    <tr>
-        <th>Nombre</th>
-        <th>Escuela</th>
-        <th>Cargo</th>
-        <th>Campus</th>
-        <th>Correo Director</th>
-        <th>Secretaria</th>
-        <th>Correo Secretaria</th>
-        <th>Sede</th>
-        <th>Restricción</th>
-    </tr>
-
-    {% for r in resultados %}
-    <tr>
-        <td>{{ r["nombre"] }}</td>
-        <td>{{ r["escuela"] }}</td>
-        <td>{{ r["cargo"] }}</td>
-        <td>{{ r["campus"] }}</td>
-        <td>{{ r["correo director"] }}</td>
-        <td>{{ r["secretaria"] }}</td>
-        <td>{{ r["correo secretaria"] }}</td>
-        <td>{{ r["sede"] }}</td>
-        <td>{{ r["consultar antes de entregar contactos"] }}</td>
-    </tr>
-    {% endfor %}
-</table>
-{% endif %}
-
-</body>
-</html>
-"""
-
 @app.route("/")
 def home():
-    return render_template_string(HTML)
+    return """
+    <h1>Directorio UMAYOR</h1>
+
+    <input id="busqueda" placeholder="Ej: medicina, veterinaria..." style="width:300px;">
+    
+    <select id="sede">
+        <option value="">Todas</option>
+        <option value="Santiago">Santiago</option>
+        <option value="Temuco">Temuco</option>
+    </select>
+
+    <button onclick="buscar()">Buscar</button>
+
+    <div id="resultado"></div>
+
+    <script>
+    function buscar() {
+        const q = document.getElementById("busqueda").value;
+        const sede = document.getElementById("sede").value;
+
+        fetch(`/buscar?q=${q}&sede=${sede}`)
+        .then(r => r.json())
+        .then(data => {
+            let html = "<table border='1'><tr><th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th><th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th><th>Sede</th><th>Restricción</th></tr>";
+
+            data.forEach(p => {
+                html += `<tr>
+                    <td>${p.nombre || ""}</td>
+                    <td>${p.escuela || ""}</td>
+                    <td>${p.cargo || ""}</td>
+                    <td>${p.Campus || ""}</td>
+                    <td>${p["correo director"] || ""}</td>
+                    <td>${p.secretaria || ""}</td>
+                    <td>${p["correo secretaria"] || ""}</td>
+                    <td>${p.sede || ""}</td>
+                    <td>${p["consultar antes de entregar contactos"] || ""}</td>
+                </tr>`;
+            });
+
+            html += "</table>";
+            document.getElementById("resultado").innerHTML = html;
+        });
+    }
+    </script>
+    """
 
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").lower()
-    sede = request.args.get("sede", "").lower()
+    sede = request.args.get("sede", "")
 
     if len(q) < 3:
-        return render_template_string(HTML, resultados=[])
+        return jsonify([])
 
-    query = supabase.table("directorio_escuelas").select(
-        'nombre, escuela, cargo, campus, "correo director", secretaria, "correo secretaria", sede, "consultar antes de entregar contactos"'
-    ).or_(
-        f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%"
-    )
+    query = supabase.table("directorio_escuelas") \
+        .select("*") \
+        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%")
 
     if sede:
-        query = query.ilike("sede", f"%{sede}%")
+        query = query.eq("sede", sede)
 
     data = query.execute().data
-
-    return render_template_string(HTML, resultados=data)
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
