@@ -103,7 +103,7 @@ def home():
                         <td>${r.nombre || ""}</td>
                         <td>${r.escuela_busqueda || r.escuela || ""}</td>
                         <td>${r.cargo || ""}</td>
-                        <td>${r.Campus || ""}</td>
+                        <td>${r.campus || ""}</td>
                         <td>${r.correo_director || ""}</td>
                         <td>${r.secretaria || ""}</td>
                         <td>${r.correo_secretaria || ""}</td>
@@ -163,5 +163,6 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
