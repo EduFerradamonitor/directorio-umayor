@@ -140,6 +140,17 @@ def buscar():
     if len(q) < 2:
         return jsonify([])
 
+    # 🔁 Sinónimos / abreviaciones
+    sinonimos = {
+        "vt": "veterinaria",
+        "vet": "veterinaria",
+        "psico": "psicologia",
+        "ing": "ingenieria",
+        "kine": "kinesiologia"
+    }
+
+    q = sinonimos.get(q, q)
+
     query = (
         supabase
         .table("directorio_escuelas")
@@ -152,8 +163,9 @@ def buscar():
         )
     )
 
+    # 🔎 Filtro flexible por sede
     if sede:
-        query = query.eq("sede", sede)
+        query = query.ilike("sede", f"%{sede}%")
 
     result = query.execute()
 
@@ -162,5 +174,6 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
