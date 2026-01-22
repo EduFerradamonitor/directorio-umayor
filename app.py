@@ -3,7 +3,7 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# 🔑 Credenciales Supabase (USA LA PUBLISHABLE KEY)
+# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
@@ -66,7 +66,7 @@ def home():
         <div class="card">
             <h1>📘 Directorio UMAYOR</h1>
 
-            <input id="busqueda" placeholder="¿Que escuela busca?">
+            <input id="busqueda" placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)">
 
             <select id="sede">
                 <option value="">Todas las sedes</option>
@@ -131,7 +131,7 @@ def home():
     </html>
     """
 
-# 🔍 Buscador
+# 🔍 Buscador MEJORADO
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").strip().lower()
@@ -145,9 +145,9 @@ def buscar():
         .table("directorio_escuelas")
         .select("*")
         .or_(
-            f"nombre.ilike.%{q}%,"
-            f"escuela.ilike.%{q}%,"
             f"escuela_busqueda.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%,"
             f"cargo.ilike.%{q}%"
         )
     )
@@ -158,7 +158,6 @@ def buscar():
     result = query.execute()
 
     return jsonify(result.data if result.data else [])
-
 
 # ▶️ Ejecutar
 if __name__ == "__main__":
