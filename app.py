@@ -3,176 +3,190 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# 🔑 Credenciales Supabase
+# 🔑 Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🏠 Página principal
+# 🏠 Home
 @app.route("/")
 def home():
     return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Directorio UMAYOR</title>
-        <style>
-            body {
-                font-family: Calibri, Arial, sans-serif;
-                background: #f3f6f9;
-            }
-            .card {
-                max-width: 850px;
-                margin: 40px auto;
-                background: white;
-                padding: 30px;
-                border-radius: 12px;
-                box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            }
-            .logo {
-                text-align: center;
-                margin-bottom: 15px;
-            }
-            .logo img {
-                max-width: 180px;
-            }
-            h1 {
-                text-align: center;
-                margin-bottom: 25px;
-            }
-            input, select, button {
-                width: 100%;
-                padding: 12px;
-                margin: 10px 0;
-                font-size: 16px;
-            }
-            button {
-                background: #005baa;
-                color: white;
-                border: none;
-                cursor: pointer;
-            }
-            button.secondary {
-                background: #999;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-                font-size: 14px;
-            }
-            th, td {
-                border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
-            }
-            th {
-                background: #005baa;
-                color: white;
-            }
-            .restriccion {
-                font-weight: bold;
-            }
-            .verde { color: #2e7d32; }
-            .naranja { color: #f57c00; }
-            .rojo { color: #c62828; }
-        </style>
-    </head>
-    <body>
-        <div class="card">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Directorio UMAYOR</title>
 
-            <div class="logo">
-                <img src="/static/img/logum.jpg" alt="Universidad Mayor">
-            </div>
+<style>
+body {
+    font-family: Calibri, Arial, sans-serif;
+    background: #f3f6f9;
+}
 
-            <h1>📘 Directorio UMAYOR</h1>
+.card {
+    max-width: 900px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
 
-            <input id="busqueda" placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)">
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
 
-            <select id="sede">
-                <option value="">Todas las sedes</option>
-                <option value="santiago">Santiago</option>
-                <option value="temuco">Temuco</option>
-            </select>
+.header img {
+    width: 140px;
+}
 
-            <button onclick="buscar()">Buscar</button>
-            <button class="secondary" onclick="borrar()">Borrar</button>
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+}
 
-            <div id="resultados"></div>
-        </div>
+button {
+    background: #005baa;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
 
-        <script>
-        function iconoRestriccion(texto) {
-            if (!texto) return "<span class='restriccion naranja'>🟠 Sin información</span>";
+button.secondary {
+    background: #999;
+}
 
-            texto = texto.toLowerCase();
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
 
-            if (texto.includes("solo correo")) {
-                return "<span class='restriccion verde'>🟢 Solo correo secretaría</span>";
-            }
-            if (texto.includes("validacion")) {
-                return "<span class='restriccion naranja'>🟠 Con validación previa</span>";
-            }
-            if (texto.includes("autorizacion")) {
-                return "<span class='restriccion rojo'>🔴 Autorización expresa</span>";
-            }
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
 
-            return "<span class='restriccion naranja'>🟠 " + texto + "</span>";
+th {
+    background: #005baa;
+    color: white;
+}
+
+.badge {
+    font-weight: bold;
+}
+
+.verde { color: #2e7d32; }
+.naranja { color: #f57c00; }
+.rojo { color: #c62828; }
+.gris { color: #777; }
+</style>
+</head>
+
+<body>
+<div class="card">
+
+<div class="header">
+    <img src="https://raw.githubusercontent.com/EduFerradamonitor/directorio-umayor/main/logoum.jpg">
+    <h1>Directorio UMAYOR</h1>
+</div>
+
+<input id="busqueda" placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)">
+
+<select id="sede">
+    <option value="">Todas las sedes</option>
+    <option value="santiago">Santiago</option>
+    <option value="temuco">Temuco</option>
+</select>
+
+<button onclick="buscar()">Buscar</button>
+<button class="secondary" onclick="borrar()">Borrar</button>
+
+<div id="resultados"></div>
+</div>
+
+<script>
+function badgeRestriccion(valor) {
+    if (!valor) return '<span class="badge gris">● Sin restricción</span>';
+
+    valor = valor.toLowerCase();
+
+    if (valor.includes("solo correo")) {
+        return '<span class="badge verde">● Solo correo secretaría</span>';
+    }
+    if (valor.includes("validacion")) {
+        return '<span class="badge naranja">⚠ Validación previa</span>';
+    }
+    if (valor.includes("autorizacion")) {
+        return '<span class="badge rojo">🔒 Autorización expresa</span>';
+    }
+    return '<span class="badge gris">● Sin restricción</span>';
+}
+
+function buscar() {
+    const q = document.getElementById("busqueda").value;
+    const sede = document.getElementById("sede").value;
+
+    fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
+    .then(r => r.json())
+    .then(data => {
+        if (!data || data.length === 0) {
+            document.getElementById("resultados").innerHTML =
+                "<p>No se encontraron resultados.</p>";
+            return;
         }
 
-        function buscar() {
-            const q = document.getElementById("busqueda").value;
-            const sede = document.getElementById("sede").value;
+        let html = `<table>
+        <tr>
+            <th>Nombre</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Correo Director</th>
+            <th>Secretaría</th>
+            <th>Correo Secretaría</th>
+            <th>Sede</th>
+            <th>Restricción</th>
+        </tr>`;
 
-            fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
-            .then(r => r.json())
-            .then(data => {
-                if (!data || data.length === 0) {
-                    document.getElementById("resultados").innerHTML = "<p>No se encontraron resultados.</p>";
-                    return;
-                }
+        data.forEach(r => {
+            html += `<tr>
+                <td>${r.nombre || ""}</td>
+                <td>${r.escuela_busqueda || r.escuela || ""}</td>
+                <td>${r.cargo || ""}</td>
+                <td>${r.campus || ""}</td>
+                <td>${r.correo_director || ""}</td>
+                <td>${r.secretaria || ""}</td>
+                <td>${r.correo_secretaria || ""}</td>
+                <td>${r.sede || ""}</td>
+                <td>${badgeRestriccion(r.consultar_antes_de_entregar_contactos)}</td>
+            </tr>`;
+        });
 
-                let html = "<table><tr>" +
-                    "<th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th>" +
-                    "<th>Correo Director</th><th>Secretaría</th><th>Correo Secretaría</th>" +
-                    "<th>Sede</th><th>Restricción</th></tr>";
+        html += "</table>";
+        document.getElementById("resultados").innerHTML = html;
+    });
+}
 
-                data.forEach(r => {
-                    html += `<tr>
-                        <td>${r.nombre || ""}</td>
-                        <td>${r.escuela_busqueda || r.escuela || ""}</td>
-                        <td>${r.cargo || ""}</td>
-                        <td>${r.campus || ""}</td>
-                        <td>${r.correo_director || ""}</td>
-                        <td>${r.secretaria || ""}</td>
-                        <td>${r.correo_secretaria || ""}</td>
-                        <td>${r.sede || ""}</td>
-                        <td>${iconoRestriccion(r.consultar_antes_de_entregar_contactos)}</td>
-                    </tr>`;
-                });
+function borrar() {
+    document.getElementById("busqueda").value = "";
+    document.getElementById("sede").value = "";
+    document.getElementById("resultados").innerHTML = "";
+}
+</script>
 
-                html += "</table>";
-                document.getElementById("resultados").innerHTML = html;
-            })
-            .catch(err => {
-                document.getElementById("resultados").innerHTML = "<p>Error al consultar los datos.</p>";
-                console.error(err);
-            });
-        }
+</body>
+</html>
+"""
 
-        function borrar() {
-            document.getElementById("busqueda").value = "";
-            document.getElementById("sede").value = "";
-            document.getElementById("resultados").innerHTML = "";
-        }
-        </script>
-    </body>
-    </html>
-    """
-
-# 🔍 Buscador con filtros correctos
+# 🔍 Buscador
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q", "").strip().lower()
@@ -183,7 +197,7 @@ def buscar():
 
     query = (
         supabase
-        .table("directorio_escuelas")
+        .table("directorio_escuelas_umayor")
         .select("*")
         .or_(
             f"escuela_busqueda.ilike.%{q}%,"
@@ -194,15 +208,15 @@ def buscar():
     )
 
     if sede:
-        query = query.ilike("sede", f"%{sede}%")
+        query = query.eq("sede", sede)
 
     result = query.execute()
+    return jsonify(result.data or [])
 
-    return jsonify(result.data if result.data else [])
-
-# ▶️ Ejecutar
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
+
+
 
 
 
