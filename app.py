@@ -1,125 +1,101 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, render_template_string
 from supabase import create_client
 
 app = Flask(__name__)
 
+# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-def normalizar(texto):
-    if not texto:
-        return ""
-    texto = texto.lower()
-    texto = texto.replace(" ", "")
-    texto = texto.replace("á","a").replace("é","e").replace("í","i").replace("ó","o").replace("ú","u").replace("ñ","n")
-    texto = texto.replace(".","").replace("'","")
-    return texto
+HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Directorio UMAYOR</title>
+    <style>
+        body { font-family: Arial; }
+        input, select, button { padding: 8px; margin: 5px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
 
-campus_links = {
-    "huechuraba": "https://www.umayor.cl/um/santiago-campus-huechuraba",
-    "santodomingo": "https://www.umayor.cl/um/santiago-campus-santo-domingo",
-    "elclaustro": "https://www.umayor.cl/um/santiago-campus-el-claustro",
-    "alameda": "https://www.umayor.cl/um/santiago-campus-alameda",
-    "estadiomayor": "https://www.umayor.cl/um/santiago-campus-estadio-mayor",
-    "conservatorio": "https://www.umayor.cl/um/santiago-campus-conservatorio",
-    "alemania": "https://www.umayor.cl/um/santiago-campus-alemania-temuco"
-}
+<h1>Directorio UMAYOR</h1>
 
-@app.route("/")
-def home():
-    return """
-    <h1>Directorio Escuelas UMAYOR</h1>
-
-    <input id="busqueda" placeholder="Ej: administracion publica, medicina, derecho">
-
-    <select id="sede">
+<form method="get" action="/buscar">
+    <input name="q" placeholder="Escribe: medicina, vet, derecho..." required>
+    
+    <select name="sede">
         <option value="">Todas</option>
         <option value="santiago">Santiago</option>
         <option value="temuco">Temuco</option>
     </select>
 
-    <button onclick="buscar()">Buscar</button>
+    <button type="submit">Buscar</button>
+</form>
 
-    <br><br>
+{% if resultados %}
+<table>
+    <tr>
+        <th>Nombre</th>
+        <th>Escuela</th>
+        <th>Cargo</th>
+        <th>Campus</th>
+        <th>Correo Director</th>
+        <th>Secretaria</th>
+        <th>Correo Secretaria</th>
+        <th>Sede</th>
+        <th>Restricción</th>
+    </tr>
 
-    <table border="1" cellpadding="6">
-        <thead>
-            <tr>
-                <th>Director</th>
-                <th>Correo Director</th>
-                <th>Secretaria</th>
-                <th>Correo Secretaria</th>
-                <th>Anexo</th>
-                <th>Campus</th>
-                <th>Sede</th>
-                <th>Restricción</th>
-            </tr>
-        </thead>
-        <tbody id="tabla"></tbody>
-    </table>
+    {% for r in resultados %}
+    <tr>
+        <td>{{ r.nombre }}</td>
+        <td>{{ r.escuela }}</td>
+        <td>{{ r.cargo }}</td>
+        <td>{{ r.campus }}</td>
+        <td>{{ r.correo_director }}</td>
+        <td>{{ r.secretaria }}</td>
+        <td>{{ r.correo_secretaria }}</td>
+        <td>{{ r.sede }}</td>
+        <td>{{ r.consultar_antes_de_entregar_contactos }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 
-    <script>
-    function buscar() {
-        const q = document.getElementById("busqueda").value;
-        const sede = document.getElementById("sede").value;
+</body>
+</html>
+"""
 
-        fetch(`/buscar?q=${q}&sede=${sede}`)
-        .then(r => r.json())
-        .then(data => {
-            const tabla = document.getElementById("tabla");
-            tabla.innerHTML = "";
-
-            data.forEach(d => {
-                const fila = `
-                <tr>
-                    <td>${d.nombre || ""}</td>
-                    <td>${d["correo director"] || ""}</td>
-                    <td>${d.secretaria || ""}</td>
-                    <td>${d["correo secretaria"] || ""}</td>
-                    <td>${d["anexo secretaria"] || ""}</td>
-                    <td>${d.campus_link || ""}</td>
-                    <td>${d.sede || ""}</td>
-                    <td>${d["consultar antes de entregar contactos"] || ""}</td>
-                </tr>
-                `;
-                tabla.innerHTML += fila;
-            });
-        });
-    }
-    </script>
-    """
+@app.route("/")
+def home():
+    return render_template_string(HTML)
 
 @app.route("/buscar")
 def buscar():
-    q = request.args.get("q", "")
-    sede = request.args.get("sede", "")
+    q = request.args.get("q", "").lower()
+    sede = request.args.get("sede", "").lower()
 
-    q_limpio = normalizar(q)
+    if len(q) < 3:
+        return render_template_string(HTML, resultados=[])
 
-    if len(q_limpio) < 3:
-        return jsonify([])
+    query = supabase.table("directorio_escuelas").select(
+        "nombre, escuela, cargo, campus, correo_director, secretaria, correo_secretaria, sede, consultar_antes_de_entregar_contactos"
+    ).or_(
+        f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%"
+    )
 
-    data = supabase.table("directorio_umayor").select("*").execute().data
+    if sede:
+        query = query.ilike("sede", f"%{sede}%")
 
-    resultados = []
+    data = query.execute().data
 
-    for d in data:
-        texto = normalizar(f"{d.get('escuela','')}")
-
-        if q_limpio in texto:
-            if sede:
-                if normalizar(d.get("sede","")) != normalizar(sede):
-                    continue
-
-            campus_raw = normalizar(d.get("campus",""))
-            link = campus_links.get(campus_raw, "")
-            d["campus_link"] = f'<a href="{link}" target="_blank">{d.get("campus","")}</a>' if link else d.get("campus","")
-
-            resultados.append(d)
-
-    return jsonify(resultados)
+    return render_template_string(HTML, resultados=data)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
