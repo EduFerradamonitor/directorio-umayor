@@ -3,24 +3,41 @@ from supabase import create_client
 
 app = Flask(__name__)
 
-# 🔑 Credenciales Supabase
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🏠 Página principal
+def normalizar(texto):
+    if not texto:
+        return ""
+    texto = texto.lower()
+    texto = texto.replace(" ", "")
+    texto = texto.replace("á","a").replace("é","e").replace("í","i").replace("ó","o").replace("ú","u").replace("ñ","n")
+    texto = texto.replace(".","").replace("'","")
+    return texto
+
+campus_links = {
+    "huechuraba": "https://www.umayor.cl/um/santiago-campus-huechuraba",
+    "santodomingo": "https://www.umayor.cl/um/santiago-campus-santo-domingo",
+    "elclaustro": "https://www.umayor.cl/um/santiago-campus-el-claustro",
+    "alameda": "https://www.umayor.cl/um/santiago-campus-alameda",
+    "estadiomayor": "https://www.umayor.cl/um/santiago-campus-estadio-mayor",
+    "conservatorio": "https://www.umayor.cl/um/santiago-campus-conservatorio",
+    "alemania": "https://www.umayor.cl/um/santiago-campus-alemania-temuco"
+}
+
 @app.route("/")
 def home():
     return """
-    <h1>Directorio UMAYOR</h1>
+    <h1>Directorio Escuelas UMAYOR</h1>
 
-    <input id="busqueda" placeholder="Escribe medicina, vet, tem..." style="width:300px;">
+    <input id="busqueda" placeholder="Ej: administracion publica, medicina, derecho">
 
     <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="Santiago">Santiago</option>
-        <option value="Temuco">Temuco</option>
+        <option value="">Todas</option>
+        <option value="santiago">Santiago</option>
+        <option value="temuco">Temuco</option>
     </select>
 
     <button onclick="buscar()">Buscar</button>
@@ -30,13 +47,12 @@ def home():
     <table border="1" cellpadding="6">
         <thead>
             <tr>
-                <th>Nombre</th>
-                <th>Escuela</th>
-                <th>Cargo</th>
-                <th>Campus</th>
+                <th>Director</th>
                 <th>Correo Director</th>
                 <th>Secretaria</th>
                 <th>Correo Secretaria</th>
+                <th>Anexo</th>
+                <th>Campus</th>
                 <th>Sede</th>
                 <th>Restricción</th>
             </tr>
@@ -59,12 +75,11 @@ def home():
                 const fila = `
                 <tr>
                     <td>${d.nombre || ""}</td>
-                    <td>${d.escuela || ""}</td>
-                    <td>${d.cargo || ""}</td>
-                    <td>${d.campus || ""}</td>
                     <td>${d["correo director"] || ""}</td>
                     <td>${d.secretaria || ""}</td>
                     <td>${d["correo secretaria"] || ""}</td>
+                    <td>${d["anexo secretaria"] || ""}</td>
+                    <td>${d.campus_link || ""}</td>
                     <td>${d.sede || ""}</td>
                     <td>${d["consultar antes de entregar contactos"] || ""}</td>
                 </tr>
@@ -76,30 +91,37 @@ def home():
     </script>
     """
 
-# 🔍 Buscador con filtro por sede
 @app.route("/buscar")
 def buscar():
-    q = request.args.get("q", "").lower()
+    q = request.args.get("q", "")
     sede = request.args.get("sede", "")
 
-    if len(q) < 3:
+    q_limpio = normalizar(q)
+
+    if len(q_limpio) < 3:
         return jsonify([])
 
-    query = supabase.table("directorio_umayor") \
-        .select("*") \
-        .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,cargo.ilike.%{q}%")
+    data = supabase.table("directorio_umayor").select("*").execute().data
 
-    if sede:
-        query = query.eq("sede", sede)
+    resultados = []
 
-    data = query.execute()
+    for d in data:
+        texto = normalizar(f"{d.get('escuela','')}")
 
-    return jsonify(data.data)
+        if q_limpio in texto:
+            if sede:
+                if normalizar(d.get("sede","")) != normalizar(sede):
+                    continue
 
-# ▶️ Ejecutar
+            campus_raw = normalizar(d.get("campus",""))
+            link = campus_links.get(campus_raw, "")
+            d["campus_link"] = f'<a href="{link}" target="_blank">{d.get("campus","")}</a>' if link else d.get("campus","")
+
+            resultados.append(d)
+
+    return jsonify(resultados)
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
 
