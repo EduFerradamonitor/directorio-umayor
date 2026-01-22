@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from supabase import create_client
 import unicodedata
+import re
 
 app = Flask(__name__)
 
@@ -9,52 +10,34 @@ SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# 🔤 Normalizar texto (quitar acentos, espacios, mayúsculas)
+# 🧼 Limpieza de texto
 def limpiar(texto):
     if not texto:
         return ""
     texto = texto.lower()
     texto = unicodedata.normalize("NFD", texto)
-    texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
-    texto = texto.replace(" ", "")
+    texto = re.sub(r"[\u0300-\u036f]", "", texto)
+    texto = re.sub(r"[^a-z0-9]", "", texto)
     return texto
 
-# 🏠 Página principal
+# 🏠 Interfaz principal
 @app.route("/")
 def home():
-    return """
+    return render_template_string("""
     <html>
     <head>
         <style>
-            body {
-                font-family: Calibri, Arial, sans-serif;
-                padding: 20px;
-            }
-            input, select, button {
-                font-size: 16px;
-                padding: 5px;
-                margin-right: 5px;
-            }
-            table {
-                border-collapse: collapse;
-                margin-top: 20px;
-                width: 100%;
-            }
-            th, td {
-                border: 1px solid #ccc;
-                padding: 8px;
-                text-align: left;
-            }
-            th {
-                background-color: #f2f2f2;
-            }
+            body { font-family: Calibri, Arial, sans-serif; margin: 40px; }
+            input, select, button { padding: 8px; font-size: 16px; }
+            table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+            th, td { border: 1px solid #ccc; padding: 8px; }
+            th { background: #f2f2f2; }
         </style>
     </head>
     <body>
-
         <h1>Directorio UMAYOR</h1>
 
-        <input id="busqueda" placeholder="Ej: medicina, vet, admi">
+        <input id="busqueda" placeholder="Ej: medicina, inge, vet..." style="width:300px;">
         
         <select id="sede">
             <option value="">Todas</option>
@@ -63,9 +46,9 @@ def home():
         </select>
 
         <button onclick="buscar()">Buscar</button>
-        <button onclick="limpiar()">Borrar</button>
+        <button onclick="borrar()">Borrar</button>
 
-        <div id="tabla"></div>
+        <div id="resultado"></div>
 
         <script>
         function buscar() {
@@ -73,49 +56,49 @@ def home():
             const sede = document.getElementById("sede").value;
 
             fetch(`/buscar?q=${q}&sede=${sede}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.length === 0) {
-                        document.getElementById("tabla").innerHTML = "<p>No se encontraron resultados.</p>";
-                        return;
-                    }
+            .then(r => r.json())
+            .then(data => {
+                if (data.length === 0) {
+                    document.getElementById("resultado").innerHTML = 
+                        "<p>No se encontraron resultados.</p>";
+                    return;
+                }
 
-                    let html = "<table><tr>";
-                    html += "<th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th>";
-                    html += "<th>Correo Director</th><th>Secretaria</th>";
-                    html += "<th>Correo Secretaria</th><th>Sede</th><th>Restricción</th></tr>";
+                let html = "<table><tr>";
+                const columnas = [
+                    "nombre","escuela","cargo","Campus",
+                    "correo director","secretaria",
+                    "correo secretaria","sede",
+                    "consultar antes de entregar contactos"
+                ];
 
-                    data.forEach(r => {
-                        html += `<tr>
-                            <td>${r.nombre || ""}</td>
-                            <td>${r.escuela || ""}</td>
-                            <td>${r.cargo || ""}</td>
-                            <td>${r.Campus || ""}</td>
-                            <td>${r["correo director"] || ""}</td>
-                            <td>${r.secretaria || ""}</td>
-                            <td>${r["correo secretaria"] || ""}</td>
-                            <td>${r.sede || ""}</td>
-                            <td>${r["consultar antes de entregar contactos"] || ""}</td>
-                        </tr>`;
+                columnas.forEach(c => html += `<th>${c}</th>`);
+                html += "</tr>";
+
+                data.forEach(r => {
+                    html += "<tr>";
+                    columnas.forEach(c => {
+                        html += `<td>${r[c] || ""}</td>`;
                     });
-
-                    html += "</table>";
-                    document.getElementById("tabla").innerHTML = html;
+                    html += "</tr>";
                 });
+
+                html += "</table>";
+                document.getElementById("resultado").innerHTML = html;
+            });
         }
 
-        function limpiar() {
+        function borrar() {
             document.getElementById("busqueda").value = "";
             document.getElementById("sede").value = "";
-            document.getElementById("tabla").innerHTML = "";
+            document.getElementById("resultado").innerHTML = "";
         }
         </script>
-
     </body>
     </html>
-    """
+    """)
 
-# 🔍 Buscador
+# 🔍 Buscador inteligente
 @app.route("/buscar")
 def buscar():
     q = limpiar(request.args.get("q", ""))
@@ -130,17 +113,20 @@ def buscar():
         query = query.eq("sede", sede)
 
     data = query.execute().data
-
     resultados = []
 
     for r in data:
         texto = limpiar(
             (r.get("nombre","") +
              r.get("escuela","") +
-             r.get("cargo",""))
+             r.get("cargo","") +
+             r.get("Campus",""))
         )
 
-        if q in texto:
+        # Búsqueda por fragmentos
+        fragmentos = [q[i:i+3] for i in range(len(q)-2)]
+
+        if any(f in texto for f in fragmentos):
             resultados.append(r)
 
     return jsonify(resultados)
@@ -148,5 +134,6 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
