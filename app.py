@@ -125,7 +125,7 @@ def buscar():
 
     query = supabase.table("directorio_escuelas") \
         .select("nombre, escuela, cargo, campus, correo_director, secretaria, correo_secretaria, sede, consultar_antes_de_entregar_contactos") \
-        .or_(f"nombre.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
+    .or_(f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
 
     if sede:
         query = query.eq("sede", sede)
@@ -136,6 +136,7 @@ def buscar():
 # ▶️ Ejecutar
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
