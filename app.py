@@ -4,7 +4,7 @@ from supabase import create_client
 app = Flask(__name__)
 
 # =========================
-# SUPABASE
+# CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -30,10 +30,10 @@ body {{
 }}
 
 .card {{
-    max-width: 1100px;
-    margin: 30px auto;
+    max-width: 1200px;
+    margin: 40px auto;
     background: white;
-    padding: 28px;
+    padding: 30px;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }}
@@ -42,27 +42,21 @@ body {{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 25px;
 }}
 
 .logo-um {{
-    height: 110px;
-}}
-
-.filters {{
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 12px;
-    margin-top: 20px;
+    height: 90px;
 }}
 
 input, select, button {{
-    padding: 11px;
-    font-size: 15px;
     width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
 }}
 
 button {{
-    margin-top: 10px;
     background: #005baa;
     color: white;
     border: none;
@@ -77,15 +71,12 @@ table {{
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    table-layout: fixed;
 }}
 
 th, td {{
     border: 1px solid #ddd;
-    padding: 8px;
-    font-size: 14px;
+    padding: 10px;
     vertical-align: top;
-    word-wrap: break-word;
 }}
 
 th {{
@@ -93,30 +84,29 @@ th {{
     color: white;
 }}
 
-.person {{
+.tooltip-link {{
     color: #005baa;
-    text-decoration: underline;
     cursor: pointer;
+    text-decoration: underline;
 }}
 
 .tooltip {{
     position: absolute;
-    display: none;
-    background: #fff;
+    background: white;
     border: 1px solid #ccc;
     padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.2);
-    font-size: 13px;
-    width: 260px;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border-radius: 6px;
     z-index: 9999;
+    max-width: 300px;
 }}
 
 .footer {{
-    text-align: center;
-    margin-top: 25px;
+    margin-top: 30px;
     font-size: 13px;
     color: #555;
+    text-align: center;
 }}
 </style>
 </head>
@@ -124,48 +114,73 @@ th {{
 <body>
 <div class="card">
 
-<div class="header">
-<h1>Directorio Escuelas UM</h1>
-<img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
+    <div class="header">
+        <h1>Directorio Escuelas UM</h1>
+        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
+    </div>
+
+    <input id="busqueda"
+           placeholder="¿Qué escuela busca? (ej: derecho, vet, psicología)"
+           onkeydown="if(event.key==='Enter') buscar();">
+
+    <select id="sede">
+        <option value="">Todas las sedes</option>
+        <option value="santiago">Santiago</option>
+        <option value="temuco">Temuco</option>
+    </select>
+
+    <button onclick="buscar()">Buscar</button>
+    <button class="secondary" onclick="borrar()">Borrar</button>
+
+    <div id="resultados"></div>
+
+    <div class="footer">
+        Desarrollado por <strong>Eduardo Ferrada</strong><br>
+        Universidad Mayor · Enero 2026
+    </div>
 </div>
-
-<div class="filters">
-<input id="busqueda" placeholder="Buscar escuela, cargo o persona"
-       onkeydown="if(event.key==='Enter') buscar();">
-<select id="sede">
-<option value="">Todas las sedes</option>
-<option value="santiago">Santiago</option>
-<option value="temuco">Temuco</option>
-</select>
-</div>
-
-<button onclick="buscar()">Buscar</button>
-<button class="secondary" onclick="borrar()">Borrar</button>
-
-<div id="resultados"></div>
-
-<div class="footer">
-Desarrollado por <strong>Eduardo Ferrada</strong><br>
-Universidad Mayor · Enero 2026
-</div>
-
-</div>
-
-<div id="tooltip" class="tooltip"></div>
 
 <script>
-const tooltip = document.getElementById("tooltip");
+let tooltip;
 
-function showTooltip(event, html) {{
-    tooltip.innerHTML = html;
-    tooltip.style.display = "block";
-    tooltip.style.top = (event.pageY + 10) + "px";
-    tooltip.style.left = (event.pageX + 10) + "px";
+function cerrarTooltip() {{
+    if (tooltip) {{
+        tooltip.remove();
+        tooltip = null;
+    }}
 }}
 
-document.addEventListener("click", () => {{
-    tooltip.style.display = "none";
-}});
+document.addEventListener("click", cerrarTooltip);
+
+function mostrarTooltip(e, data) {{
+    e.stopPropagation();
+    cerrarTooltip();
+
+    tooltip = document.createElement("div");
+    tooltip.className = "tooltip";
+
+    let html = "";
+
+    if (data.correo) {{
+        html += `<strong>Correo:</strong><br>
+                 <a href="mailto:${{data.correo}}">${{data.correo}}</a><br><br>`;
+    }}
+
+    if (data.anexo) {{
+        html += `<strong>Anexo:</strong> ${{data.anexo}}<br><br>`;
+    }}
+
+    if (data.restriccion) {{
+        html += `<strong>Restricción:</strong><br>${{data.restriccion}}`;
+    }}
+
+    tooltip.innerHTML = html;
+
+    document.body.appendChild(tooltip);
+
+    tooltip.style.left = e.pageX + "px";
+    tooltip.style.top = e.pageY + "px";
+}}
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
@@ -175,7 +190,8 @@ function buscar() {{
     .then(r => r.json())
     .then(data => {{
         if (!data.length) {{
-            document.getElementById("resultados").innerHTML = "<p>No hay resultados.</p>";
+            document.getElementById("resultados").innerHTML =
+                "<p>No se encontraron resultados.</p>";
             return;
         }}
 
@@ -190,38 +206,39 @@ function buscar() {{
         </tr>`;
 
         data.forEach(r => {{
-            const directorTip =
-                `<strong>Correo:</strong> <a href="mailto:${{r.correo_director || ""}}">${{r.correo_director || "Sin info"}}</a><br>
-                 <strong>Anexo:</strong> ${{r.anexo_director || "Sin info"}}<br>
-                 <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin restricción"}}`;
-
-            const secTip =
-                `<strong>Correo:</strong> <a href="mailto:${{r.correo_secretaria || ""}}">${{r.correo_secretaria || "Sin info"}}</a><br>
-                 <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin info"}}`;
-
             html += `<tr>
-            <td>
-              <span class="person"
-               onclick="event.stopPropagation();showTooltip(event, '${{directorTip}}')">
-               ${{r.nombre || ""}}
-              </span>
-            </td>
-            <td>${{r.escuela || ""}}</td>
-            <td>${{r.cargo || ""}}</td>
-            <td>${{r.campus || ""}}</td>
-            <td>
-              <span class="person"
-               onclick="event.stopPropagation();showTooltip(event, '${{secTip}}')">
-               ${{r.secretaria || "Sin info"}}
-              </span>
-            </td>
-            <td>${{r.sede || ""}}</td>
+                <td>
+                    <span class="tooltip-link"
+                          onclick='mostrarTooltip(event, {{
+                              correo: "${{r.correo_director || ""}}",
+                              anexo: "${{r.anexo_director || ""}}",
+                              restriccion: "${{r.consultar_antes_de_entregar_contactos || ""}}"
+                          }})'>
+                        ${{r.nombre || ""}}
+                    </span>
+                </td>
+
+                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
+                <td>${{r.cargo || ""}}</td>
+                <td>${{r.campus || ""}}</td>
+
+                <td>
+                    <span class="tooltip-link"
+                          onclick='mostrarTooltip(event, {{
+                              correo: "${{r.correo_secretaria || ""}}",
+                              anexo: "${{r.anexo_secretaria || ""}}"
+                          }})'>
+                        ${{r.secretaria || "No informado"}}
+                    </span>
+                </td>
+
+                <td>${{r.sede || ""}}</td>
             </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    }});
+    });
 }}
 
 function borrar() {{
@@ -236,28 +253,40 @@ function borrar() {{
 """
 
 # =========================
-# API
+# API BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar_api():
-    q = request.args.get("q","").lower()
-    sede = request.args.get("sede","").lower()
+    q = request.args.get("q", "").lower()
+    sede = request.args.get("sede", "").lower()
 
     if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas_umayor").select("*").or_(
-        f"escuela.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%"
+    query = (
+        supabase
+        .table("directorio_escuelas_umayor")
+        .select("*")
+        .or_(
+            f"escuela_busqueda.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
     )
 
     if sede:
-        query = query.ilike("sede", f"%{sede}%")
+        query = query.ilike("sede", sede)
 
-    res = query.execute()
-    return jsonify(res.data or [])
+    result = query.execute()
+    return jsonify(result.data or [])
 
+# =========================
+# RUN
+# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
