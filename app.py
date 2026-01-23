@@ -4,7 +4,7 @@ from supabase import create_client
 app = Flask(__name__)
 
 # =========================
-# SUPABASE
+# CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -12,7 +12,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# HOME
+# PÁGINA PRINCIPAL
 # =========================
 @app.route("/")
 def home():
@@ -30,11 +30,11 @@ body {{
 }}
 
 .card {{
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 40px auto;
     background: white;
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 14px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }}
 
@@ -47,6 +47,7 @@ body {{
 
 .logo-um {{
     height: 90px;
+    object-fit: contain;
 }}
 
 input, select, button {{
@@ -67,17 +68,22 @@ button.secondary {{
     background: #999;
 }}
 
+.table-wrapper {{
+    overflow-x: auto;
+    margin-top: 25px;
+}}
+
 table {{
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
     table-layout: fixed;
 }}
 
 th, td {{
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 10px;
     vertical-align: top;
+    word-wrap: break-word;
 }}
 
 th {{
@@ -85,49 +91,34 @@ th {{
     color: white;
 }}
 
-th:nth-child(1) {{ width: 15%; }}
-th:nth-child(2) {{ width: 20%; }}
-th:nth-child(3) {{ width: 18%; }}
-th:nth-child(4) {{ width: 17%; }}
-th:nth-child(5) {{ width: 15%; }}
-th:nth-child(6) {{ width: 15%; }}
+.col-director {{ width: 18%; }}
+.col-escuela {{ width: 20%; }}
+.col-cargo {{ width: 16%; }}
+.col-campus {{ width: 14%; }}
+.col-secretaria {{ width: 18%; }}
+.col-sede {{ width: 8%; }}
 
-a.mail {{
+.nombre-click {{
     color: #005baa;
+    cursor: pointer;
     text-decoration: underline;
-    display: inline-block;
-    max-width: 100%;
-    word-break: break-all;
 }}
 
 .tooltip {{
-    position: relative;
-    display: inline-block;
-}}
-
-.tooltip-box {{
-    visibility: hidden;
-    width: 280px;
-    background-color: #333;
-    color: #fff;
-    text-align: left;
-    border-radius: 6px;
-    padding: 10px;
+    display: none;
     position: absolute;
-    z-index: 999;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 13px;
-    line-height: 1.4;
-}}
-
-.tooltip:hover .tooltip-box {{
-    visibility: visible;
+    background: #ffffff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 14px;
+    max-width: 260px;
+    z-index: 1000;
 }}
 
 .footer {{
-    margin-top: 30px;
+    margin-top: 35px;
     font-size: 13px;
     color: #555;
     text-align: center;
@@ -138,43 +129,49 @@ a.mail {{
 <body>
 <div class="card">
 
-    <div class="header">
-        <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
-    </div>
+<div class="header">
+    <h1>Directorio Escuelas UM</h1>
+    <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
+</div>
 
-    <input id="busqueda"
-           placeholder="Buscar escuela, cargo o nombre"
-           onkeydown="if(event.key==='Enter') buscar();">
+<input id="busqueda"
+       placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
+       onkeydown="if(event.key==='Enter') buscar();">
 
-    <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
-    </select>
+<select id="sede">
+    <option value="">Todas las sedes</option>
+    <option value="santiago">Santiago</option>
+    <option value="temuco">Temuco</option>
+</select>
 
-    <button onclick="buscar()">Buscar</button>
-    <button class="secondary" onclick="borrar()">Borrar</button>
+<button onclick="buscar()">Buscar</button>
+<button class="secondary" onclick="borrar()">Borrar</button>
 
-    <div id="resultados"></div>
+<div id="resultados"></div>
 
-    <div class="footer">
-        Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026
-    </div>
+<div class="footer">
+    Desarrollado por <strong>Eduardo Ferrada</strong><br>
+    Universidad Mayor · Enero 2026
+</div>
 
 </div>
 
+<div id="tooltip" class="tooltip"></div>
+
 <script>
-function mailto(correo) {{
-    if (!correo || correo === "no informado") return "No informado";
-    return `<a class="mail" href="mailto:${{correo}}">${{correo}}</a>`;
+function mostrarTooltip(event, contenido) {{
+    const tooltip = document.getElementById("tooltip");
+    tooltip.innerHTML = contenido;
+    tooltip.style.display = "block";
+    tooltip.style.left = event.pageX + "px";
+    tooltip.style.top = event.pageY + "px";
 }}
 
-function textoRestriccion(texto) {{
-    if (!texto) return "Sin información";
-    return texto;
-}}
+document.addEventListener("click", function(e) {{
+    if (!e.target.classList.contains("nombre-click")) {{
+        document.getElementById("tooltip").style.display = "none";
+    }}
+}});
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
@@ -183,58 +180,59 @@ function buscar() {{
     fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
     .then(data => {{
-        if (!data || data.length === 0) {{
+        if (!data.length) {{
             document.getElementById("resultados").innerHTML =
                 "<p>No se encontraron resultados.</p>";
             return;
         }}
 
-        let html = `<table>
+        let html = `<div class="table-wrapper"><table>
         <tr>
-            <th>Nombre</th>
-            <th>Escuela</th>
-            <th>Cargo</th>
-            <th>Campus</th>
-            <th>Director</th>
-            <th>Secretaría</th>
+            <th class="col-director">Director</th>
+            <th class="col-escuela">Escuela</th>
+            <th class="col-cargo">Cargo</th>
+            <th class="col-campus">Campus</th>
+            <th class="col-secretaria">Secretaría</th>
+            <th class="col-sede">Sede</th>
         </tr>`;
 
         data.forEach(r => {{
+            const tooltipDirector = `
+                <strong>Correo:</strong>
+                <a href="mailto:${{r.correo_director || ""}}">${{r.correo_director || "Sin información"}}</a><br>
+                <strong>Anexo:</strong> ${{r.anexo_director || "Sin información"}}<br>
+                <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin información"}}
+            `;
+
+            const tooltipSecretaria = `
+                <strong>Correo:</strong>
+                <a href="mailto:${{r.correo_secretaria || ""}}">${{r.correo_secretaria || "Sin información"}}</a><br>
+                <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+            `;
+
             html += `<tr>
-                <td>${{r.nombre || ""}}</td>
+                <td class="col-director">
+                    <span class="nombre-click"
+                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{tooltipDirector}}\`)">
+                        ${{r.nombre || ""}}
+                    </span>
+                </td>
                 <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
                 <td>${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
-
-                <td>
-                    <span class="tooltip">
-                        ${{mailto(r.correo_director)}}
-                        <span class="tooltip-box">
-                            <strong>Anexo director:</strong><br>
-                            ${{r.anexo_director || "Sin información"}}<br><br>
-                            <strong>Restricción:</strong><br>
-                            ${{textoRestriccion(r.consultar_antes_de_entregar_contactos)}}
-                        </span>
+                <td class="col-secretaria">
+                    <span class="nombre-click"
+                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{tooltipSecretaria}}\`)">
+                        ${{r.secretaria || "Sin información"}}
                     </span>
                 </td>
-
-                <td>
-                    <span class="tooltip">
-                        ${{mailto(r.correo_secretaria)}}
-                        <span class="tooltip-box">
-                            <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
-                            <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}<br><br>
-                            <strong>Restricción:</strong><br>
-                            ${{textoRestriccion(r.consultar_antes_de_entregar_contactos)}}
-                        </span>
-                    </span>
-                </td>
+                <td>${{r.sede || ""}}</td>
             </tr>`;
         }});
 
-        html += "</table>";
+        html += "</table></div>";
         document.getElementById("resultados").innerHTML = html;
-    }});
+    });
 }}
 
 function borrar() {{
@@ -249,7 +247,7 @@ function borrar() {{
 """
 
 # =========================
-# API
+# API BUSQUEDA
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -277,9 +275,10 @@ def buscar_api():
     result = query.execute()
     return jsonify(result.data if result.data else [])
 
+# =========================
+# RUN
+# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
 
