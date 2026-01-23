@@ -51,7 +51,8 @@ body {{
 }}
 
 .info-msg {{
-    font-size: 13px;
+    font-size: 14px;        /* +1 punto */
+    font-weight: 600;       /* negrita suave */
     color: #555;
     background: #f5f7fa;
     border-left: 4px solid #005baa;
@@ -226,6 +227,7 @@ def buscar_api():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
