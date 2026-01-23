@@ -30,31 +30,37 @@ body {{
 }}
 
 .card {{
-    max-width: 1200px;
-    margin: 40px auto;
+    max-width: 1100px;
+    margin: 30px auto;
     background: white;
-    padding: 30px;
-    border-radius: 14px;
+    padding: 28px;
+    border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }}
 
 .header {{
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    justify-content: space-between;
+    margin-bottom: 20px;
 }}
 
 .logo-um {{
-    height: 90px;
+    height: 110px;
     object-fit: contain;
 }}
 
 input, select, button {{
     width: 100%;
-    padding: 12px;
-    margin: 10px 0;
-    font-size: 16px;
+    padding: 11px;
+    margin: 8px 0;
+    font-size: 15px;
+}}
+
+.filters {{
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 12px;
 }}
 
 button {{
@@ -68,21 +74,18 @@ button.secondary {{
     background: #999;
 }}
 
-.table-wrapper {{
-    overflow-x: auto;
-    margin-top: 25px;
-}}
-
 table {{
     width: 100%;
     border-collapse: collapse;
+    margin-top: 18px;
     table-layout: fixed;
 }}
 
 th, td {{
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 8px;
     vertical-align: top;
+    font-size: 14px;
     word-wrap: break-word;
 }}
 
@@ -91,16 +94,24 @@ th {{
     color: white;
 }}
 
-.col-director {{ width: 18%; }}
-.col-escuela {{ width: 20%; }}
-.col-cargo {{ width: 16%; }}
-.col-campus {{ width: 14%; }}
-.col-secretaria {{ width: 18%; }}
-.col-sede {{ width: 8%; }}
+th:nth-child(1),
+th:nth-child(5) {{
+    width: 18%;
+}}
 
-.nombre-click {{
-    color: #005baa;
+th:nth-child(2) {{
+    width: 22%;
+}}
+
+th:nth-child(3),
+th:nth-child(4),
+th:nth-child(6) {{
+    width: 10%;
+}}
+
+.person {{
     cursor: pointer;
+    color: #005baa;
     text-decoration: underline;
 }}
 
@@ -110,15 +121,20 @@ th {{
     background: #ffffff;
     border: 1px solid #ccc;
     padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    font-size: 14px;
-    max-width: 260px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 1000;
+    width: 260px;
+    font-size: 13px;
+}}
+
+.tooltip strong {{
+    display: block;
+    margin-bottom: 4px;
 }}
 
 .footer {{
-    margin-top: 35px;
+    margin-top: 26px;
     font-size: 13px;
     color: #555;
     text-align: center;
@@ -129,49 +145,52 @@ th {{
 <body>
 <div class="card">
 
-<div class="header">
-    <h1>Directorio Escuelas UM</h1>
-    <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
-</div>
+    <div class="header">
+        <h1>Directorio Escuelas UM</h1>
+        <img src="{url_for('static', filename='img/logoum.jpg')}"
+             class="logo-um"
+             alt="Universidad Mayor">
+    </div>
 
-<input id="busqueda"
-       placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
-       onkeydown="if(event.key==='Enter') buscar();">
+    <div class="filters">
+        <input id="busqueda"
+               placeholder="Buscar escuela, director o cargo"
+               onkeydown="if(event.key === 'Enter') buscar();">
 
-<select id="sede">
-    <option value="">Todas las sedes</option>
-    <option value="santiago">Santiago</option>
-    <option value="temuco">Temuco</option>
-</select>
+        <select id="sede">
+            <option value="">Todas las sedes</option>
+            <option value="santiago">Santiago</option>
+            <option value="temuco">Temuco</option>
+        </select>
+    </div>
 
-<button onclick="buscar()">Buscar</button>
-<button class="secondary" onclick="borrar()">Borrar</button>
+    <button onclick="buscar()">Buscar</button>
+    <button class="secondary" onclick="borrar()">Borrar</button>
 
-<div id="resultados"></div>
+    <div id="resultados"></div>
 
-<div class="footer">
-    Desarrollado por <strong>Eduardo Ferrada</strong><br>
-    Universidad Mayor · Enero 2026
-</div>
+    <div class="footer">
+        Desarrollado por <strong>Eduardo Ferrada</strong><br>
+        Universidad Mayor · Enero 2026
+    </div>
 
 </div>
 
 <div id="tooltip" class="tooltip"></div>
 
 <script>
-function mostrarTooltip(event, contenido) {{
-    const tooltip = document.getElementById("tooltip");
-    tooltip.innerHTML = contenido;
+const tooltip = document.getElementById("tooltip");
+
+function mostrarTooltip(event, html) {{
+    tooltip.innerHTML = html;
     tooltip.style.display = "block";
-    tooltip.style.left = event.pageX + "px";
-    tooltip.style.top = event.pageY + "px";
+    tooltip.style.top = (event.pageY + 10) + "px";
+    tooltip.style.left = (event.pageX + 10) + "px";
 }}
 
-document.addEventListener("click", function(e) {{
-    if (!e.target.classList.contains("nombre-click")) {{
-        document.getElementById("tooltip").style.display = "none";
-    }}
-}});
+function ocultarTooltip() {{
+    tooltip.style.display = "none";
+}}
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
@@ -180,49 +199,49 @@ function buscar() {{
     fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
     .then(data => {{
-        if (!data.length) {{
+        if (!data || data.length === 0) {{
             document.getElementById("resultados").innerHTML =
                 "<p>No se encontraron resultados.</p>";
             return;
         }}
 
-        let html = `<div class="table-wrapper"><table>
+        let html = `<table>
         <tr>
-            <th class="col-director">Director</th>
-            <th class="col-escuela">Escuela</th>
-            <th class="col-cargo">Cargo</th>
-            <th class="col-campus">Campus</th>
-            <th class="col-secretaria">Secretaría</th>
-            <th class="col-sede">Sede</th>
+            <th>Director</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Secretaría</th>
+            <th>Sede</th>
         </tr>`;
 
         data.forEach(r => {{
-            const tooltipDirector = `
+            const directorTooltip = `
                 <strong>Correo:</strong>
                 <a href="mailto:${{r.correo_director || ""}}">${{r.correo_director || "Sin información"}}</a><br>
                 <strong>Anexo:</strong> ${{r.anexo_director || "Sin información"}}<br>
-                <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin información"}}
+                <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin restricción"}}
             `;
 
-            const tooltipSecretaria = `
+            const secretariaTooltip = `
                 <strong>Correo:</strong>
                 <a href="mailto:${{r.correo_secretaria || ""}}">${{r.correo_secretaria || "Sin información"}}</a><br>
                 <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
             `;
 
             html += `<tr>
-                <td class="col-director">
-                    <span class="nombre-click"
-                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{tooltipDirector}}\`)">
-                        ${{r.nombre || ""}}
+                <td>
+                    <span class="person"
+                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{directorTooltip}}\`);">
+                        ${{r.nombre || "Sin información"}}
                     </span>
                 </td>
                 <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
                 <td>${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
-                <td class="col-secretaria">
-                    <span class="nombre-click"
-                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{tooltipSecretaria}}\`)">
+                <td>
+                    <span class="person"
+                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{secretariaTooltip}}\`);">
                         ${{r.secretaria || "Sin información"}}
                     </span>
                 </td>
@@ -230,9 +249,14 @@ function buscar() {{
             </tr>`;
         }});
 
-        html += "</table></div>";
+        html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    });
+    }})
+    .catch(err => {{
+        document.getElementById("resultados").innerHTML =
+            "<p>Error al consultar los datos.</p>";
+        console.error(err);
+    }});
 }}
 
 function borrar() {{
@@ -240,6 +264,8 @@ function borrar() {{
     document.getElementById("sede").value = "";
     document.getElementById("resultados").innerHTML = "";
 }}
+
+document.addEventListener("click", ocultarTooltip);
 </script>
 
 </body>
@@ -247,7 +273,7 @@ function borrar() {{
 """
 
 # =========================
-# API BUSQUEDA
+# API BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -270,15 +296,16 @@ def buscar_api():
     )
 
     if sede:
-        query = query.ilike("sede", sede)
+        query = query.ilike("sede", f"%{sede}%")
 
     result = query.execute()
     return jsonify(result.data if result.data else [])
 
 # =========================
-# RUN
+# EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
