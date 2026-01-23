@@ -30,7 +30,7 @@ body {{
 }}
 
 .card {{
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 40px auto;
     background: white;
     padding: 30px;
@@ -86,6 +86,35 @@ th {{
     color: white;
 }}
 
+.restr-ok {{ color: green; font-weight: bold; }}
+.restr-warn {{ color: orange; font-weight: bold; }}
+.restr-lock {{ color: #b00020; font-weight: bold; }}
+
+.tooltip {{
+    position: relative;
+    cursor: help;
+}}
+
+.tooltip .tooltip-text {{
+    visibility: hidden;
+    width: 260px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 8px;
+    position: absolute;
+    z-index: 10;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+}}
+
+.tooltip:hover .tooltip-text {{
+    visibility: visible;
+}}
+
 .footer {{
     margin-top: 30px;
     font-size: 13px;
@@ -126,6 +155,23 @@ th {{
 </div>
 
 <script>
+function iconoRestriccion(texto) {{
+    if (!texto) return "";
+
+    texto = texto.toLowerCase();
+
+    if (texto.includes("solo correo")) {{
+        return '<span class="restr-ok">🟢 Solo correo secretaría</span>';
+    }}
+    if (texto.includes("validacion")) {{
+        return '<span class="restr-warn">⚠️ Validación previa</span>';
+    }}
+    if (texto.includes("autorizacion")) {{
+        return '<span class="restr-lock">🔒 Autorización expresa</span>';
+    }}
+    return '<span class="restr-warn">🟠 Información sensible</span>';
+}}
+
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
@@ -145,9 +191,8 @@ function buscar() {{
             <th>Escuela</th>
             <th>Cargo</th>
             <th>Campus</th>
-            <th>Correo Director</th>
+            <th>Director</th>
             <th>Secretaría</th>
-            <th>Correo Secretaría</th>
             <th>Sede</th>
             <th>Restricción</th>
         </tr>`;
@@ -158,11 +203,25 @@ function buscar() {{
                 <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
                 <td>${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
-                <td>${{r.correo_director || ""}}</td>
-                <td>${{r.secretaria || ""}}</td>
-                <td>${{r.correo_secretaria || ""}}</td>
+
+                <td class="tooltip">
+                    ${{r.correo_director || "Sin información"}}
+                    <span class="tooltip-text">
+                        <strong>Anexo director:</strong><br>
+                        ${{r.anexo_director || "Sin información"}}
+                    </span>
+                </td>
+
+                <td class="tooltip">
+                    ${{r.correo_secretaria || "Sin información"}}
+                    <span class="tooltip-text">
+                        <strong>Secretaria:</strong> ${{r.secretaria || "Sin información"}}<br>
+                        <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+                    </span>
+                </td>
+
                 <td>${{r.sede || ""}}</td>
-                <td>${{r.consultar_antes_de_entregar_contactos || ""}}</td>
+                <td>${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}</td>
             </tr>`;
         }});
 
@@ -213,8 +272,6 @@ def buscar_api():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
 
 
