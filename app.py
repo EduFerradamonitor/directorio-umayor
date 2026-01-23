@@ -7,7 +7,8 @@ app = Flask(__name__)
 # CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
+SUPABASE_KEY = "TU_PUBLIC_KEY_AQUI"  # deja la tuya real
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
@@ -15,6 +16,8 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # =========================
 @app.route("/")
 def home():
+    logo_url = url_for("static", filename="img/logoum.jpg")
+
     return f"""
 <!DOCTYPE html>
 <html lang="es">
@@ -34,18 +37,18 @@ body {{
     background: white;
     padding: 30px;
     border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    box-shadow: 0 0 22px rgba(0,0,0,0.12);
 }}
 
 .header {{
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 25px;
 }}
 
 .logo-um {{
-    height: 120px;
+    height: 100px;
     object-fit: contain;
 }}
 
@@ -68,47 +71,51 @@ button.secondary {{
 }}
 
 .table-wrapper {{
+    margin-top: 25px;
     overflow-x: auto;
-    margin-top: 20px;
 }}
 
 table {{
     width: 100%;
-    min-width: 1100px;
     border-collapse: collapse;
+    min-width: 1100px;
 }}
 
 th, td {{
     border: 1px solid #ddd;
     padding: 8px;
-    text-align: left;
     vertical-align: top;
-    white-space: nowrap;
 }}
 
 th {{
     background: #005baa;
     color: white;
+    text-align: left;
 }}
 
-td.wrap {{
-    white-space: normal;
-    max-width: 260px;
+th.sede, td.sede {{
+    width: 90px;
+    text-align: center;
+    white-space: nowrap;
 }}
 
-.restr-ok {{ color: green; font-weight: bold; }}
-.restr-warn {{ color: orange; font-weight: bold; }}
-.restr-lock {{ color: #c96f00; font-weight: bold; }}
+.copy {{
+    cursor: pointer;
+    color: #005baa;
+}}
+
+.copy:hover {{
+    text-decoration: underline;
+}}
 
 .tooltip {{
     position: relative;
-    display: inline-block;
-    cursor: pointer;
+    cursor: help;
 }}
 
 .tooltip .tooltiptext {{
     visibility: hidden;
-    width: 230px;
+    width: 220px;
     background-color: #333;
     color: #fff;
     text-align: left;
@@ -116,9 +123,8 @@ td.wrap {{
     border-radius: 6px;
     position: absolute;
     z-index: 10;
-    bottom: 125%;
-    left: 50%;
-    transform: translateX(-50%);
+    top: -5px;
+    left: 105%;
     font-size: 13px;
 }}
 
@@ -140,7 +146,7 @@ td.wrap {{
 
     <div class="header">
         <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um" alt="Universidad Mayor">
+        <img src="{logo_url}" class="logo-um" alt="Universidad Mayor">
     </div>
 
     <input id="busqueda"
@@ -166,32 +172,45 @@ td.wrap {{
 </div>
 
 <script>
-function restriccionHTML(texto) {{
-    if (!texto) return "";
-    texto = texto.toLowerCase();
-    if (texto.includes("solo correo")) return "<span class='restr-ok'>🟢 Solo correo secretaría</span>";
-    if (texto.includes("validacion")) return "<span class='restr-warn'>⚠️ Validación previa</span>";
-    if (texto.includes("autorizacion")) return "<span class='restr-lock'>🔒 Autorización expresa</span>";
-    return texto;
+function copiar(texto) {{
+    navigator.clipboard.writeText(texto);
+    alert("Copiado al portapapeles");
 }}
 
-function tooltipAnexos(r) {{
-    const ad = r.anexo_director || "Sin información";
-    const as = r.anexo_secretaria || "Sin información";
-    return `
-    <span class="tooltip">📞
-        <span class="tooltiptext">
-            <strong>Anexo director:</strong> ${'{'}ad{'}'}<br>
-            <strong>Anexo secretaría:</strong> ${'{'}as{'}'}
-        </span>
-    </span>`;
+function iconoRestriccion(texto) {{
+    if (!texto) return "🟠 Información sensible";
+
+    texto = texto.toLowerCase();
+
+    if (texto.includes("solo correo")) return "🟢 Solo correo secretaría";
+    if (texto.includes("validacion")) return "⚠️ Validación previa";
+    if (texto.includes("autorizacion")) return "🔒 Autorización expresa";
+
+    return "🟠 Información sensible";
+}}
+
+function respuestaSugerida(texto) {{
+    if (!texto) return "Estimado/a, para este contacto se recomienda validar antes de entregar información.";
+
+    texto = texto.toLowerCase();
+
+    if (texto.includes("solo correo"))
+        return "Estimado/a, para este caso solo corresponde entregar el correo de la secretaría.";
+
+    if (texto.includes("validacion"))
+        return "Estimado/a, este contacto requiere validación previa antes de entregar información.";
+
+    if (texto.includes("autorizacion"))
+        return "Estimado/a, este contacto requiere autorización expresa antes de entregar información.";
+
+    return "Estimado/a, este contacto tiene restricciones. Favor validar antes de entregar datos.";
 }}
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    fetch(`/buscar?q=${'{'}encodeURIComponent(q){'}'}&sede=${'{'}encodeURIComponent(sede){'}'}`)
+    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
     .then(data => {{
         if (!data || data.length === 0) {{
@@ -209,21 +228,44 @@ function buscar() {{
             <th>Correo Director</th>
             <th>Secretaría</th>
             <th>Correo Secretaría</th>
-            <th>Sede</th>
+            <th class="sede">Sede</th>
             <th>Restricción</th>
+            <th>Respuesta</th>
         </tr>`;
 
         data.forEach(r => {{
+            const anexoDir = r.anexo_director || "Sin información";
+            const anexoSec = r.anexo_secretaria || "Sin información";
+
             html += `<tr>
-                <td>${'{'}r.nombre || ""{'}'}</td>
-                <td class="wrap">${'{'}r.escuela_busqueda || r.escuela || ""{'}'}</td>
-                <td class="wrap">${'{'}r.cargo || ""{'}'}</td>
-                <td>${'{'}r.campus || ""{'}'}</td>
-                <td>${'{'}r.correo_director || ""{'}'} ${'{'}tooltipAnexos(r){'}'}</td>
-                <td>${'{'}r.secretaria || ""{'}'}</td>
-                <td>${'{'}r.correo_secretaria || ""{'}'}</td>
-                <td>${'{'}r.sede || ""{'}'}</td>
-                <td>${'{'}restriccionHTML(r.consultar_antes_de_entregar_contactos){'}'}</td>
+                <td>${{r.nombre || ""}}</td>
+                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
+                <td>${{r.cargo || ""}}</td>
+                <td>${{r.campus || ""}}</td>
+                <td>
+                    <span class="copy" onclick="copiar('${{r.correo_director || ""}}')">
+                        ${{r.correo_director || "no informado"}}
+                    </span>
+                    <div class="tooltip">📞
+                        <span class="tooltiptext">Anexo director: ${{anexoDir}}</span>
+                    </div>
+                </td>
+                <td>${{r.secretaria || ""}}</td>
+                <td>
+                    <span class="copy" onclick="copiar('${{r.correo_secretaria || ""}}')">
+                        ${{r.correo_secretaria || "no informado"}}
+                    </span>
+                    <div class="tooltip">📞
+                        <span class="tooltiptext">Anexo secretaría: ${{anexoSec}}</span>
+                    </div>
+                </td>
+                <td class="sede">${{r.sede || ""}}</td>
+                <td>${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}</td>
+                <td>
+                    <span class="copy" onclick="copiar(respuestaSugerida('${{r.consultar_antes_de_entregar_contactos || ""}}'))">
+                        📝 Copiar
+                    </span>
+                </td>
             </tr>`;
         }});
 
@@ -244,7 +286,7 @@ function borrar() {{
 """
 
 # =========================
-# API BUSCADOR
+# BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -277,6 +319,4 @@ def buscar_api():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
