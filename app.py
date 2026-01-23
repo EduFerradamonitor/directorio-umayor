@@ -213,7 +213,7 @@ function buscar() {{
                         <button class="info-btn" onclick="showTooltip(event, \`${{directorInfo}}\`)">ℹ️</button>
                     </div>
                 </td>
-                <td>${{r.escuela || ""}}</td>
+                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
                 <td>${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
                 <td>
@@ -254,7 +254,7 @@ def buscar_api():
 
     if q:
         query = query.or_(
-            f"escuela.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%"
+            f"escuela_busqueda.ilike.%{q}%,escuela.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%"
         )
 
     if sede:
@@ -268,6 +268,7 @@ def buscar_api():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
