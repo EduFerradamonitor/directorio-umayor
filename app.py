@@ -149,14 +149,14 @@ function buscar() {{
 
         let html = `<table>
         <tr>
-            <th style="width:14%">Nombre</th>
-            <th style="width:20%">Escuela</th>
-            <th style="width:16%">Cargo</th>
-            <th style="width:14%">Campus</th>
-            <th style="width:18%">Correo Director</th>
-            <th style="width:12%">Secretaría</th>
-            <th style="width:18%">Correo Secretaría</th>
-            <th style="width:8%">Sede</th>
+            <th>Nombre</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Correo Director</th>
+            <th>Secretaría</th>
+            <th>Correo Secretaría</th>
+            <th>Sede</th>
         </tr>`;
 
         data.forEach(r => {{
@@ -223,11 +223,11 @@ def buscar_api():
     return jsonify(result.data or [])
 
 # =========================
-# EJECUCIÓN
+# EJECUCIÓN (RENDER SAFE)
 # =========================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
 
 
