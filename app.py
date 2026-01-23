@@ -30,7 +30,7 @@ body {{
 }}
 
 .card {{
-    max-width: 1200px;
+    max-width: 1300px;
     margin: 40px auto;
     background: white;
     padding: 30px;
@@ -78,27 +78,27 @@ th, td {{
     border: 1px solid #ddd;
     padding: 8px;
     vertical-align: top;
-    word-break: break-word;
 }}
 
 th {{
     background: #005baa;
     color: white;
-    font-weight: bold;
 }}
 
-th:nth-child(1) {{ width: 14%; }}
-th:nth-child(2) {{ width: 18%; }}
-th:nth-child(3) {{ width: 16%; }}
-th:nth-child(4) {{ width: 14%; }}
-th:nth-child(5) {{ width: 16%; }}
-th:nth-child(6) {{ width: 16%; }}
-th:nth-child(7) {{ width: 8%; }}
-th:nth-child(8) {{ width: 10%; }}
+th:nth-child(1) {{ width: 15%; }}
+th:nth-child(2) {{ width: 20%; }}
+th:nth-child(3) {{ width: 18%; }}
+th:nth-child(4) {{ width: 17%; }}
+th:nth-child(5) {{ width: 15%; }}
+th:nth-child(6) {{ width: 15%; }}
 
-.restr-ok {{ color: green; font-weight: bold; }}
-.restr-warn {{ color: orange; font-weight: bold; }}
-.restr-lock {{ color: #b00020; font-weight: bold; }}
+a.mail {{
+    color: #005baa;
+    text-decoration: underline;
+    display: inline-block;
+    max-width: 100%;
+    word-break: break-all;
+}}
 
 .tooltip {{
     position: relative;
@@ -107,7 +107,7 @@ th:nth-child(8) {{ width: 10%; }}
 
 .tooltip-box {{
     visibility: hidden;
-    width: 260px;
+    width: 280px;
     background-color: #333;
     color: #fff;
     text-align: left;
@@ -124,12 +124,6 @@ th:nth-child(8) {{ width: 10%; }}
 
 .tooltip:hover .tooltip-box {{
     visibility: visible;
-}}
-
-a.mail {{
-    color: #005baa;
-    text-decoration: underline;
-    white-space: nowrap;
 }}
 
 .footer {{
@@ -172,26 +166,14 @@ a.mail {{
 </div>
 
 <script>
-function iconoRestriccion(texto) {{
-    if (!texto) return "";
-
-    texto = texto.toLowerCase();
-
-    if (texto.includes("solo correo")) {{
-        return '<span class="restr-ok">🟢 Solo correo secretaría</span>';
-    }}
-    if (texto.includes("validacion")) {{
-        return '<span class="restr-warn">⚠️ Validación previa</span>';
-    }}
-    if (texto.includes("autorizacion")) {{
-        return '<span class="restr-lock">🔒 Autorización expresa</span>';
-    }}
-    return '<span class="restr-warn">🟠 Información sensible</span>';
-}}
-
 function mailto(correo) {{
     if (!correo || correo === "no informado") return "No informado";
     return `<a class="mail" href="mailto:${{correo}}">${{correo}}</a>`;
+}}
+
+function textoRestriccion(texto) {{
+    if (!texto) return "Sin información";
+    return texto;
 }}
 
 function buscar() {{
@@ -215,8 +197,6 @@ function buscar() {{
             <th>Campus</th>
             <th>Director</th>
             <th>Secretaría</th>
-            <th>Sede</th>
-            <th>Restricción</th>
         </tr>`;
 
         data.forEach(r => {{
@@ -230,8 +210,10 @@ function buscar() {{
                     <span class="tooltip">
                         ${{mailto(r.correo_director)}}
                         <span class="tooltip-box">
-                            📞 <strong>Anexo director:</strong><br>
-                            ${{r.anexo_director || "Sin información"}}
+                            <strong>Anexo director:</strong><br>
+                            ${{r.anexo_director || "Sin información"}}<br><br>
+                            <strong>Restricción:</strong><br>
+                            ${{textoRestriccion(r.consultar_antes_de_entregar_contactos)}}
                         </span>
                     </span>
                 </td>
@@ -240,14 +222,13 @@ function buscar() {{
                     <span class="tooltip">
                         ${{mailto(r.correo_secretaria)}}
                         <span class="tooltip-box">
-                            📞 <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
-                            📞 <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+                            <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
+                            <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}<br><br>
+                            <strong>Restricción:</strong><br>
+                            ${{textoRestriccion(r.consultar_antes_de_entregar_contactos)}}
                         </span>
                     </span>
                 </td>
-
-                <td>${{r.sede || ""}}</td>
-                <td>${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}</td>
             </tr>`;
         }});
 
@@ -298,6 +279,7 @@ def buscar_api():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
