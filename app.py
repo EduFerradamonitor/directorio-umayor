@@ -76,7 +76,7 @@ button.secondary {{
 table {{
     width: 100%;
     border-collapse: collapse;
-    min-width: 1100px;
+    min-width: 1200px;
 }}
 
 th, td {{
@@ -91,6 +91,19 @@ th {{
     background: #005baa;
     color: white;
     white-space: nowrap;
+}}
+
+/* ======= AJUSTES DE COLUMNAS ======= */
+.col-sede {{
+    width: 90px;
+    min-width: 90px;
+    text-align: center;
+    white-space: nowrap;
+}}
+
+.col-restriccion {{
+    width: 160px;
+    min-width: 160px;
 }}
 
 .restr-ok {{
@@ -191,8 +204,8 @@ function buscar() {{
                 <th>Correo Director</th>
                 <th>Secretaría</th>
                 <th>Correo Secretaría</th>
-                <th>Sede</th>
-                <th>Restricción</th>
+                <th class="col-sede">Sede</th>
+                <th class="col-restriccion">Restricción</th>
             </tr>`;
 
         data.forEach(r => {{
@@ -205,8 +218,10 @@ function buscar() {{
                 <td>${{r.correo_director || ""}}</td>
                 <td>${{r.secretaria || ""}}</td>
                 <td>${{r.correo_secretaria || ""}}</td>
-                <td>${{r.sede || ""}}</td>
-                <td>${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}</td>
+                <td class="col-sede">${{r.sede || ""}}</td>
+                <td class="col-restriccion">
+                    ${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}
+                </td>
             </tr>`;
         }});
 
