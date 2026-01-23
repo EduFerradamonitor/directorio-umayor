@@ -92,27 +92,33 @@ th {{
 
 .tooltip {{
     position: relative;
-    cursor: help;
+    display: inline-block;
 }}
 
-.tooltip .tooltip-text {{
+.tooltip-box {{
     visibility: hidden;
     width: 260px;
     background-color: #333;
     color: #fff;
     text-align: left;
     border-radius: 6px;
-    padding: 8px;
+    padding: 10px;
     position: absolute;
-    z-index: 10;
+    z-index: 999;
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
     font-size: 13px;
+    line-height: 1.4;
 }}
 
-.tooltip:hover .tooltip-text {{
+.tooltip:hover .tooltip-box {{
     visibility: visible;
+}}
+
+a.mail {{
+    color: #005baa;
+    text-decoration: underline;
 }}
 
 .footer {{
@@ -172,6 +178,11 @@ function iconoRestriccion(texto) {{
     return '<span class="restr-warn">🟠 Información sensible</span>';
 }}
 
+function mailto(correo) {{
+    if (!correo) return "Sin información";
+    return `<a class="mail" href="mailto:${{correo}}">${{correo}}</a>`;
+}}
+
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
@@ -204,19 +215,23 @@ function buscar() {{
                 <td>${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
 
-                <td class="tooltip">
-                    ${{r.correo_director || "Sin información"}}
-                    <span class="tooltip-text">
-                        <strong>Anexo director:</strong><br>
-                        ${{r.anexo_director || "Sin información"}}
+                <td>
+                    <span class="tooltip">
+                        ${{mailto(r.correo_director)}}
+                        <span class="tooltip-box">
+                            <strong>Anexo director:</strong><br>
+                            ${{r.anexo_director || "Sin información"}}
+                        </span>
                     </span>
                 </td>
 
-                <td class="tooltip">
-                    ${{r.correo_secretaria || "Sin información"}}
-                    <span class="tooltip-text">
-                        <strong>Secretaria:</strong> ${{r.secretaria || "Sin información"}}<br>
-                        <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+                <td>
+                    <span class="tooltip">
+                        ${{mailto(r.correo_secretaria)}}
+                        <span class="tooltip-box">
+                            <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
+                            <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+                        </span>
                     </span>
                 </td>
 
@@ -272,8 +287,6 @@ def buscar_api():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
 
 
