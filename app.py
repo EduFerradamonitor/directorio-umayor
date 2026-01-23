@@ -30,12 +30,12 @@ body {{
 }}
 
 .card {{
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 40px auto;
     background: white;
     padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 14px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
 }}
 
 .header {{
@@ -65,13 +65,18 @@ button {{
 }}
 
 button.secondary {{
-    background: #999;
+    background: #9e9e9e;
+}}
+
+.table-wrapper {{
+    margin-top: 25px;
+    overflow-x: auto;
 }}
 
 table {{
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    min-width: 1100px;
 }}
 
 th, td {{
@@ -79,15 +84,32 @@ th, td {{
     padding: 8px;
     text-align: left;
     vertical-align: top;
+    word-break: break-word;
 }}
 
 th {{
     background: #005baa;
     color: white;
+    white-space: nowrap;
+}}
+
+.restr-ok {{
+    color: #2e7d32;
+    font-weight: bold;
+}}
+
+.restr-alert {{
+    color: #ef6c00;
+    font-weight: bold;
+}}
+
+.restr-lock {{
+    color: #b71c1c;
+    font-weight: bold;
 }}
 
 .footer {{
-    margin-top: 30px;
+    margin-top: 35px;
     font-size: 13px;
     color: #555;
     text-align: center;
@@ -107,7 +129,7 @@ th {{
 
     <input id="busqueda"
            placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
-           onkeydown="if(event.key==='Enter') buscar();">
+           onkeydown="if(event.key === 'Enter') buscar();">
 
     <select id="sede">
         <option value="">Todas las sedes</option>
@@ -134,15 +156,15 @@ function iconoRestriccion(texto) {{
     texto = texto.toLowerCase();
 
     if (texto.includes("solo correo")) {{
-        return "🟢 Solo correo secretaría";
+        return "<span class='restr-ok'>🟢 Solo correo secretaría</span>";
     }}
     if (texto.includes("validacion")) {{
-        return "⚠️ Validación previa";
+        return "<span class='restr-alert'>⚠️ Validación previa</span>";
     }}
     if (texto.includes("autorizacion")) {{
-        return "🔒 Autorización expresa";
+        return "<span class='restr-lock'>🔒 Autorización expresa</span>";
     }}
-    return "🟠 Información sensible";
+    return "<span class='restr-alert'>🟠 Información sensible</span>";
 }}
 
 function buscar() {{
@@ -158,21 +180,24 @@ function buscar() {{
             return;
         }}
 
-        let html = `<table>
-        <tr>
-            <th>Nombre</th>
-            <th>Escuela</th>
-            <th>Cargo</th>
-            <th>Campus</th>
-            <th>Correo Director</th>
-            <th>Secretaría</th>
-            <th>Correo Secretaría</th>
-            <th>Sede</th>
-            <th>Restricción</th>
-        </tr>`;
+        let html = `
+        <div class="table-wrapper">
+        <table>
+            <tr>
+                <th>Nombre</th>
+                <th>Escuela</th>
+                <th>Cargo</th>
+                <th>Campus</th>
+                <th>Correo Director</th>
+                <th>Secretaría</th>
+                <th>Correo Secretaría</th>
+                <th>Sede</th>
+                <th>Restricción</th>
+            </tr>`;
 
         data.forEach(r => {{
-            html += `<tr>
+            html += `
+            <tr>
                 <td>${{r.nombre || ""}}</td>
                 <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
                 <td>${{r.cargo || ""}}</td>
@@ -185,7 +210,7 @@ function buscar() {{
             </tr>`;
         }});
 
-        html += "</table>";
+        html += "</table></div>";
         document.getElementById("resultados").innerHTML = html;
     }})
     .catch(err => {{
@@ -240,4 +265,6 @@ def buscar():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
+
 
