@@ -45,9 +45,10 @@ body {{
     margin-bottom: 25px;
 }}
 
-.logo-um {{
-    height: 80px;
+.logo-um {
+    height: 120px;
     object-fit: contain;
+    margin-top: 10px;
 }}
 
 input, select, button {{
@@ -109,7 +110,7 @@ th {{
 <div class="card">
 
     <div class="header">
-        <h1>Directorio UMAYOR</h1>
+        <h1>Directorio Escuelas UM</h1>
         <img src="{url_for('static', filename='img/logoum.jpg')}"
              class="logo-um"
              alt="Universidad Mayor">
@@ -253,6 +254,7 @@ def buscar():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
