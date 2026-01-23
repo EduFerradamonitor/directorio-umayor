@@ -12,207 +12,266 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
+# UTIL
+# =========================
+def badge_restriccion(texto):
+    if not texto:
+        return "🟢 Sin restricción"
+    t = texto.lower()
+    if "solo correo" in t:
+        return "🟢 Solo correo secretaría"
+    if "validacion" in t:
+        return "🟠 Validación previa"
+    if "autorizacion" in t:
+        return "🔴 Autorización expresa"
+    return "🟡 Información sensible"
+
+# =========================
 # HOME
 # =========================
 @app.route("/")
 def home():
-    logo = url_for("static", filename="img/logoum.jpg")
-    return """
+    return f"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Directorio General UMAYOR</title>
+<title>Directorio General Umayor</title>
 <style>
-body { font-family: Calibri, Arial; background:#f3f6f9; }
-.card { max-width:1000px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; text-align:center; }
-.logo { height:200px; margin-bottom:20px; }
-button { padding:14px 20px; margin:10px; font-size:16px; background:#005baa; color:#fff; border:none; border-radius:6px; cursor:pointer; }
-details { margin-top:30px; text-align:left; }
-footer { margin-top:40px; font-size:13px; color:#555; }
+body {{
+    font-family: Calibri, Arial, sans-serif;
+    background: #f3f6f9;
+}}
+.container {{
+    max-width: 1100px;
+    margin: 40px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+}}
+.logo {{
+    text-align: center;
+}}
+.logo img {{
+    height: 220px;
+}}
+.linea {{
+    height: 6px;
+    background: #f2b705;
+    margin: 20px 0 30px 0;
+}}
+h1 {{
+    text-align: center;
+    margin-bottom: 5px;
+}}
+.subtitle {{
+    text-align: center;
+    color: #555;
+    margin-bottom: 30px;
+}}
+.links {{
+    margin-bottom: 30px;
+}}
+.links summary {{
+    cursor: pointer;
+    font-weight: bold;
+}}
+.links a {{
+    display: block;
+    margin: 6px 0;
+}}
+.buttons {{
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}}
+button {{
+    padding: 14px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #005baa;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}}
+.footer {{
+    margin-top: 40px;
+    text-align: center;
+    font-size: 13px;
+    color: #555;
+}}
+.info {{
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 20px;
+}}
 </style>
 </head>
 <body>
-<div class="card">
+<div class="container">
+
+<div class="logo">
 <a href="https://www.umayor.cl" target="_blank">
-<img src='""" + logo + """' class="logo">
+<img src="{url_for('static', filename='img/logoum.jpg')}">
 </a>
+</div>
 
-<h1>Directorio General UMAYOR<br><small>Uso Interno SAT</small></h1>
+<div class="linea"></div>
 
-<button onclick="location.href='/escuelas'">Directorio de Escuelas</button>
-<button onclick="location.href='/academicos'">Otros Contactos Académicos</button>
+<h1>Directorio General Umayor</h1>
+<div class="subtitle">Uso interno – Servicio de Atención a Estudiantes</div>
 
-<details>
-<summary>Links de interés</summary>
-<ul>
-<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
-<li><a href="https://certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
-<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
-<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
-<li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
-<li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
-</ul>
+<div class="info">
+ℹ️ Al primer ingreso del día la carga puede demorar unos segundos.  
+Si no ves el buscador de inmediato, espera o actualiza la página.  
+Haz clic en el ícono ℹ️ para ver más información.
+</div>
+
+<details class="links">
+<summary>🔗 Links de uso frecuente</summary>
+<a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a>
+<a href="https://certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a>
+<a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a>
+<a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a>
+<a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a>
+<a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a>
 </details>
 
-<footer>
-Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
-</footer>
+<div class="buttons">
+<a href="/escuelas"><button>Directorio de Escuelas</button></a>
+<a href="/academicos"><button>Otros Contactos Académicos</button></a>
+</div>
+
+<div class="footer">
+Desarrollado por <strong>Eduardo Ferrada</strong><br>
+Universidad Mayor · Enero 2026
+</div>
+
 </div>
 </body>
 </html>
 """
 
 # =========================
-# PANTILLA BUSCADOR
-# =========================
-def vista_busqueda(titulo, api):
-    return """
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<title>""" + titulo + """</title>
-<style>
-body { font-family: Calibri, Arial; background:#f3f6f9; }
-.card { max-width:1100px; margin:40px auto; background:#fff; padding:30px; border-radius:12px; }
-input, select, button { padding:10px; margin:5px; }
-table { width:100%; border-collapse:collapse; margin-top:20px; }
-th, td { border:1px solid #ddd; padding:8px; vertical-align:top; }
-th { background:#005baa; color:#fff; }
-.tooltip { position:relative; cursor:help; }
-.tooltiptext {
-    visibility:hidden;
-    background:#333;
-    color:#fff;
-    padding:8px;
-    border-radius:6px;
-    position:absolute;
-    z-index:1;
-    width:240px;
-}
-.tooltip:hover .tooltiptext { visibility:visible; }
-</style>
-</head>
-<body>
-<div class="card">
-<h2>""" + titulo + """</h2>
-
-<p><strong>ℹ️ Al primer ingreso del día la carga puede demorar unos segundos.
-Si no ves resultados de inmediato, espera o actualiza la página.
-Desliza el mouse sobre el ícono ℹ️ para más información.</strong></p>
-
-<input id="q" placeholder="Buscar..." onkeydown="if(event.key==='Enter') buscar();">
-<select id="sede">
-<option value="">Todas</option>
-<option value="santiago">Santiago</option>
-<option value="temuco">Temuco</option>
-</select>
-
-<button onclick="buscar()">Buscar</button>
-<button onclick="limpiar()">Limpiar</button>
-<button onclick="location.href='/'">Volver al inicio</button>
-
-<div id="resultados"></div>
-</div>
-
-<script>
-function buscar() {
-    const q = document.getElementById("q").value;
-    const sede = document.getElementById("sede").value;
-
-    fetch('""" + api + """?q=' + encodeURIComponent(q) + '&sede=' + encodeURIComponent(sede))
-    .then(r => r.json())
-    .then(data => {
-        if (!data.length) {
-            document.getElementById("resultados").innerHTML = "<p>No hay resultados.</p>";
-            return;
-        }
-
-        let html = "<table><tr><th>Nombre</th><th>Cargo</th><th>Correo</th></tr>";
-
-        data.forEach(r => {
-            html += "<tr>" +
-            "<td class='tooltip'>" + (r.nombre || "") +
-            "<span class='tooltiptext'>" +
-            "Director: " + (r.correo_director || "Sin información") + "<br>" +
-            "Secretaria: " + (r.secretaria_nombre || "") + "<br>" +
-            (r.secretaria_correo || "") +
-            "</span></td>" +
-            "<td>" + (r.cargo || "") + "</td>" +
-            "<td>" + (r.correo_director || "") + "</td>" +
-            "</tr>";
-        });
-
-        html += "</table>";
-        document.getElementById("resultados").innerHTML = html;
-    });
-}
-
-function limpiar() {
-    document.getElementById("q").value = "";
-    document.getElementById("sede").value = "";
-    document.getElementById("resultados").innerHTML = "";
-}
-</script>
-</body>
-</html>
-"""
-
-# =========================
-# ESCUELAS
+# DIRECTORIO ESCUELAS
 # =========================
 @app.route("/escuelas")
 def escuelas():
-    return vista_busqueda("Directorio de Escuelas", "/api/escuelas")
+    return pagina_busqueda(
+        titulo="Directorio de Escuelas",
+        endpoint="/api/escuelas"
+    )
 
 @app.route("/api/escuelas")
 def api_escuelas():
     q = request.args.get("q", "").lower()
     sede = request.args.get("sede", "").lower()
 
-    if len(q) < 2:
+    if len(q) < 3:
         return jsonify([])
 
-    query = (
-        supabase
-        .table("directorio_escuelas_umayor")
-        .select("*")
-        .or_(f"escuela_busqueda.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%")
-    )
+    query = supabase.table("directorio_escuelas_umayor").select("*") \
+        .ilike("escuela_busqueda", f"%{q}%")
 
     if sede:
-        query = query.ilike("sede", f"%{sede}%")
+        query = query.ilike("sede", sede)
 
     return jsonify(query.execute().data or [])
 
 # =========================
-# ACADÉMICOS
+# OTROS ACADEMICOS
 # =========================
 @app.route("/academicos")
 def academicos():
-    return vista_busqueda("Otros Contactos Académicos", "/api/academicos")
+    return pagina_busqueda(
+        titulo="Otros Contactos Académicos",
+        endpoint="/api/academicos",
+        academicos=True
+    )
 
 @app.route("/api/academicos")
 def api_academicos():
     q = request.args.get("q", "").lower()
-
-    if len(q) < 2:
+    if len(q) < 3:
         return jsonify([])
 
-    query = (
-        supabase
-        .table("otros_contactos_academicos")
-        .select("*")
+    query = supabase.table("otros_contactos_academicos").select("*") \
         .ilike("nombre_busqueda", f"%{q}%")
-    )
 
     return jsonify(query.execute().data or [])
 
 # =========================
-# RUN
+# TEMPLATE BUSQUEDA
 # =========================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+def pagina_busqueda(titulo, endpoint, academicos=False):
+    columna_extra = "<th>Departamento</th>" if academicos else ""
+    columna_extra_td = "<td>"+("{r.departamento}" if academicos else "")+"</td>"
 
+    return f"""
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>{titulo}</title>
+<style>
+body {{ font-family: Calibri, Arial; background:#f3f6f9; }}
+.container {{ max-width:1200px; margin:30px auto; background:white; padding:30px; border-radius:12px; }}
+.header {{ display:flex; justify-content:space-between; align-items:center; }}
+.header img {{ height:80px; }}
+input {{ width:60%; padding:12px; }}
+button {{ padding:12px 20px; margin-left:10px; }}
+table {{ width:100%; border-collapse:collapse; margin-top:20px; }}
+th,td {{ border:1px solid #ddd; padding:8px; }}
+.tooltip {{ cursor:pointer; }}
+.footer {{ margin-top:30px; text-align:center; font-size:13px; color:#555; }}
+</style>
+</head>
+<body>
+<div class="container">
 
+<div class="header">
+<h2>{titulo}</h2>
+<img src="{url_for('static', filename='img/logoum.jpg')}">
+</div>
+
+<input id="q" placeholder="Escribe al menos 3 letras" onkeydown="if(event.key==='Enter') buscar()">
+<button onclick="buscar()">Buscar</button>
+<button onclick="limpiar()">Limpiar</button>
+<button onclick="window.location='/'">Volver al inicio</button>
+
+<div id="res"></div>
+
+<div class="footer">
+Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · Enero 2026
+</div>
+
+</div>
+
+<script>
+function buscar() {{
+fetch("{endpoint}?q="+encodeURIComponent(q.value))
+.then(r=>r.json())
+.then(d=>{
+if(!d.length){{res.innerHTML="Sin resultados";return;}}
+let h="<table><tr><th>Nombre</th><th>Cargo</th><th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>{columna_extra}<th>ℹ️</th></tr>";
+d.forEach(r=>{
+h+="<tr>"+
+"<td>"+(r.nombre||"")+"</td>"+
+"<td>"+(r.cargo||"")+"</td>"+
+"<td><a href='mailto:"+ (r.correo_director||"") +"'>"+(r.correo_director||"")+"</a></td>"+
+"<td>"+(r.secretaria||r.secretaria_nombre||"")+"</td>"+
+"<td><a href='mailto:"+ (r.correo_secretaria||r.secretaria_correo||"") +"'>"+(r.correo_secretaria||r.secretaria_correo||"")+"</a></td>"+
+"{columna_extra_td}"+
+"<td class='tooltip' title='Anexo director: "+(r.anexo_director||"Sin info")+" | Anexo secretaria: "+(r.anexo_secretaria||"Sin info")+" | "+(r.consultar_antes_de_entregar_contactos||"")+"'>ℹ️</td>"+
+"</tr>";
+});
+h+="</table>";
+res.innerHTML=h;
+});
+}
+function limpiar(){{q.value="";res.innerHTML="";}}
+</script>
+
+</body>
+</html>
+"""
