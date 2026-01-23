@@ -108,14 +108,14 @@ td.wrap {{
 
 .tooltip .tooltiptext {{
     visibility: hidden;
-    width: 220px;
+    width: 230px;
     background-color: #333;
     color: #fff;
     text-align: left;
     padding: 8px;
     border-radius: 6px;
     position: absolute;
-    z-index: 1;
+    z-index: 10;
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
@@ -176,11 +176,13 @@ function restriccionHTML(texto) {{
 }}
 
 function tooltipAnexos(r) {{
+    const ad = r.anexo_director || "Sin información";
+    const as = r.anexo_secretaria || "Sin información";
     return `
     <span class="tooltip">📞
         <span class="tooltiptext">
-            <strong>Anexo director:</strong> ${r.anexo_director || "Sin información"}<br>
-            <strong>Anexo secretaría:</strong> ${r.anexo_secretaria || "Sin información"}
+            <strong>Anexo director:</strong> ${'{'}ad{'}'}<br>
+            <strong>Anexo secretaría:</strong> ${'{'}as{'}'}
         </span>
     </span>`;
 }}
@@ -189,11 +191,12 @@ function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
+    fetch(`/buscar?q=${'{'}encodeURIComponent(q){'}'}&sede=${'{'}encodeURIComponent(sede){'}'}`)
     .then(r => r.json())
     .then(data => {{
         if (!data || data.length === 0) {{
-            document.getElementById("resultados").innerHTML = "<p>No se encontraron resultados.</p>";
+            document.getElementById("resultados").innerHTML =
+                "<p>No se encontraron resultados.</p>";
             return;
         }}
 
@@ -212,21 +215,21 @@ function buscar() {{
 
         data.forEach(r => {{
             html += `<tr>
-                <td>${{r.nombre || ""}}</td>
-                <td class="wrap">${{r.escuela_busqueda || r.escuela || ""}}</td>
-                <td class="wrap">${{r.cargo || ""}}</td>
-                <td>${{r.campus || ""}}</td>
-                <td>${{r.correo_director || ""}} ${{tooltipAnexos(r)}}</td>
-                <td>${{r.secretaria || ""}}</td>
-                <td>${{r.correo_secretaria || ""}}</td>
-                <td>${{r.sede || ""}}</td>
-                <td>${{restriccionHTML(r.consultar_antes_de_entregar_contactos)}}</td>
+                <td>${'{'}r.nombre || ""{'}'}</td>
+                <td class="wrap">${'{'}r.escuela_busqueda || r.escuela || ""{'}'}</td>
+                <td class="wrap">${'{'}r.cargo || ""{'}'}</td>
+                <td>${'{'}r.campus || ""{'}'}</td>
+                <td>${'{'}r.correo_director || ""{'}'} ${'{'}tooltipAnexos(r){'}'}</td>
+                <td>${'{'}r.secretaria || ""{'}'}</td>
+                <td>${'{'}r.correo_secretaria || ""{'}'}</td>
+                <td>${'{'}r.sede || ""{'}'}</td>
+                <td>${'{'}restriccionHTML(r.consultar_antes_de_entregar_contactos){'}'}</td>
             </tr>`;
         }});
 
         html += "</table></div>";
         document.getElementById("resultados").innerHTML = html;
-    });
+    }});
 }}
 
 function borrar() {{
@@ -241,7 +244,7 @@ function borrar() {{
 """
 
 # =========================
-# BUSCADOR
+# API BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -274,5 +277,6 @@ def buscar_api():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
