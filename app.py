@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, url_for
+
 from supabase import create_client
 
 app = Flask(__name__)
@@ -12,7 +13,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# HOME
+# HOME / PORTADA
 # =========================
 @app.route("/")
 def home():
@@ -21,195 +22,296 @@ def home():
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Directorio UMAYOR</title>
+<title>Directorio General UMAYOR</title>
+
 <style>
-body {{ font-family: Calibri, Arial; background:#f3f6f9; }}
-.card {{ max-width:1100px; margin:40px auto; background:white; padding:40px; border-radius:14px; box-shadow:0 0 20px rgba(0,0,0,.1); text-align:center; }}
-.logo {{ max-width:75%; margin-bottom:30px; }}
-.modulos {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }}
-.modulo {{ background:#005baa; color:white; padding:25px; border-radius:12px; font-size:18px; text-decoration:none; font-weight:bold; }}
-.modulo:hover {{ background:#004080; }}
-.footer {{ margin-top:40px; font-size:13px; color:#555; }}
+body {{
+    font-family: Calibri, Arial, sans-serif;
+    background: #f3f6f9;
+}}
+
+.card {{
+    max-width: 1000px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    text-align: center;
+}}
+
+.logo {{
+    height: 220px;
+    margin-bottom: 20px;
+}}
+
+h1 {{
+    margin-bottom: 30px;
+}}
+
+button {{
+    padding: 14px 20px;
+    margin: 10px;
+    font-size: 16px;
+    background: #005baa;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}}
+
+.acordeon {{
+    margin-top: 30px;
+    text-align: left;
+}}
+
+.acordeon summary {{
+    cursor: pointer;
+    font-weight: bold;
+}}
+
+.footer {{
+    margin-top: 40px;
+    font-size: 13px;
+    color: #555;
+}}
 </style>
 </head>
+
 <body>
 <div class="card">
-<a href="https://www.umayor.cl/" target="_blank">
+
+<a href="https://www.umayor.cl" target="_blank">
 <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo">
 </a>
 
-<div class="modulos">
-<a class="modulo" href="/escuelas">📘 Directorio de Escuelas</a>
-<a class="modulo" href="/academicos">🎓 Otros Contactos Académicos</a>
-</div>
+<h1>Directorio General UMAYOR<br><small>Uso Interno SAT</small></h1>
+
+<button onclick="location.href='/escuelas'">Directorio de Escuelas</button>
+<button onclick="location.href='/academicos'">Otros Contactos Académicos</button>
+
+<details class="acordeon">
+<summary>Links de interés</summary>
+<ul>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
+<li><a href="https://certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+<li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+<li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+</ul>
+</details>
 
 <div class="footer">
 Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
 </div>
+
 </div>
 </body>
 </html>
 """
 
 # =========================
-# VISTAS
+# DIRECTORIO ESCUELAS
 # =========================
 @app.route("/escuelas")
 def escuelas():
-    return "<script>location.href='/directorio/escuelas'</script>"
+    return render_busqueda(
+        titulo="Directorio de Escuelas",
+        endpoint="/api/escuelas"
+    )
 
-@app.route("/academicos")
-def academicos():
-    return "<script>location.href='/directorio/academicos'</script>"
-
-# =========================
-# API ESCUELAS (sin cambios)
-# =========================
 @app.route("/api/escuelas")
 def api_escuelas():
-    q = request.args.get("q","").lower().strip()
-    sede = request.args.get("sede","").lower().strip()
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip().lower()
 
-    if len(q) < 3:
+    if len(q) < 2:
         return jsonify([])
 
     query = (
         supabase
         .table("directorio_escuelas_umayor")
         .select("*")
-        .or_(f"escuela_busqueda.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%")
+        .or_(
+            f"escuela_busqueda.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
     )
 
     if sede:
-        query = query.ilike("sede", sede)
+        query = query.ilike("sede", f"%{sede}%")
 
     return jsonify(query.execute().data or [])
 
 # =========================
-# API OTROS CONTACTOS ACADÉMICOS (PASO 4)
+# OTROS CONTACTOS ACADÉMICOS
 # =========================
+@app.route("/academicos")
+def academicos():
+    return render_busqueda(
+        titulo="Otros Contactos Académicos",
+        endpoint="/api/academicos"
+    )
+
 @app.route("/api/academicos")
 def api_academicos():
-    q = request.args.get("q","").lower().strip()
+    q = request.args.get("q", "").strip().lower()
 
-    if len(q) < 3:
+    if len(q) < 2:
         return jsonify([])
 
-    result = (
+    query = (
         supabase
         .table("otros_contactos_academicos")
         .select("*")
         .ilike("nombre_busqueda", f"%{q}%")
-        .execute()
     )
 
-    return jsonify(result.data or [])
+    return jsonify(query.execute().data or [])
 
 # =========================
-# DIRECTORIO ACADÉMICOS (UI + TOOLTIP)
+# PLANTILLA BUSCADOR
 # =========================
-@app.route("/directorio/academicos")
-def directorio_academicos():
-    return """
+def render_busqueda(titulo, endpoint):
+    return f"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Otros Contactos Académicos</title>
+<title>{titulo}</title>
 
 <style>
-body { font-family: Calibri, Arial; background:#f3f6f9; }
-.card { max-width:1100px; margin:40px auto; background:white; padding:30px; border-radius:12px; }
-input, button { padding:10px; font-size:15px; }
-table { width:100%; border-collapse:collapse; margin-top:20px; }
-th, td { border:1px solid #ddd; padding:8px; vertical-align:top; }
-th { background:#005baa; color:white; }
+body {{
+    font-family: Calibri, Arial, sans-serif;
+    background: #f3f6f9;
+}}
 
-.info { position:relative; cursor:help; font-weight:bold; }
-.tooltip {
-    display:none;
-    position:absolute;
-    background:#333;
-    color:white;
-    padding:10px;
-    border-radius:6px;
-    top:20px;
-    left:0;
-    width:260px;
-    z-index:10;
-    font-size:13px;
-}
-.info:hover .tooltip { display:block; }
+.card {{
+    max-width: 1100px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+}}
 
-.ok { color:green; }
-.warn { color:orange; }
-.lock { color:red; }
+input, select, button {{
+    padding: 10px;
+    margin: 5px;
+    font-size: 15px;
+}}
+
+table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}}
+
+th, td {{
+    border: 1px solid #ddd;
+    padding: 8px;
+}}
+
+th {{
+    background: #005baa;
+    color: white;
+}}
+
+.tooltip {{
+    position: relative;
+    cursor: help;
+}}
+
+.tooltip .tooltiptext {{
+    visibility: hidden;
+    background: #333;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    width: 220px;
+}}
+
+.tooltip:hover .tooltiptext {{
+    visibility: visible;
+}}
 </style>
 </head>
 
 <body>
 <div class="card">
-<h2>🎓 Otros Contactos Académicos</h2>
 
-<input id="q" placeholder="Buscar por nombre">
+<h2>{titulo}</h2>
+
+<p><strong>ℹ️ Al primer ingreso del día la carga puede demorar.  
+Si no ves resultados de inmediato, espera o actualiza la página.  
+Desliza el mouse sobre el ícono ℹ️ para ver más información.</strong></p>
+
+<input id="q" placeholder="Buscar..." onkeydown="if(event.key==='Enter') buscar();">
+<select id="sede">
+<option value="">Todas</option>
+<option value="santiago">Santiago</option>
+<option value="temuco">Temuco</option>
+</select>
+
 <button onclick="buscar()">Buscar</button>
-<button onclick="limpiar()">Borrar</button>
+<button onclick="limpiar()">Limpiar</button>
+<button onclick="location.href='/'">Volver al inicio</button>
 
-<div id="res"></div>
-
-<script>
-function icono(r){
-    if(!r) return "";
-    r=r.toLowerCase();
-    if(r.includes("solo")) return "🟢";
-    if(r.includes("validacion")) return "⚠️";
-    if(r.includes("autorizacion")) return "🔒";
-    return "";
-}
-
-function buscar(){
-    fetch('/api/academicos?q='+encodeURIComponent(q.value))
-    .then(r=>r.json())
-    .then(d=>{
-        if(!d.length){ res.innerHTML="Sin resultados"; return; }
-
-        let h="<table><tr><th>Académico</th><th>Cargo</th><th>Contacto</th></tr>";
-        d.forEach(r=>{
-            h+=`<tr>
-<td>
-<span class="info">ℹ️ ${r.nombre}
-<span class="tooltip">
-📧 <a href="mailto:${r.correo_director}" style="color:#8fd">${r.correo_director||"—"}</a><br>
-👩‍💼 ${r.secretaria_nombre||"—"}<br>
-📧 <a href="mailto:${r.secretaria_correo}" style="color:#8fd">${r.secretaria_correo||"—"}</a><br>
-${icono(r.consultar_antes_de_entregar_contactos)} ${r.consultar_antes_de_entregar_contactos||""}
-</span>
-</span>
-</td>
-<td>${r.cargo||""}</td>
-<td>${r.sede||""}</td>
-</tr>`;
-        });
-        h+="</table>";
-        res.innerHTML=h;
-    });
-}
-
-function limpiar(){
-    q.value="";
-    res.innerHTML="";
-}
-</script>
+<div id="resultados"></div>
 
 </div>
+
+<script>
+function buscar() {{
+    const q = document.getElementById("q").value;
+    const sede = document.getElementById("sede").value;
+
+    fetch(`{endpoint}?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
+    .then(r => r.json())
+    .then(data => {{
+        if (!data.length) {{
+            document.getElementById("resultados").innerHTML = "<p>No hay resultados.</p>";
+            return;
+        }}
+
+        let html = "<table><tr><th>Nombre</th><th>Cargo</th><th>Correo</th></tr>";
+
+        data.forEach(r => {{
+            html += `<tr>
+                <td class="tooltip">${{r.nombre || ""}}
+                    <span class="tooltiptext">
+                        Director: ${{r.correo_director || "Sin información"}}<br>
+                        Secretaria: ${{r.secretaria_nombre || ""}}<br>
+                        ${{r.secretaria_correo || ""}}
+                    </span>
+                </td>
+                <td>${{r.cargo || ""}}</td>
+                <td>${{r.correo_director || ""}}</td>
+            </tr>`;
+        }});
+
+        html += "</table>";
+        document.getElementById("resultados").innerHTML = html;
+    });
+}}
+
+function limpiar() {{
+    document.getElementById("q").value = "";
+    document.getElementById("sede").value = "";
+    document.getElementById("resultados").innerHTML = "";
+}}
+</script>
+
 </body>
 </html>
 """
 
 # =========================
-# EJECUCIÓN
+# RUN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
