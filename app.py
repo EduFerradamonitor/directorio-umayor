@@ -4,7 +4,7 @@ from supabase import create_client
 app = Flask(__name__)
 
 # =========================
-# CONFIGURACIÓN SUPABASE
+# SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -99,7 +99,7 @@ th {{
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     border-radius: 6px;
     z-index: 9999;
-    max-width: 300px;
+    max-width: 280px;
 }}
 
 .footer {{
@@ -141,52 +141,54 @@ th {{
 </div>
 
 <script>
-let tooltip;
+let tooltip = null;
 
-function cerrarTooltip() {{
+document.addEventListener("click", () => {{
     if (tooltip) {{
         tooltip.remove();
         tooltip = null;
     }}
-}}
+}});
 
-document.addEventListener("click", cerrarTooltip);
+function mostrarTooltip(el) {{
+    if (tooltip) {{
+        tooltip.remove();
+    }}
 
-function mostrarTooltip(e, data) {{
-    e.stopPropagation();
-    cerrarTooltip();
+    const correo = el.dataset.correo || "";
+    const anexo = el.dataset.anexo || "";
+    const restriccion = el.dataset.restriccion || "";
 
     tooltip = document.createElement("div");
     tooltip.className = "tooltip";
 
     let html = "";
 
-    if (data.correo) {{
-        html += `<strong>Correo:</strong><br>
-                 <a href="mailto:${{data.correo}}">${{data.correo}}</a><br><br>`;
+    if (correo) {{
+        html += "<strong>Correo:</strong><br><a href='mailto:" + correo + "'>" + correo + "</a><br><br>";
     }}
 
-    if (data.anexo) {{
-        html += `<strong>Anexo:</strong> ${{data.anexo}}<br><br>`;
+    if (anexo) {{
+        html += "<strong>Anexo:</strong> " + anexo + "<br><br>";
     }}
 
-    if (data.restriccion) {{
-        html += `<strong>Restricción:</strong><br>${{data.restriccion}}`;
+    if (restriccion) {{
+        html += "<strong>Restricción:</strong><br>" + restriccion;
     }}
 
     tooltip.innerHTML = html;
-
     document.body.appendChild(tooltip);
 
-    tooltip.style.left = e.pageX + "px";
-    tooltip.style.top = e.pageY + "px";
+    const rect = el.getBoundingClientRect();
+    tooltip.style.left = rect.left + "px";
+    tooltip.style.top = rect.bottom + 5 + "px";
 }}
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
+    fetch("/buscar?q=" + encodeURIComponent(q) + "&sede=" + encodeURIComponent(sede))
     .then(r => r.json())
     .then(data => {{
         if (!data.length) {{
@@ -195,45 +197,38 @@ function buscar() {{
             return;
         }}
 
-        let html = `<table>
-        <tr>
-            <th>Director</th>
-            <th>Escuela</th>
-            <th>Cargo</th>
-            <th>Campus</th>
-            <th>Secretaría</th>
-            <th>Sede</th>
-        </tr>`;
+        let html = "<table><tr>" +
+            "<th>Director</th>" +
+            "<th>Escuela</th>" +
+            "<th>Cargo</th>" +
+            "<th>Campus</th>" +
+            "<th>Secretaría</th>" +
+            "<th>Sede</th>" +
+            "</tr>";
 
         data.forEach(r => {{
-            html += `<tr>
-                <td>
-                    <span class="tooltip-link"
-                          onclick='mostrarTooltip(event, {{
-                              correo: "${{r.correo_director || ""}}",
-                              anexo: "${{r.anexo_director || ""}}",
-                              restriccion: "${{r.consultar_antes_de_entregar_contactos || ""}}"
-                          }})'>
-                        ${{r.nombre || ""}}
-                    </span>
-                </td>
+            html += "<tr>" +
+                "<td><span class='tooltip-link' " +
+                "data-correo='" + (r.correo_director || "") + "' " +
+                "data-anexo='" + (r.anexo_director || "") + "' " +
+                "data-restriccion='" + (r.consultar_antes_de_entregar_contactos || "") + "' " +
+                "onclick='event.stopPropagation(); mostrarTooltip(this);'>" +
+                (r.nombre || "") +
+                "</span></td>" +
 
-                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
-                <td>${{r.cargo || ""}}</td>
-                <td>${{r.campus || ""}}</td>
+                "<td>" + (r.escuela_busqueda || r.escuela || "") + "</td>" +
+                "<td>" + (r.cargo || "") + "</td>" +
+                "<td>" + (r.campus || "") + "</td>" +
 
-                <td>
-                    <span class="tooltip-link"
-                          onclick='mostrarTooltip(event, {{
-                              correo: "${{r.correo_secretaria || ""}}",
-                              anexo: "${{r.anexo_secretaria || ""}}"
-                          }})'>
-                        ${{r.secretaria || "No informado"}}
-                    </span>
-                </td>
+                "<td><span class='tooltip-link' " +
+                "data-correo='" + (r.correo_secretaria || "") + "' " +
+                "data-anexo='" + (r.anexo_secretaria || "") + "' " +
+                "onclick='event.stopPropagation(); mostrarTooltip(this);'>" +
+                (r.secretaria || "No informado") +
+                "</span></td>" +
 
-                <td>${{r.sede || ""}}</td>
-            </tr>`;
+                "<td>" + (r.sede || "") + "</td>" +
+                "</tr>";
         }});
 
         html += "</table>";
@@ -253,7 +248,7 @@ function borrar() {{
 """
 
 # =========================
-# API BUSCADOR
+# API
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -281,11 +276,9 @@ def buscar_api():
     result = query.execute()
     return jsonify(result.data or [])
 
-# =========================
-# RUN
-# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
