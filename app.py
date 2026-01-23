@@ -3,10 +3,16 @@ from supabase import create_client
 
 app = Flask(__name__)
 
+# =========================
+# SUPABASE
+# =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# =========================
+# HOME
+# =========================
 @app.route("/")
 def home():
     return """
@@ -14,7 +20,7 @@ def home():
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Directorio UMAYOR</title>
+<title>Directorio Umayor</title>
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -25,26 +31,31 @@ body {
     background: #f3f6f9;
 }
 
+/* Contenedor principal */
 .card {
+    position: relative;
     max-width: 1200px;
     margin: 40px auto;
     background: white;
-    padding: 30px;
+    padding: 40px 30px 30px 30px;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-.header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
+/* Logo esquina superior derecha */
+.logo-um {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    height: 80px;
 }
 
-.header img {
-    height: 70px;
+/* Título */
+h1 {
+    margin-top: 0;
 }
 
+/* Controles */
 input, select, button {
     width: 100%;
     padding: 12px;
@@ -63,6 +74,7 @@ button.secondary {
     background: #999;
 }
 
+/* Tabla */
 .table-container {
     overflow-x: auto;
 }
@@ -84,6 +96,7 @@ th {
     color: white;
 }
 
+/* Restricciones */
 .restriccion-validacion {
     color: #ff8c00;
     font-weight: bold;
@@ -98,6 +111,7 @@ th {
     color: #999;
 }
 
+/* Footer */
 .footer {
     margin-top: 40px;
     padding-top: 15px;
@@ -112,10 +126,10 @@ th {
 <body>
 <div class="card">
 
-    <div class="header">
-        <img src="/static/logoum.jpg">
-        <h1>Directorio UMAYOR</h1>
-    </div>
+    <!-- Logo -->
+    <img src="/static/logoum.jpg" class="logo-um" alt="Universidad Mayor">
+
+    <h1>Directorio UMAYOR</h1>
 
     <input id="busqueda" placeholder="¿Qué escuela busca?">
     
@@ -132,14 +146,13 @@ th {
 
     <div class="footer">
         Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026<br>
-        Flask · Supabase · Render · Font Awesome
+        Universidad Mayor · Enero 2026
     </div>
 </div>
 
 <script>
 function buscar() {
-    const q = busqueda.value;
+    const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
     fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
@@ -151,25 +164,33 @@ function buscar() {
         }
 
         let html = `<div class="table-container"><table><tr>
-            <th>Nombre</th><th>Escuela</th><th>Cargo</th><th>Campus</th>
-            <th>Correo Director</th><th>Secretaría</th><th>Correo Secretaría</th>
-            <th>Sede</th><th>Restricción</th></tr>`;
+            <th>Nombre</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Correo Director</th>
+            <th>Secretaría</th>
+            <th>Correo Secretaría</th>
+            <th>Sede</th>
+            <th>Restricción</th>
+        </tr>`;
 
         data.forEach(r => {
-            let icono = '<i class="fa-solid fa-circle-minus"></i> Sin restricción';
+            let texto = r.consultar_antes_de_entregar_contactos || "";
             let clase = "restriccion-vacia";
+            let icono = '<i class="fa-solid fa-circle-minus"></i> Sin restricción';
 
-            if (r.consultar_antes_de_entregar_contactos?.includes("validacion")) {
+            if (texto.includes("validacion")) {
                 icono = '<i class="fa-solid fa-triangle-exclamation"></i> Validación previa';
                 clase = "restriccion-validacion";
-            } else if (r.consultar_antes_de_entregar_contactos?.includes("secretaria")) {
+            } else if (texto.includes("secretaria")) {
                 icono = '<i class="fa-solid fa-circle-check"></i> Solo correo secretaría';
                 clase = "restriccion-secretaria";
             }
 
             html += `<tr>
                 <td>${r.nombre||""}</td>
-                <td>${r.escuela_busqueda||""}</td>
+                <td>${r.escuela_busqueda||r.escuela||""}</td>
                 <td>${r.cargo||""}</td>
                 <td>${r.campus||""}</td>
                 <td>${r.correo_director||""}</td>
@@ -200,6 +221,9 @@ document.addEventListener("keydown", e => {
 </html>
 """
 
+# =========================
+# BUSCAR
+# =========================
 @app.route("/buscar")
 def buscar():
     q = request.args.get("q","").lower()
@@ -219,10 +243,5 @@ def buscar():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
-
-
-
 
 
