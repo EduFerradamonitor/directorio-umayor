@@ -40,16 +40,15 @@ body {{
 
 .header {{
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 25px;
 }}
 
-.logo-um {
+.logo-um {{
     height: 120px;
     object-fit: contain;
-    margin-top: 10px;
-}
+}}
 
 input, select, button {{
     width: 100%;
@@ -85,16 +84,6 @@ th, td {{
 th {{
     background: #005baa;
     color: white;
-}}
-
-.restriccion-ok {{
-    color: green;
-    font-weight: bold;
-}}
-
-.restriccion-alerta {{
-    color: orange;
-    font-weight: bold;
 }}
 
 .footer {{
@@ -147,15 +136,12 @@ function iconoRestriccion(texto) {{
     if (texto.includes("solo correo")) {{
         return "🟢 Solo correo secretaría";
     }}
-
     if (texto.includes("validacion")) {{
         return "⚠️ Validación previa";
     }}
-
     if (texto.includes("autorizacion")) {{
         return "🔒 Autorización expresa";
     }}
-
     return "🟠 Información sensible";
 }}
 
@@ -254,8 +240,4 @@ def buscar():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
-
-
 
