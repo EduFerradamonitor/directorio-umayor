@@ -49,7 +49,7 @@ body {{
     height: 120px;
     object-fit: contain;
     margin-top: 10px;
-}}
+}
 
 input, select, button {{
     width: 100%;
@@ -254,6 +254,7 @@ def buscar():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
