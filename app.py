@@ -4,7 +4,7 @@ from supabase import create_client
 app = Flask(__name__)
 
 # =========================
-# SUPABASE
+# CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -42,11 +42,11 @@ body {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
 }}
 
 .logo-um {{
     height: 90px;
+    object-fit: contain;
 }}
 
 input, select, button {{
@@ -67,6 +67,10 @@ button.secondary {{
     background: #999;
 }}
 
+.table-container {{
+    overflow-x: auto;
+}}
+
 table {{
     width: 100%;
     border-collapse: collapse;
@@ -82,24 +86,34 @@ th, td {{
 th {{
     background: #005baa;
     color: white;
+    white-space: nowrap;
 }}
 
-.tooltip-link {{
+.name-cell {{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}}
+
+.info-btn {{
+    background: none;
+    border: none;
     color: #005baa;
     cursor: pointer;
-    text-decoration: underline;
+    font-weight: bold;
 }}
 
 .tooltip {{
+    display: none;
     position: absolute;
-    background: white;
+    background: #fff;
     border: 1px solid #ccc;
     padding: 10px;
-    font-size: 14px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     border-radius: 6px;
-    z-index: 9999;
-    max-width: 280px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-width: 260px;
+    font-size: 14px;
 }}
 
 .footer {{
@@ -114,126 +128,107 @@ th {{
 <body>
 <div class="card">
 
-    <div class="header">
-        <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
-    </div>
-
-    <input id="busqueda"
-           placeholder="¿Qué escuela busca? (ej: derecho, vet, psicología)"
-           onkeydown="if(event.key==='Enter') buscar();">
-
-    <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
-    </select>
-
-    <button onclick="buscar()">Buscar</button>
-    <button class="secondary" onclick="borrar()">Borrar</button>
-
-    <div id="resultados"></div>
-
-    <div class="footer">
-        Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026
-    </div>
+<div class="header">
+    <h1>Directorio Escuelas UM</h1>
+    <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
 </div>
 
-<script>
-let tooltip = null;
+<input id="busqueda" placeholder="¿Qué escuela busca?" onkeydown="if(event.key==='Enter') buscar();">
 
-document.addEventListener("click", () => {{
-    if (tooltip) {{
-        tooltip.remove();
-        tooltip = null;
+<select id="sede">
+    <option value="">Todas las sedes</option>
+    <option value="santiago">Santiago</option>
+    <option value="temuco">Temuco</option>
+</select>
+
+<button onclick="buscar()">Buscar</button>
+<button class="secondary" onclick="borrar()">Borrar</button>
+
+<div class="table-container">
+<div id="resultados"></div>
+</div>
+
+<div class="footer">
+    Desarrollado por <strong>Eduardo Ferrada</strong><br>
+    Universidad Mayor · Enero 2026
+</div>
+
+</div>
+
+<div id="tooltip" class="tooltip"></div>
+
+<script>
+function showTooltip(event, html) {{
+    const t = document.getElementById("tooltip");
+    t.innerHTML = html;
+    t.style.display = "block";
+    t.style.left = event.pageX + 10 + "px";
+    t.style.top = event.pageY + 10 + "px";
+}}
+
+document.addEventListener("click", e => {{
+    if (!e.target.classList.contains("info-btn")) {{
+        document.getElementById("tooltip").style.display = "none";
     }}
 }});
-
-function mostrarTooltip(el) {{
-    if (tooltip) {{
-        tooltip.remove();
-    }}
-
-    const correo = el.dataset.correo || "";
-    const anexo = el.dataset.anexo || "";
-    const restriccion = el.dataset.restriccion || "";
-
-    tooltip = document.createElement("div");
-    tooltip.className = "tooltip";
-
-    let html = "";
-
-    if (correo) {{
-        html += "<strong>Correo:</strong><br><a href='mailto:" + correo + "'>" + correo + "</a><br><br>";
-    }}
-
-    if (anexo) {{
-        html += "<strong>Anexo:</strong> " + anexo + "<br><br>";
-    }}
-
-    if (restriccion) {{
-        html += "<strong>Restricción:</strong><br>" + restriccion;
-    }}
-
-    tooltip.innerHTML = html;
-    document.body.appendChild(tooltip);
-
-    const rect = el.getBoundingClientRect();
-    tooltip.style.left = rect.left + "px";
-    tooltip.style.top = rect.bottom + 5 + "px";
-}}
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    fetch("/buscar?q=" + encodeURIComponent(q) + "&sede=" + encodeURIComponent(sede))
+    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
     .then(data => {{
-        if (!data.length) {{
-            document.getElementById("resultados").innerHTML =
-                "<p>No se encontraron resultados.</p>";
+        if (!data || data.length === 0) {{
+            document.getElementById("resultados").innerHTML = "<p>No hay resultados.</p>";
             return;
         }}
 
-        let html = "<table><tr>" +
-            "<th>Director</th>" +
-            "<th>Escuela</th>" +
-            "<th>Cargo</th>" +
-            "<th>Campus</th>" +
-            "<th>Secretaría</th>" +
-            "<th>Sede</th>" +
-            "</tr>";
+        let html = `<table>
+        <tr>
+            <th>Director</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Secretaría</th>
+            <th>Sede</th>
+        </tr>`;
 
         data.forEach(r => {{
-            html += "<tr>" +
-                "<td><span class='tooltip-link' " +
-                "data-correo='" + (r.correo_director || "") + "' " +
-                "data-anexo='" + (r.anexo_director || "") + "' " +
-                "data-restriccion='" + (r.consultar_antes_de_entregar_contactos || "") + "' " +
-                "onclick='event.stopPropagation(); mostrarTooltip(this);'>" +
-                (r.nombre || "") +
-                "</span></td>" +
+            const directorInfo = `
+                <strong>Correo:</strong> ${{r.correo_director || "No informado"}}<br>
+                <strong>Anexo:</strong> ${{r.anexo_director || "Sin información"}}<br>
+                <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin restricción"}}
+            `;
 
-                "<td>" + (r.escuela_busqueda || r.escuela || "") + "</td>" +
-                "<td>" + (r.cargo || "") + "</td>" +
-                "<td>" + (r.campus || "") + "</td>" +
+            const secInfo = `
+                <strong>Correo:</strong> ${{r.correo_secretaria || "No informado"}}<br>
+                <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+            `;
 
-                "<td><span class='tooltip-link' " +
-                "data-correo='" + (r.correo_secretaria || "") + "' " +
-                "data-anexo='" + (r.anexo_secretaria || "") + "' " +
-                "onclick='event.stopPropagation(); mostrarTooltip(this);'>" +
-                (r.secretaria || "No informado") +
-                "</span></td>" +
-
-                "<td>" + (r.sede || "") + "</td>" +
-                "</tr>";
+            html += `<tr>
+                <td>
+                    <div class="name-cell">
+                        ${{r.nombre || ""}}
+                        <button class="info-btn" onclick="showTooltip(event, \`${{directorInfo}}\`)">ℹ️</button>
+                    </div>
+                </td>
+                <td>${{r.escuela || ""}}</td>
+                <td>${{r.cargo || ""}}</td>
+                <td>${{r.campus || ""}}</td>
+                <td>
+                    <div class="name-cell">
+                        ${{r.secretaria || "No informado"}}
+                        <button class="info-btn" onclick="showTooltip(event, \`${{secInfo}}\`)">ℹ️</button>
+                    </div>
+                </td>
+                <td>${{r.sede || ""}}</td>
+            </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    });
+    }});
 }}
 
 function borrar() {{
@@ -248,38 +243,31 @@ function borrar() {{
 """
 
 # =========================
-# API
+# API BUSCAR
 # =========================
 @app.route("/buscar")
 def buscar_api():
     q = request.args.get("q", "").lower()
     sede = request.args.get("sede", "").lower()
 
-    if len(q) < 2:
-        return jsonify([])
+    query = supabase.table("directorio_escuelas_umayor").select("*")
 
-    query = (
-        supabase
-        .table("directorio_escuelas_umayor")
-        .select("*")
-        .or_(
-            f"escuela_busqueda.ilike.%{q}%,"
-            f"escuela.ilike.%{q}%,"
-            f"nombre.ilike.%{q}%,"
-            f"cargo.ilike.%{q}%"
+    if q:
+        query = query.or_(
+            f"escuela.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%"
         )
-    )
 
     if sede:
         query = query.ilike("sede", sede)
 
-    result = query.execute()
-    return jsonify(result.data or [])
+    res = query.execute()
+    return jsonify(res.data or [])
 
+# =========================
+# RUN
+# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
 
 
 
