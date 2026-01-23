@@ -1,138 +1,124 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, url_for
 from supabase import create_client
 
 app = Flask(__name__)
 
 # =========================
-# SUPABASE
+# CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# HOME
+# PÁGINA PRINCIPAL
 # =========================
 @app.route("/")
 def home():
-    return """
+    return f"""
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Directorio Umayor</title>
-
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<title>Directorio Escuelas UM</title>
 
 <style>
-body {
+body {{
     font-family: Calibri, Arial, sans-serif;
     background: #f3f6f9;
-}
+}}
 
-/* Contenedor principal */
-.card {
-    position: relative;
-    max-width: 1200px;
+.card {{
+    max-width: 1000px;
     margin: 40px auto;
     background: white;
-    padding: 40px 30px 30px 30px;
+    padding: 30px;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
+}}
 
-/* Logo esquina superior derecha */
-.logo-um {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+.header {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}}
+
+.logo-um {{
     height: 80px;
-}
+    object-fit: contain;
+}}
 
-/* Título */
-h1 {
-    margin-top: 0;
-}
-
-/* Controles */
-input, select, button {
+input, select, button {{
     width: 100%;
     padding: 12px;
     margin: 10px 0;
     font-size: 16px;
-}
+}}
 
-button {
+button {{
     background: #005baa;
     color: white;
     border: none;
     cursor: pointer;
-}
+}}
 
-button.secondary {
+button.secondary {{
     background: #999;
-}
+}}
 
-/* Tabla */
-.table-container {
-    overflow-x: auto;
-}
-
-table {
+table {{
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-}
+}}
 
-th, td {
+th, td {{
     border: 1px solid #ddd;
     padding: 8px;
+    text-align: left;
     vertical-align: top;
-}
+}}
 
-th {
+th {{
     background: #005baa;
     color: white;
-}
+}}
 
-/* Restricciones */
-.restriccion-validacion {
-    color: #ff8c00;
-    font-weight: bold;
-}
-
-.restriccion-secretaria {
+.restriccion-ok {{
     color: green;
     font-weight: bold;
-}
+}}
 
-.restriccion-vacia {
-    color: #999;
-}
+.restriccion-alerta {{
+    color: orange;
+    font-weight: bold;
+}}
 
-/* Footer */
-.footer {
-    margin-top: 40px;
-    padding-top: 15px;
-    border-top: 1px solid #ddd;
-    text-align: center;
+.footer {{
+    margin-top: 30px;
     font-size: 13px;
-    color: #666;
-}
+    color: #555;
+    text-align: center;
+}}
 </style>
 </head>
 
 <body>
 <div class="card">
 
-    <!-- Logo -->
-    <img src="/static/logoum.jpg" class="logo-um" alt="Universidad Mayor">
+    <div class="header">
+        <h1>Directorio UMAYOR</h1>
+        <img src="{url_for('static', filename='img/logoum.jpg')}"
+             class="logo-um"
+             alt="Universidad Mayor">
+    </div>
 
-    <h1>Directorio UMAYOR</h1>
+    <input id="busqueda"
+           placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
+           onkeydown="if(event.key==='Enter') buscar();">
 
-    <input id="busqueda" placeholder="¿Qué escuela busca?">
-    
     <select id="sede">
         <option value="">Todas las sedes</option>
         <option value="santiago">Santiago</option>
@@ -148,22 +134,45 @@ th {
         Desarrollado por <strong>Eduardo Ferrada</strong><br>
         Universidad Mayor · Enero 2026
     </div>
+
 </div>
 
 <script>
-function buscar() {
+function iconoRestriccion(texto) {{
+    if (!texto) return "";
+
+    texto = texto.toLowerCase();
+
+    if (texto.includes("solo correo")) {{
+        return "🟢 Solo correo secretaría";
+    }}
+
+    if (texto.includes("validacion")) {{
+        return "⚠️ Validación previa";
+    }}
+
+    if (texto.includes("autorizacion")) {{
+        return "🔒 Autorización expresa";
+    }}
+
+    return "🟠 Información sensible";
+}}
+
+function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
+    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
-    .then(data => {
-        if (!data.length) {
-            resultados.innerHTML = "<p>No se encontraron resultados.</p>";
+    .then(data => {{
+        if (!data || data.length === 0) {{
+            document.getElementById("resultados").innerHTML =
+                "<p>No se encontraron resultados.</p>";
             return;
-        }
+        }}
 
-        let html = `<div class="table-container"><table><tr>
+        let html = `<table>
+        <tr>
             <th>Nombre</th>
             <th>Escuela</th>
             <th>Cargo</th>
@@ -175,46 +184,35 @@ function buscar() {
             <th>Restricción</th>
         </tr>`;
 
-        data.forEach(r => {
-            let texto = r.consultar_antes_de_entregar_contactos || "";
-            let clase = "restriccion-vacia";
-            let icono = '<i class="fa-solid fa-circle-minus"></i> Sin restricción';
-
-            if (texto.includes("validacion")) {
-                icono = '<i class="fa-solid fa-triangle-exclamation"></i> Validación previa';
-                clase = "restriccion-validacion";
-            } else if (texto.includes("secretaria")) {
-                icono = '<i class="fa-solid fa-circle-check"></i> Solo correo secretaría';
-                clase = "restriccion-secretaria";
-            }
-
+        data.forEach(r => {{
             html += `<tr>
-                <td>${r.nombre||""}</td>
-                <td>${r.escuela_busqueda||r.escuela||""}</td>
-                <td>${r.cargo||""}</td>
-                <td>${r.campus||""}</td>
-                <td>${r.correo_director||""}</td>
-                <td>${r.secretaria||""}</td>
-                <td>${r.correo_secretaria||""}</td>
-                <td>${r.sede||""}</td>
-                <td class="${clase}">${icono}</td>
+                <td>${{r.nombre || ""}}</td>
+                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
+                <td>${{r.cargo || ""}}</td>
+                <td>${{r.campus || ""}}</td>
+                <td>${{r.correo_director || ""}}</td>
+                <td>${{r.secretaria || ""}}</td>
+                <td>${{r.correo_secretaria || ""}}</td>
+                <td>${{r.sede || ""}}</td>
+                <td>${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}</td>
             </tr>`;
-        });
+        }});
 
-        html += "</table></div>";
-        resultados.innerHTML = html;
-    });
-}
+        html += "</table>";
+        document.getElementById("resultados").innerHTML = html;
+    }})
+    .catch(err => {{
+        document.getElementById("resultados").innerHTML =
+            "<p>Error al consultar los datos.</p>";
+        console.error(err);
+    }});
+}}
 
-function borrar() {
-    busqueda.value = "";
-    sede.value = "";
-    resultados.innerHTML = "";
-}
-
-document.addEventListener("keydown", e => {
-    if (e.key === "Enter") buscar();
-});
+function borrar() {{
+    document.getElementById("busqueda").value = "";
+    document.getElementById("sede").value = "";
+    document.getElementById("resultados").innerHTML = "";
+}}
 </script>
 
 </body>
@@ -222,26 +220,39 @@ document.addEventListener("keydown", e => {
 """
 
 # =========================
-# BUSCAR
+# BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar():
-    q = request.args.get("q","").lower()
-    sede = request.args.get("sede","").lower()
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip().lower()
 
     if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas_umayor").select("*").or_(
-        f"nombre.ilike.%{q}%,escuela.ilike.%{q}%,escuela_busqueda.ilike.%{q}%,cargo.ilike.%{q}%"
+    query = (
+        supabase
+        .table("directorio_escuelas_umayor")
+        .select("*")
+        .or_(
+            f"escuela_busqueda.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
     )
 
     if sede:
-        query = query.eq("sede", sede)
+        query = query.ilike("sede", sede)
 
-    return jsonify(query.execute().data or [])
+    result = query.execute()
+    return jsonify(result.data if result.data else [])
 
+# =========================
+# EJECUCIÓN
+# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
