@@ -24,13 +24,13 @@ body {
 .header {
     background: #ffffff;
     border-bottom: 4px solid #f5c842;
-    padding: 15px 30px;
+    padding: 20px 40px;
     display: flex;
     align-items: center;
 }
 
 .header img {
-    height: 55px;
+    height: 80px; /* LOGO MÁS PROTAGÓNICO */
 }
 
 .container {
@@ -40,13 +40,14 @@ body {
 }
 
 h1 {
-    font-size: 30px;
-    margin-bottom: 5px;
+    font-size: 32px;
+    margin-bottom: 6px;
 }
 
 .subtitle {
     color: #555;
     margin-bottom: 40px;
+    font-size: 16px;
 }
 
 .cards {
@@ -77,15 +78,20 @@ h1 {
 
 .links {
     background: white;
-    padding: 20px;
+    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 0 15px rgba(0,0,0,0.08);
+}
+
+.links strong {
+    font-size: 16px;
 }
 
 .links select {
     width: 100%;
     padding: 12px;
     font-size: 15px;
+    margin-top: 10px;
 }
 
 .footer {
@@ -126,14 +132,27 @@ h1 {
     </div>
 
     <div class="links">
-        <strong>🔗 Links de interés</strong><br><br>
+        <strong>🔗 Links de interés</strong>
         <select onchange="if(this.value) window.open(this.value, '_blank')">
             <option value="">Selecciona un enlace…</option>
-            <option value="https://www.umayor.cl">Sitio Universidad Mayor</option>
-            <option value="https://intranet.umayor.cl">Intranet UM</option>
-            <option value="https://correo.umayor.cl">Correo Institucional</option>
-            <option value="https://crm.umayor.cl">CRM / Customer Service</option>
-            <option value="https://mesadeayuda.umayor.cl">Mesa de Ayuda TI</option>
+            <option value="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes">
+                ORE – Registro de Estudiantes
+            </option>
+            <option value="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl">
+                Portal de Certificados
+            </option>
+            <option value="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles">
+                Becas y Créditos
+            </option>
+            <option value="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera">
+                Gestión Financiera
+            </option>
+            <option value="https://www.umayor.cl/um/oferta-academica">
+                Oferta Académica
+            </option>
+            <option value="https://www.admisionmayor.cl/preguntas-frecuentes">
+                Preguntas Frecuentes Admisión
+            </option>
         </select>
     </div>
 
@@ -163,5 +182,6 @@ def academicos():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
