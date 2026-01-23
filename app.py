@@ -106,7 +106,9 @@ th {{
 
     <div class="header">
         <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um" alt="Universidad Mayor">
+        <img src="{url_for('static', filename='img/logoum.jpg')}"
+             class="logo-um"
+             alt="Universidad Mayor">
     </div>
 
     <input id="busqueda"
@@ -225,6 +227,7 @@ def buscar_api():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
