@@ -4,7 +4,7 @@ from supabase import create_client
 app = Flask(__name__)
 
 # =========================
-# CONFIGURACIÓN SUPABASE
+# SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -12,7 +12,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# PÁGINA PRINCIPAL
+# HOME
 # =========================
 @app.route("/")
 def home():
@@ -40,30 +40,29 @@ body {{
 
 .header {{
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    align-items: center;
 }}
 
 .logo-um {{
     height: 110px;
-    object-fit: contain;
-}}
-
-input, select, button {{
-    width: 100%;
-    padding: 11px;
-    margin: 8px 0;
-    font-size: 15px;
 }}
 
 .filters {{
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 12px;
+    margin-top: 20px;
+}}
+
+input, select, button {{
+    padding: 11px;
+    font-size: 15px;
+    width: 100%;
 }}
 
 button {{
+    margin-top: 10px;
     background: #005baa;
     color: white;
     border: none;
@@ -77,15 +76,15 @@ button.secondary {{
 table {{
     width: 100%;
     border-collapse: collapse;
-    margin-top: 18px;
+    margin-top: 20px;
     table-layout: fixed;
 }}
 
 th, td {{
     border: 1px solid #ddd;
     padding: 8px;
-    vertical-align: top;
     font-size: 14px;
+    vertical-align: top;
     word-wrap: break-word;
 }}
 
@@ -94,50 +93,30 @@ th {{
     color: white;
 }}
 
-th:nth-child(1),
-th:nth-child(5) {{
-    width: 18%;
-}}
-
-th:nth-child(2) {{
-    width: 22%;
-}}
-
-th:nth-child(3),
-th:nth-child(4),
-th:nth-child(6) {{
-    width: 10%;
-}}
-
 .person {{
-    cursor: pointer;
     color: #005baa;
     text-decoration: underline;
+    cursor: pointer;
 }}
 
 .tooltip {{
-    display: none;
     position: absolute;
-    background: #ffffff;
+    display: none;
+    background: #fff;
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    width: 260px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.2);
     font-size: 13px;
-}}
-
-.tooltip strong {{
-    display: block;
-    margin-bottom: 4px;
+    width: 260px;
+    z-index: 9999;
 }}
 
 .footer {{
-    margin-top: 26px;
+    text-align: center;
+    margin-top: 25px;
     font-size: 13px;
     color: #555;
-    text-align: center;
 }}
 </style>
 </head>
@@ -145,34 +124,29 @@ th:nth-child(6) {{
 <body>
 <div class="card">
 
-    <div class="header">
-        <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}"
-             class="logo-um"
-             alt="Universidad Mayor">
-    </div>
+<div class="header">
+<h1>Directorio Escuelas UM</h1>
+<img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
+</div>
 
-    <div class="filters">
-        <input id="busqueda"
-               placeholder="Buscar escuela, director o cargo"
-               onkeydown="if(event.key === 'Enter') buscar();">
+<div class="filters">
+<input id="busqueda" placeholder="Buscar escuela, cargo o persona" onkeydown="if(event.key==='Enter') buscar();">
+<select id="sede">
+<option value="">Todas las sedes</option>
+<option value="santiago">Santiago</option>
+<option value="temuco">Temuco</option>
+</select>
+</div>
 
-        <select id="sede">
-            <option value="">Todas las sedes</option>
-            <option value="santiago">Santiago</option>
-            <option value="temuco">Temuco</option>
-        </select>
-    </div>
+<button onclick="buscar()">Buscar</button>
+<button class="secondary" onclick="borrar()">Borrar</button>
 
-    <button onclick="buscar()">Buscar</button>
-    <button class="secondary" onclick="borrar()">Borrar</button>
+<div id="resultados"></div>
 
-    <div id="resultados"></div>
-
-    <div class="footer">
-        Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026
-    </div>
+<div class="footer">
+Desarrollado por <strong>Eduardo Ferrada</strong><br>
+Universidad Mayor · Enero 2026
+</div>
 
 </div>
 
@@ -181,16 +155,16 @@ th:nth-child(6) {{
 <script>
 const tooltip = document.getElementById("tooltip");
 
-function mostrarTooltip(event, html) {{
+function showTooltip(event, html) {{
     tooltip.innerHTML = html;
     tooltip.style.display = "block";
     tooltip.style.top = (event.pageY + 10) + "px";
     tooltip.style.left = (event.pageX + 10) + "px";
 }}
 
-function ocultarTooltip() {{
+document.addEventListener("click", () => {{
     tooltip.style.display = "none";
-}}
+}});
 
 function buscar() {{
     const q = document.getElementById("busqueda").value;
@@ -199,9 +173,8 @@ function buscar() {{
     fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
     .then(data => {{
-        if (!data || data.length === 0) {{
-            document.getElementById("resultados").innerHTML =
-                "<p>No se encontraron resultados.</p>";
+        if (!data.length) {{
+            document.getElementById("resultados").innerHTML = "<p>No hay resultados.</p>";
             return;
         }}
 
@@ -216,56 +189,35 @@ function buscar() {{
         </tr>`;
 
         data.forEach(r => {{
-            const directorTooltip = `
-                <strong>Correo:</strong>
-                <a href="mailto:${{r.correo_director || ""}}">${{r.correo_director || "Sin información"}}</a><br>
-                <strong>Anexo:</strong> ${{r.anexo_director || "Sin información"}}<br>
-                <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin restricción"}}
-            `;
+            const directorTip =
+                `<strong>Correo:</strong> <a href="mailto:${{r.correo_director||""}}">${{r.correo_director||"Sin info"}}</a><br>
+                 <strong>Anexo:</strong> ${{r.anexo_director||"Sin info"}}<br>
+                 <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos||"Sin restricción"}}`;
 
-            const secretariaTooltip = `
-                <strong>Correo:</strong>
-                <a href="mailto:${{r.correo_secretaria || ""}}">${{r.correo_secretaria || "Sin información"}}</a><br>
-                <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
-            `;
+            const secTip =
+                `<strong>Correo:</strong> <a href="mailto:${{r.correo_secretaria||""}}">${{r.correo_secretaria||"Sin info"}}</a><br>
+                 <strong>Anexo:</strong> ${{r.anexo_secretaria||"Sin info"}}`;
 
             html += `<tr>
-                <td>
-                    <span class="person"
-                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{directorTooltip}}\`);">
-                        ${{r.nombre || "Sin información"}}
-                    </span>
-                </td>
-                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
-                <td>${{r.cargo || ""}}</td>
-                <td>${{r.campus || ""}}</td>
-                <td>
-                    <span class="person"
-                          onclick="event.stopPropagation(); mostrarTooltip(event, \`${{secretariaTooltip}}\`);">
-                        ${{r.secretaria || "Sin información"}}
-                    </span>
-                </td>
-                <td>${{r.sede || ""}}</td>
+            <td><span class="person" onclick="event.stopPropagation();showTooltip(event, '${{directorTip}}')">${{r.nombre||""}}</span></td>
+            <td>${{r.escuela||""}}</td>
+            <td>${{r.cargo||""}}</td>
+            <td>${{r.campus||""}}</td>
+            <td><span class="person" onclick="event.stopPropagation();showTooltip(event, '${{secTip}}')">${{r.secretaria||"Sin info"}}</span></td>
+            <td>${{r.sede||""}}</td>
             </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    }})
-    .catch(err => {{
-        document.getElementById("resultados").innerHTML =
-            "<p>Error al consultar los datos.</p>";
-        console.error(err);
-    }});
+    });
 }}
 
 function borrar() {{
-    document.getElementById("busqueda").value = "";
-    document.getElementById("sede").value = "";
-    document.getElementById("resultados").innerHTML = "";
+    document.getElementById("busqueda").value="";
+    document.getElementById("sede").value="";
+    document.getElementById("resultados").innerHTML="";
 }}
-
-document.addEventListener("click", ocultarTooltip);
 </script>
 
 </body>
@@ -273,39 +225,29 @@ document.addEventListener("click", ocultarTooltip);
 """
 
 # =========================
-# API BUSCADOR
+# API
 # =========================
 @app.route("/buscar")
 def buscar_api():
-    q = request.args.get("q", "").strip().lower()
-    sede = request.args.get("sede", "").strip().lower()
+    q = request.args.get("q","").lower()
+    sede = request.args.get("sede","").lower()
 
     if len(q) < 2:
         return jsonify([])
 
-    query = (
-        supabase
-        .table("directorio_escuelas_umayor")
-        .select("*")
-        .or_(
-            f"escuela_busqueda.ilike.%{q}%,"
-            f"escuela.ilike.%{q}%,"
-            f"nombre.ilike.%{q}%,"
-            f"cargo.ilike.%{q}%"
-        )
+    query = supabase.table("directorio_escuelas_umayor").select("*").or_(
+        f"escuela.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%"
     )
 
     if sede:
         query = query.ilike("sede", f"%{sede}%")
 
-    result = query.execute()
-    return jsonify(result.data if result.data else [])
+    res = query.execute()
+    return jsonify(res.data or [])
 
-# =========================
-# EJECUCIÓN
-# =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
