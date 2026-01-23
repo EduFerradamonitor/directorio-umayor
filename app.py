@@ -130,7 +130,8 @@ th {{
 </div>
 
 <div class="filters">
-<input id="busqueda" placeholder="Buscar escuela, cargo o persona" onkeydown="if(event.key==='Enter') buscar();">
+<input id="busqueda" placeholder="Buscar escuela, cargo o persona"
+       onkeydown="if(event.key==='Enter') buscar();">
 <select id="sede">
 <option value="">Todas las sedes</option>
 <option value="santiago">Santiago</option>
@@ -190,33 +191,43 @@ function buscar() {{
 
         data.forEach(r => {{
             const directorTip =
-                `<strong>Correo:</strong> <a href="mailto:${{r.correo_director||""}}">${{r.correo_director||"Sin info"}}</a><br>
-                 <strong>Anexo:</strong> ${{r.anexo_director||"Sin info"}}<br>
-                 <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos||"Sin restricción"}}`;
+                `<strong>Correo:</strong> <a href="mailto:${{r.correo_director || ""}}">${{r.correo_director || "Sin info"}}</a><br>
+                 <strong>Anexo:</strong> ${{r.anexo_director || "Sin info"}}<br>
+                 <strong>Restricción:</strong> ${{r.consultar_antes_de_entregar_contactos || "Sin restricción"}}`;
 
             const secTip =
-                `<strong>Correo:</strong> <a href="mailto:${{r.correo_secretaria||""}}">${{r.correo_secretaria||"Sin info"}}</a><br>
-                 <strong>Anexo:</strong> ${{r.anexo_secretaria||"Sin info"}}`;
+                `<strong>Correo:</strong> <a href="mailto:${{r.correo_secretaria || ""}}">${{r.correo_secretaria || "Sin info"}}</a><br>
+                 <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin info"}}`;
 
             html += `<tr>
-            <td><span class="person" onclick="event.stopPropagation();showTooltip(event, '${{directorTip}}')">${{r.nombre||""}}</span></td>
-            <td>${{r.escuela||""}}</td>
-            <td>${{r.cargo||""}}</td>
-            <td>${{r.campus||""}}</td>
-            <td><span class="person" onclick="event.stopPropagation();showTooltip(event, '${{secTip}}')">${{r.secretaria||"Sin info"}}</span></td>
-            <td>${{r.sede||""}}</td>
+            <td>
+              <span class="person"
+               onclick="event.stopPropagation();showTooltip(event, '${{directorTip}}')">
+               ${{r.nombre || ""}}
+              </span>
+            </td>
+            <td>${{r.escuela || ""}}</td>
+            <td>${{r.cargo || ""}}</td>
+            <td>${{r.campus || ""}}</td>
+            <td>
+              <span class="person"
+               onclick="event.stopPropagation();showTooltip(event, '${{secTip}}')">
+               ${{r.secretaria || "Sin info"}}
+              </span>
+            </td>
+            <td>${{r.sede || ""}}</td>
             </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    });
+    }});
 }}
 
 function borrar() {{
-    document.getElementById("busqueda").value="";
-    document.getElementById("sede").value="";
-    document.getElementById("resultados").innerHTML="";
+    document.getElementById("busqueda").value = "";
+    document.getElementById("sede").value = "";
+    document.getElementById("resultados").innerHTML = "";
 }}
 </script>
 
@@ -247,7 +258,6 @@ def buscar_api():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
 
 
