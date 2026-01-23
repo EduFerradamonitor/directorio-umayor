@@ -30,7 +30,7 @@ body {{
 }}
 
 .card {{
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 40px auto;
     background: white;
     padding: 30px;
@@ -78,13 +78,23 @@ th, td {{
     border: 1px solid #ddd;
     padding: 8px;
     vertical-align: top;
-    word-wrap: break-word;
+    word-break: break-word;
 }}
 
 th {{
     background: #005baa;
     color: white;
+    font-weight: bold;
 }}
+
+th:nth-child(1) {{ width: 14%; }}
+th:nth-child(2) {{ width: 18%; }}
+th:nth-child(3) {{ width: 16%; }}
+th:nth-child(4) {{ width: 14%; }}
+th:nth-child(5) {{ width: 16%; }}
+th:nth-child(6) {{ width: 16%; }}
+th:nth-child(7) {{ width: 8%; }}
+th:nth-child(8) {{ width: 10%; }}
 
 .restr-ok {{ color: green; font-weight: bold; }}
 .restr-warn {{ color: orange; font-weight: bold; }}
@@ -119,6 +129,7 @@ th {{
 a.mail {{
     color: #005baa;
     text-decoration: underline;
+    white-space: nowrap;
 }}
 
 .footer {{
@@ -179,7 +190,7 @@ function iconoRestriccion(texto) {{
 }}
 
 function mailto(correo) {{
-    if (!correo) return "Sin información";
+    if (!correo || correo === "no informado") return "No informado";
     return `<a class="mail" href="mailto:${{correo}}">${{correo}}</a>`;
 }}
 
@@ -219,7 +230,7 @@ function buscar() {{
                     <span class="tooltip">
                         ${{mailto(r.correo_director)}}
                         <span class="tooltip-box">
-                            <strong>Anexo director:</strong><br>
+                            📞 <strong>Anexo director:</strong><br>
                             ${{r.anexo_director || "Sin información"}}
                         </span>
                     </span>
@@ -229,8 +240,8 @@ function buscar() {{
                     <span class="tooltip">
                         ${{mailto(r.correo_secretaria)}}
                         <span class="tooltip-box">
-                            <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
-                            <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
+                            📞 <strong>Secretaría:</strong> ${{r.secretaria || "Sin información"}}<br>
+                            📞 <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}
                         </span>
                     </span>
                 </td>
@@ -257,7 +268,7 @@ function borrar() {{
 """
 
 # =========================
-# API BUSCADOR
+# API
 # =========================
 @app.route("/buscar")
 def buscar_api():
