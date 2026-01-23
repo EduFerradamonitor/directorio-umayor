@@ -7,7 +7,7 @@ app = Flask(__name__)
 # CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "PEGA_AQUI_TU_KEY_ANON_COMPLETA"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -42,22 +42,17 @@ body {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
 }}
 
 .logo-um {{
     height: 80px;
-    object-fit: contain;
 }}
 
 .info-box {{
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    background: #f0f6ff;
-    border-left: 5px solid #0b5ed7;
+    margin: 20px 0;
     padding: 14px 16px;
-    margin-bottom: 25px;
+    background: #f0f6ff;
+    border-left: 4px solid #005baa;
     font-size: 16px;
     font-weight: bold;
 }}
@@ -83,7 +78,7 @@ button.secondary {{
 table {{
     width: 100%;
     border-collapse: collapse;
-    margin-top: 25px;
+    margin-top: 20px;
 }}
 
 th, td {{
@@ -97,27 +92,34 @@ th {{
     color: white;
 }}
 
-.info-icon {{
+.tooltip {{
+    position: relative;
     display: inline-block;
-    margin-left: 6px;
-    background: #0b5ed7;
-    color: white;
-    border-radius: 4px;
-    font-size: 12px;
-    padding: 2px 6px;
     cursor: pointer;
+    margin-left: 6px;
 }}
 
-.tooltip {{
-    display: none;
-    position: absolute;
-    background: white;
-    border: 1px solid #ccc;
-    padding: 10px;
+.tooltip .tooltip-box {{
+    visibility: hidden;
+    width: 260px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
     border-radius: 6px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    font-size: 14px;
-    z-index: 1000;
+    padding: 10px;
+    position: absolute;
+    z-index: 10;
+    top: 22px;
+    left: 0;
+}}
+
+.tooltip:hover .tooltip-box {{
+    visibility: visible;
+}}
+
+.tooltip a {{
+    color: #aad4ff;
+    text-decoration: underline;
 }}
 
 .footer {{
@@ -138,14 +140,12 @@ th {{
     </div>
 
     <div class="info-box">
-        ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.
-        Si no ves el buscador de inmediato, espera o actualiza la página.
+        ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.  
+        Si no ves el buscador de inmediato, espera o actualiza la página.  
         Para ver más información de directores y secretarías, haz clic en el ícono ℹ️ junto al nombre.
     </div>
 
-    <input id="busqueda"
-           placeholder="¿Qué escuela busca? (ej: derecho, psicología)"
-           onkeydown="if(event.key==='Enter') buscar();">
+    <input id="busqueda" placeholder="¿Qué escuela busca?" onkeydown="if(event.key==='Enter') buscar();">
 
     <select id="sede">
         <option value="">Todas las sedes</option>
@@ -162,28 +162,19 @@ th {{
         Desarrollado por <strong>Eduardo Ferrada</strong><br>
         Universidad Mayor · Enero 2026
     </div>
+
 </div>
 
-<div id="tooltip" class="tooltip"></div>
-
 <script>
-let tooltip = document.getElementById("tooltip");
-
-document.addEventListener("click", () => {{
-    tooltip.style.display = "none";
-}});
-
-function mostrarTooltip(event, html) {{
-    event.stopPropagation();
-    tooltip.innerHTML = html;
-    tooltip.style.display = "block";
-    tooltip.style.left = event.pageX + "px";
-    tooltip.style.top = event.pageY + "px";
-}}
-
 function buscar() {{
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
+
+    if (q.length < 3) {{
+        document.getElementById("resultados").innerHTML =
+            "<p>Ingresa al menos 3 caracteres para buscar.</p>";
+        return;
+    }}
 
     fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
     .then(r => r.json())
@@ -207,29 +198,40 @@ function buscar() {{
         data.forEach(r => {{
             html += `<tr>
                 <td>
-                    ${{r.nombre || ""}}
-                    <span class="info-icon"
-                        onclick="mostrarTooltip(event,
-                        '<strong>Correo:</strong> <a href=mailto:${{r.correo_director}}>${{r.correo_director || "No informado"}}</a><br>\
-                         <strong>Anexo:</strong> ${{r.anexo_director || "Sin información"}}')">ℹ️</span>
+                    ${r.nombre || ""}
+                    <span class="tooltip">ℹ️
+                        <div class="tooltip-box">
+                            <strong>Correo:</strong>
+                            <a href="mailto:${r.correo_director || ""}">
+                                ${r.correo_director || "Sin información"}
+                            </a><br>
+                            <strong>Anexo:</strong> ${r.anexo_director || "Sin información"}<br>
+                            <strong>Restricción:</strong> ${r.consultar_antes_de_entregar_contactos || "Sin restricción"}
+                        </div>
+                    </span>
                 </td>
-                <td>${{r.escuela_busqueda || ""}}</td>
-                <td>${{r.cargo || ""}}</td>
-                <td>${{r.campus || ""}}</td>
+                <td>${r.escuela_busqueda || r.escuela || ""}</td>
+                <td>${r.cargo || ""}</td>
+                <td>${r.campus || ""}</td>
                 <td>
-                    ${{r.secretaria || "No informado"}}
-                    <span class="info-icon"
-                        onclick="mostrarTooltip(event,
-                        '<strong>Correo:</strong> <a href=mailto:${{r.correo_secretaria}}>${{r.correo_secretaria || "No informado"}}</a><br>\
-                         <strong>Anexo:</strong> ${{r.anexo_secretaria || "Sin información"}}')">ℹ️</span>
+                    ${r.secretaria || "No informado"}
+                    <span class="tooltip">ℹ️
+                        <div class="tooltip-box">
+                            <strong>Correo:</strong>
+                            <a href="mailto:${r.correo_secretaria || ""}">
+                                ${r.correo_secretaria || "Sin información"}
+                            </a><br>
+                            <strong>Anexo:</strong> ${r.anexo_secretaria || "Sin información"}
+                        </div>
+                    </span>
                 </td>
-                <td>${{r.sede || ""}}</td>
+                <td>${r.sede || ""}</td>
             </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    }});
+    });
 }}
 
 function borrar() {{
@@ -244,14 +246,14 @@ function borrar() {{
 """
 
 # =========================
-# API BUSCADOR
+# BUSCADOR API
 # =========================
 @app.route("/buscar")
 def buscar_api():
-    q = request.args.get("q", "").lower()
-    sede = request.args.get("sede", "").lower()
+    q = request.args.get("q", "").strip()
+    sede = request.args.get("sede", "").strip()
 
-    if len(q) < 2:
+    if len(q) < 3:
         return jsonify([])
 
     query = (
@@ -260,6 +262,7 @@ def buscar_api():
         .select("*")
         .or_(
             f"escuela_busqueda.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
             f"nombre.ilike.%{q}%,"
             f"cargo.ilike.%{q}%"
         )
@@ -269,16 +272,10 @@ def buscar_api():
         query = query.ilike("sede", sede)
 
     result = query.execute()
-    return jsonify(result.data or [])
+    return jsonify(result.data if result.data else [])
 
 # =========================
 # EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
-
-
-
-
-
