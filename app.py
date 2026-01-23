@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, url_for
+from flask import Flask, request, jsonify
 from supabase import create_client
 
 app = Flask(__name__)
@@ -12,11 +12,11 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# PÁGINA PRINCIPAL
+# HOME
 # =========================
 @app.route("/")
 def home():
-    return f"""
+    return """
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,83 +24,83 @@ def home():
 <title>Directorio Escuelas UM</title>
 
 <style>
-body {{
+body {
     font-family: Calibri, Arial, sans-serif;
     background: #f3f6f9;
-}}
+}
 
-.card {{
+.card {
     max-width: 1200px;
     margin: 40px auto;
     background: white;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}}
+}
 
-.header {{
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}}
+}
 
-.logo-um {{
+.logo-um {
     height: 80px;
-}}
+}
 
-.info-box {{
+.info-box {
     margin: 20px 0;
     padding: 14px 16px;
     background: #f0f6ff;
     border-left: 4px solid #005baa;
     font-size: 16px;
     font-weight: bold;
-}}
+}
 
-input, select, button {{
+input, select, button {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
     font-size: 16px;
-}}
+}
 
-button {{
+button {
     background: #005baa;
     color: white;
     border: none;
     cursor: pointer;
-}}
+}
 
-button.secondary {{
+button.secondary {
     background: #999;
-}}
+}
 
-table {{
+table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-}}
+}
 
-th, td {{
+th, td {
     border: 1px solid #ddd;
     padding: 10px;
     vertical-align: top;
-}}
+}
 
-th {{
+th {
     background: #005baa;
     color: white;
-}}
+}
 
-.tooltip {{
+.tooltip {
     position: relative;
     display: inline-block;
     cursor: pointer;
     margin-left: 6px;
-}}
+}
 
-.tooltip .tooltip-box {{
-    visibility: hidden;
+.tooltip-box {
+    display: none;
     width: 260px;
     background-color: #333;
     color: #fff;
@@ -111,23 +111,23 @@ th {{
     z-index: 10;
     top: 22px;
     left: 0;
-}}
+}
 
-.tooltip:hover .tooltip-box {{
-    visibility: visible;
-}}
+.tooltip:hover .tooltip-box {
+    display: block;
+}
 
-.tooltip a {{
+.tooltip a {
     color: #aad4ff;
     text-decoration: underline;
-}}
+}
 
-.footer {{
+.footer {
     margin-top: 30px;
     font-size: 13px;
     color: #555;
     text-align: center;
-}}
+}
 </style>
 </head>
 
@@ -136,12 +136,12 @@ th {{
 
     <div class="header">
         <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
+        <img src="/static/img/logoum.jpg" class="logo-um">
     </div>
 
     <div class="info-box">
-        ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.  
-        Si no ves el buscador de inmediato, espera o actualiza la página.  
+        ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.
+        Si no ves el buscador de inmediato, espera o actualiza la página.
         Para ver más información de directores y secretarías, haz clic en el ícono ℹ️ junto al nombre.
     </div>
 
@@ -166,24 +166,24 @@ th {{
 </div>
 
 <script>
-function buscar() {{
+function buscar() {
     const q = document.getElementById("busqueda").value;
     const sede = document.getElementById("sede").value;
 
-    if (q.length < 3) {{
+    if (q.length < 3) {
         document.getElementById("resultados").innerHTML =
             "<p>Ingresa al menos 3 caracteres para buscar.</p>";
         return;
-    }}
+    }
 
-    fetch(`/buscar?q=${{encodeURIComponent(q)}}&sede=${{encodeURIComponent(sede)}}`)
+    fetch(`/buscar?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
     .then(r => r.json())
-    .then(data => {{
-        if (!data || data.length === 0) {{
+    .then(data => {
+        if (!data || data.length === 0) {
             document.getElementById("resultados").innerHTML =
                 "<p>No se encontraron resultados.</p>";
             return;
-        }}
+        }
 
         let html = `<table>
         <tr>
@@ -195,7 +195,7 @@ function buscar() {{
             <th>Sede</th>
         </tr>`;
 
-        data.forEach(r => {{
+        data.forEach(r => {
             html += `<tr>
                 <td>
                     ${r.nombre || ""}
@@ -227,18 +227,18 @@ function buscar() {{
                 </td>
                 <td>${r.sede || ""}</td>
             </tr>`;
-        }});
+        });
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
     });
-}}
+}
 
-function borrar() {{
+function borrar() {
     document.getElementById("busqueda").value = "";
     document.getElementById("sede").value = "";
     document.getElementById("resultados").innerHTML = "";
-}}
+}
 </script>
 
 </body>
@@ -246,7 +246,7 @@ function borrar() {{
 """
 
 # =========================
-# BUSCADOR API
+# API BUSCADOR
 # =========================
 @app.route("/buscar")
 def buscar_api():
@@ -275,7 +275,8 @@ def buscar_api():
     return jsonify(result.data if result.data else [])
 
 # =========================
-# EJECUCIÓN
+# MAIN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
