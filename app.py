@@ -8,7 +8,6 @@ app = Flask(__name__)
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "sb_publishable_vpm9GsG9AbVjH80qxfzIfQ_RuFq8uAd"
-
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
@@ -35,13 +34,13 @@ body {{
     background: white;
     padding: 30px;
     border-radius: 14px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.08);
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }}
 
 .header {{
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 25px;
 }}
 
@@ -65,18 +64,18 @@ button {{
 }}
 
 button.secondary {{
-    background: #9e9e9e;
+    background: #999;
 }}
 
 .table-wrapper {{
-    margin-top: 25px;
     overflow-x: auto;
+    margin-top: 20px;
 }}
 
 table {{
     width: 100%;
+    min-width: 1100px;
     border-collapse: collapse;
-    min-width: 1200px;
 }}
 
 th, td {{
@@ -84,45 +83,51 @@ th, td {{
     padding: 8px;
     text-align: left;
     vertical-align: top;
-    word-break: break-word;
+    white-space: nowrap;
 }}
 
 th {{
     background: #005baa;
     color: white;
-    white-space: nowrap;
 }}
 
-/* ======= AJUSTES DE COLUMNAS ======= */
-.col-sede {{
-    width: 90px;
-    min-width: 90px;
-    text-align: center;
-    white-space: nowrap;
+td.wrap {{
+    white-space: normal;
+    max-width: 260px;
 }}
 
-.col-restriccion {{
-    width: 160px;
-    min-width: 160px;
+.restr-ok {{ color: green; font-weight: bold; }}
+.restr-warn {{ color: orange; font-weight: bold; }}
+.restr-lock {{ color: #c96f00; font-weight: bold; }}
+
+.tooltip {{
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
 }}
 
-.restr-ok {{
-    color: #2e7d32;
-    font-weight: bold;
+.tooltip .tooltiptext {{
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    padding: 8px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
 }}
 
-.restr-alert {{
-    color: #ef6c00;
-    font-weight: bold;
-}}
-
-.restr-lock {{
-    color: #b71c1c;
-    font-weight: bold;
+.tooltip:hover .tooltiptext {{
+    visibility: visible;
 }}
 
 .footer {{
-    margin-top: 35px;
+    margin-top: 30px;
     font-size: 13px;
     color: #555;
     text-align: center;
@@ -135,14 +140,12 @@ th {{
 
     <div class="header">
         <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}"
-             class="logo-um"
-             alt="Universidad Mayor">
+        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um" alt="Universidad Mayor">
     </div>
 
     <input id="busqueda"
            placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
-           onkeydown="if(event.key === 'Enter') buscar();">
+           onkeydown="if(event.key==='Enter') buscar();">
 
     <select id="sede">
         <option value="">Todas las sedes</option>
@@ -163,21 +166,23 @@ th {{
 </div>
 
 <script>
-function iconoRestriccion(texto) {{
+function restriccionHTML(texto) {{
     if (!texto) return "";
-
     texto = texto.toLowerCase();
+    if (texto.includes("solo correo")) return "<span class='restr-ok'>🟢 Solo correo secretaría</span>";
+    if (texto.includes("validacion")) return "<span class='restr-warn'>⚠️ Validación previa</span>";
+    if (texto.includes("autorizacion")) return "<span class='restr-lock'>🔒 Autorización expresa</span>";
+    return texto;
+}}
 
-    if (texto.includes("solo correo")) {{
-        return "<span class='restr-ok'>🟢 Solo correo secretaría</span>";
-    }}
-    if (texto.includes("validacion")) {{
-        return "<span class='restr-alert'>⚠️ Validación previa</span>";
-    }}
-    if (texto.includes("autorizacion")) {{
-        return "<span class='restr-lock'>🔒 Autorización expresa</span>";
-    }}
-    return "<span class='restr-alert'>🟠 Información sensible</span>";
+function tooltipAnexos(r) {{
+    return `
+    <span class="tooltip">📞
+        <span class="tooltiptext">
+            <strong>Anexo director:</strong> ${r.anexo_director || "Sin información"}<br>
+            <strong>Anexo secretaría:</strong> ${r.anexo_secretaria || "Sin información"}
+        </span>
+    </span>`;
 }}
 
 function buscar() {{
@@ -188,51 +193,40 @@ function buscar() {{
     .then(r => r.json())
     .then(data => {{
         if (!data || data.length === 0) {{
-            document.getElementById("resultados").innerHTML =
-                "<p>No se encontraron resultados.</p>";
+            document.getElementById("resultados").innerHTML = "<p>No se encontraron resultados.</p>";
             return;
         }}
 
-        let html = `
-        <div class="table-wrapper">
-        <table>
-            <tr>
-                <th>Nombre</th>
-                <th>Escuela</th>
-                <th>Cargo</th>
-                <th>Campus</th>
-                <th>Correo Director</th>
-                <th>Secretaría</th>
-                <th>Correo Secretaría</th>
-                <th class="col-sede">Sede</th>
-                <th class="col-restriccion">Restricción</th>
-            </tr>`;
+        let html = `<div class="table-wrapper"><table>
+        <tr>
+            <th>Nombre</th>
+            <th>Escuela</th>
+            <th>Cargo</th>
+            <th>Campus</th>
+            <th>Correo Director</th>
+            <th>Secretaría</th>
+            <th>Correo Secretaría</th>
+            <th>Sede</th>
+            <th>Restricción</th>
+        </tr>`;
 
         data.forEach(r => {{
-            html += `
-            <tr>
+            html += `<tr>
                 <td>${{r.nombre || ""}}</td>
-                <td>${{r.escuela_busqueda || r.escuela || ""}}</td>
-                <td>${{r.cargo || ""}}</td>
+                <td class="wrap">${{r.escuela_busqueda || r.escuela || ""}}</td>
+                <td class="wrap">${{r.cargo || ""}}</td>
                 <td>${{r.campus || ""}}</td>
-                <td>${{r.correo_director || ""}}</td>
+                <td>${{r.correo_director || ""}} ${{tooltipAnexos(r)}}</td>
                 <td>${{r.secretaria || ""}}</td>
                 <td>${{r.correo_secretaria || ""}}</td>
-                <td class="col-sede">${{r.sede || ""}}</td>
-                <td class="col-restriccion">
-                    ${{iconoRestriccion(r.consultar_antes_de_entregar_contactos)}}
-                </td>
+                <td>${{r.sede || ""}}</td>
+                <td>${{restriccionHTML(r.consultar_antes_de_entregar_contactos)}}</td>
             </tr>`;
         }});
 
         html += "</table></div>";
         document.getElementById("resultados").innerHTML = html;
-    }})
-    .catch(err => {{
-        document.getElementById("resultados").innerHTML =
-            "<p>Error al consultar los datos.</p>";
-        console.error(err);
-    }});
+    });
 }}
 
 function borrar() {{
@@ -250,7 +244,7 @@ function borrar() {{
 # BUSCADOR
 # =========================
 @app.route("/buscar")
-def buscar():
+def buscar_api():
     q = request.args.get("q", "").strip().lower()
     sede = request.args.get("sede", "").strip().lower()
 
@@ -273,13 +267,12 @@ def buscar():
         query = query.ilike("sede", sede)
 
     result = query.execute()
-    return jsonify(result.data if result.data else [])
+    return jsonify(result.data or [])
 
 # =========================
 # EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
 
