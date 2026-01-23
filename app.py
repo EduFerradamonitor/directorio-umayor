@@ -1,19 +1,18 @@
 from flask import Flask, request, jsonify, url_for
 from supabase import create_client
-import os
 
 app = Flask(__name__)
 
 # =========================
-# CONFIGURACIÓN SUPABASE
+# SUPABASE
 # =========================
-SUPABASE_URL = os.environ.get("https://wkbltctqqsuxqhlbnoeg.supabase.co")
-SUPABASE_KEY = os.environ.get("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM")
+SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# PÁGINA PRINCIPAL
+# HOME
 # =========================
 @app.route("/")
 def home():
@@ -31,7 +30,7 @@ body {{
 }}
 
 .card {{
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 40px auto;
     background: white;
     padding: 30px;
@@ -43,12 +42,11 @@ body {{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }}
 
 .logo-um {{
-    height: 120px;
-    object-fit: contain;
+    height: 90px;
 }}
 
 input, select, button {{
@@ -67,10 +65,6 @@ button {{
 
 button.secondary {{
     background: #999;
-}}
-
-.table-container {{
-    overflow-x: auto;
 }}
 
 table {{
@@ -106,14 +100,12 @@ th {{
 
     <div class="header">
         <h1>Directorio Escuelas UM</h1>
-        <img src="{url_for('static', filename='img/logoum.jpg')}"
-             class="logo-um"
-             alt="Universidad Mayor">
+        <img src="{url_for('static', filename='img/logoum.jpg')}" class="logo-um">
     </div>
 
     <input id="busqueda"
-           placeholder="¿Qué escuela busca? (ej: vet, derecho, psicología)"
-           onkeydown="if(event.key === 'Enter') buscar();">
+           placeholder="Buscar escuela, cargo o nombre"
+           onkeydown="if(event.key==='Enter') buscar();">
 
     <select id="sede">
         <option value="">Todas las sedes</option>
@@ -124,7 +116,7 @@ th {{
     <button onclick="buscar()">Buscar</button>
     <button class="secondary" onclick="borrar()">Borrar</button>
 
-    <div id="resultados" class="table-container"></div>
+    <div id="resultados"></div>
 
     <div class="footer">
         Desarrollado por <strong>Eduardo Ferrada</strong><br>
@@ -157,6 +149,7 @@ function buscar() {{
             <th>Secretaría</th>
             <th>Correo Secretaría</th>
             <th>Sede</th>
+            <th>Restricción</th>
         </tr>`;
 
         data.forEach(r => {{
@@ -169,16 +162,12 @@ function buscar() {{
                 <td>${{r.secretaria || ""}}</td>
                 <td>${{r.correo_secretaria || ""}}</td>
                 <td>${{r.sede || ""}}</td>
+                <td>${{r.consultar_antes_de_entregar_contactos || ""}}</td>
             </tr>`;
         }});
 
         html += "</table>";
         document.getElementById("resultados").innerHTML = html;
-    }})
-    .catch(err => {{
-        document.getElementById("resultados").innerHTML =
-            "<p>Error al consultar los datos.</p>";
-        console.error(err);
     }});
 }}
 
@@ -220,14 +209,11 @@ def buscar_api():
         query = query.ilike("sede", sede)
 
     result = query.execute()
-    return jsonify(result.data or [])
+    return jsonify(result.data if result.data else [])
 
-# =========================
-# EJECUCIÓN (RENDER SAFE)
-# =========================
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=5000)
+
 
 
 
