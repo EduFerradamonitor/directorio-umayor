@@ -1,237 +1,268 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Directorio de Escuelas – Universidad Mayor</title>
 
 <style>
-/* ===== Encabezado ===== */
-.top-bar {
-    height: 6px;
-    background: #f2b705;
-    margin-bottom: 20px;
+/* =========================
+   ESTILOS GENERALES
+========================= */
+body {
+  font-family: Calibri, Arial, sans-serif;
+  background: #f3f6f9;
+  margin: 0;
 }
 
-.header-escuelas {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
+/* =========================
+   HEADER
+========================= */
+.header {
+  background: #f2b705; /* amarillo UM */
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
 }
 
-.header-escuelas img {
-    height: 70px;
+.header img {
+  height: 90px;
 }
 
-.header-escuelas h2 {
-    margin: 0;
-    font-size: 28px;
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #002f6c;
 }
 
-/* ===== Botón volver ===== */
-.btn-volver {
-    display: inline-block;
-    margin-bottom: 15px;
-    padding: 8px 14px;
-    background: #e6e6e6;
-    border-radius: 4px;
-    text-decoration: none;
-    color: #000;
-    font-weight: 500;
+/* =========================
+   CONTENEDOR
+========================= */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-.btn-volver:hover {
-    background: #d4d4d4;
+/* =========================
+   BUSCADOR
+========================= */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* ===== Buscador ===== */
-.toolbar {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 25px;
+.search-bar input,
+.search-bar select {
+  padding: 12px;
+  font-size: 16px;
+  flex: 1;
 }
 
-.toolbar input {
-    width: 420px;
-    padding: 8px;
+.search-bar button {
+  padding: 12px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.toolbar select {
-    padding: 8px;
+.btn-primary {
+  background: #005baa;
+  color: #fff;
 }
 
-.toolbar button {
-    padding: 8px 14px;
+.btn-secondary {
+  background: #999;
+  color: #fff;
 }
 
-/* ===== Tabla ===== */
+.btn-home {
+  background: #005baa;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+/* =========================
+   TABLA
+========================= */
 table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  vertical-align: top;
+  font-size: 14px;
 }
 
 th {
-    background: #005baa;
-    color: white;
-    padding: 10px;
-    text-align: left;
+  background: #005baa;
+  color: white;
+  text-align: left;
 }
 
-td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-    vertical-align: top;
+/* =========================
+   TOOLTIP
+========================= */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
 }
 
-/* ===== Correos ===== */
-.correo a {
-    color: #005baa;
-    text-decoration: underline;
+.tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 10;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  font-size: 13px;
 }
 
-/* ===== Tooltip ===== */
-.tooltip {
-    position: relative;
+.tooltip-container:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
 }
 
-.tooltip .tooltip-box {
-    visibility: hidden;
-    background: #333;
-    color: #fff;
-    padding: 8px;
-    border-radius: 4px;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    z-index: 10;
-    font-size: 13px;
-    width: max-content;
-    max-width: 260px;
-}
-
-.tooltip:hover .tooltip-box {
-    visibility: visible;
-}
-
-/* ===== Footer ===== */
+/* =========================
+   FOOTER
+========================= */
 .footer {
-    margin-top: 40px;
-    text-align: center;
-    font-size: 13px;
-    color: #555;
+  margin-top: 40px;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
 }
 </style>
+</head>
 
-<div class="top-bar"></div>
+<body>
 
-<a href="/" class="btn-volver">⬅ Volver al inicio</a>
-
-<div class="header-escuelas">
-    <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
-    <h2>Directorio de Escuelas</h2>
+<!-- =========================
+     HEADER
+========================= -->
+<div class="header">
+  <a href="https://www.umayor.cl" target="_blank">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+  </a>
+  <h1>Directorio de Escuelas</h1>
 </div>
 
-<div class="toolbar">
-    <input type="text" id="q" placeholder="Buscar escuela o director…">
+<!-- =========================
+     CONTENIDO
+========================= -->
+<div class="container">
+
+  <a href="/" class="btn-home">⬅ Volver al inicio</a>
+
+  <div class="search-bar">
+    <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
     <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
+      <option value="">Todas las sedes</option>
+      <option value="santiago">Santiago</option>
+      <option value="temuco">Temuco</option>
     </select>
-    <button onclick="buscar()">Buscar</button>
-    <button onclick="limpiar()">Limpiar</button>
-</div>
+    <button class="btn-primary" onclick="buscar()">Buscar</button>
+    <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+  </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Escuela</th>
-            <th>Sede</th>
-            <th>Campus</th>
-            <th>Director</th>
-            <th>Cargo</th>
-            <th>Correo Director</th>
-            <th>Secretaría</th>
-            <th>Correo Secretaría</th>
-        </tr>
-    </thead>
-    <tbody id="resultados"></tbody>
-</table>
+  <div id="resultados"></div>
+
+</div>
 
 <div class="footer">
-    Desarrollado por <strong>Eduardo Ferrada</strong><br>
-    Universidad Mayor · Enero 2026
+  Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
 <script>
-const input = document.getElementById("q");
-input.addEventListener("keyup", e => {
-    if (e.key === "Enter") buscar();
-});
+function buscar() {
+  const q = document.getElementById("q").value;
+  const sede = document.getElementById("sede").value;
+
+  fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
+    .then(r => r.json())
+    .then(data => {
+      const res = document.getElementById("resultados");
+
+      if (!data.length) {
+        res.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+      }
+
+      let html = `
+      <table>
+        <tr>
+          <th>Nombre</th>
+          <th>Cargo</th>
+          <th>Escuela</th>
+          <th>Sede</th>
+          <th>Campus</th>
+          <th>Correo Director</th>
+          <th>Secretaría</th>
+          <th>Correo Secretaría</th>
+        </tr>`;
+
+      data.forEach(r => {
+        html += `
+        <tr>
+          <td>${r.nombre || ""}</td>
+          <td>${r.cargo || ""}</td>
+          <td>${r.escuela_busqueda || ""}</td>
+          <td>${r.sede || ""}</td>
+          <td>${r.campus || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_director ? "📞 <strong>Anexo:</strong> " + r.anexo_director + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+
+          <td>${r.secretaria || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_secretaria}">${r.correo_secretaria || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_secretaria ? "📞 <strong>Anexo:</strong> " + r.anexo_secretaria + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+        </tr>`;
+      });
+
+      html += "</table>";
+      res.innerHTML = html;
+    });
+}
 
 function limpiar() {
-    document.getElementById("q").value = "";
-    document.getElementById("sede").value = "";
-    document.getElementById("resultados").innerHTML = "";
-}
-
-function buscar() {
-    const q = document.getElementById("q").value;
-    const sede = document.getElementById("sede").value;
-
-    fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
-        .then(r => r.json())
-        .then(data => render(data));
-}
-
-function render(data) {
-    const tbody = document.getElementById("resultados");
-    tbody.innerHTML = "";
-
-    if (!data.length) {
-        tbody.innerHTML = "<tr><td colspan='8'>Sin resultados</td></tr>";
-        return;
-    }
-
-    data.forEach(r => {
-
-        const tooltipDirector =
-            `<div class="tooltip-box">
-                Anexo: ${r.anexo_director || "No informado"}<br>
-                Restricción: ${r.restriccion || "Sin restricción"}
-            </div>`;
-
-        const tooltipSecretaria =
-            `<div class="tooltip-box">
-                Anexo: ${r.anexo_secretaria || "No informado"}<br>
-                Restricción: ${r.restriccion || "Sin restricción"}
-            </div>`;
-
-        tbody.innerHTML += `
-        <tr>
-            <td>${r.escuela_busqueda || ""}</td>
-            <td>${r.sede || ""}</td>
-            <td>${r.campus || ""}</td>
-
-            <td class="tooltip">
-                ${r.nombre || ""}
-                ${tooltipDirector}
-            </td>
-
-            <td>${r.cargo || ""}</td>
-
-            <td class="correo">
-                ${r.correo_director ? `<a href="mailto:${r.correo_director}">${r.correo_director}</a>` : ""}
-            </td>
-
-            <td class="tooltip">
-                ${r.secretaria || "No informado"}
-                ${tooltipSecretaria}
-            </td>
-
-            <td class="correo">
-                ${r.correo_secretaria ? `<a href="mailto:${r.correo_secretaria}">${r.correo_secretaria}</a>` : "No informado"}
-            </td>
-        </tr>`;
-    });
+  document.getElementById("q").value = "";
+  document.getElementById("sede").value = "";
+  document.getElementById("resultados").innerHTML = "";
 }
 </script>
 
-{% endblock %}
+</body>
+</html>
+
