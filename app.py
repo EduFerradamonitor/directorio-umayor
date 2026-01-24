@@ -7,20 +7,64 @@ app = Flask(__name__)
 # CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"  # ← deja la que ya tienes funcionando
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# PÁGINA ACADÉMICOS
+# PORTADA
+# =========================
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+# =========================
+# ESCUELAS
+# =========================
+@app.route("/escuelas")
+def escuelas():
+    return render_template("escuelas.html")
+
+@app.route("/api/escuelas")
+def api_escuelas():
+    q = request.args.get("q", "").strip().lower()
+    sede = request.args.get("sede", "").strip().lower()
+
+    if len(q) < 2:
+        return jsonify([])
+
+    query = (
+        supabase
+        .table("directorio_escuelas_umayor")
+        .select("""
+            nombre,
+            cargo,
+            correo_director,
+            escuela_busqueda,
+            sede,
+            campus,
+            secretaria,
+            correo_secretaria,
+            anexo_director,
+            anexo_secretaria,
+            consultar_antes_de_entregar_contactos
+        """)
+        .ilike("escuela_busqueda", f"%{q}%")
+    )
+
+    if sede:
+        query = query.ilike("sede", f"%{sede}%")
+
+    result = query.execute()
+    return jsonify(result.data or [])
+
+# =========================
+# ACADÉMICOS
 # =========================
 @app.route("/academicos")
 def academicos():
     return render_template("academicos.html")
 
-# =========================
-# API ACADÉMICOS
-# =========================
 @app.route("/api/academicos")
 def api_academicos():
     q = request.args.get("q", "").strip().lower()
@@ -31,8 +75,7 @@ def api_academicos():
     query = (
         supabase
         .table("otros_contactos_academicos")
-        .select(
-            """
+        .select("""
             nombre,
             cargo,
             departamento,
@@ -42,8 +85,7 @@ def api_academicos():
             anexo_director,
             anexo_secretaria,
             consultar_antes_de_entregar_contactos
-            """
-        )
+        """)
         .ilike("departamento_busqueda", f"%{q}%")
     )
 
@@ -55,7 +97,6 @@ def api_academicos():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
 
 
 
