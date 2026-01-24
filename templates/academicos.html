@@ -18,7 +18,7 @@ body {
    HEADER
 ========================= */
 .header {
-  background: #f2b705;
+  background: #f2b705; /* amarillo UM */
   padding: 20px 30px;
   display: flex;
   align-items: center;
@@ -62,14 +62,20 @@ body {
   flex: 1;
 }
 
-.search-bar button {
+.search-bar button,
+.search-bar a {
   padding: 12px 18px;
   font-size: 15px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Botones */
 .btn-primary {
   background: #005baa;
   color: #fff;
@@ -80,7 +86,7 @@ body {
   color: #fff;
 }
 
-.btn-home {
+.btn-tertiary {
   background: #005baa;
   color: #fff;
 }
@@ -118,7 +124,7 @@ th {
 .tooltip-box {
   visibility: hidden;
   opacity: 0;
-  width: 260px;
+  width: 280px;
   background-color: #ffffff;
   color: #000;
   border: 1px solid #ccc;
@@ -126,7 +132,7 @@ th {
   padding: 8px 10px;
   position: absolute;
   z-index: 20;
-  top: 120%;
+  top: 125%;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -171,7 +177,7 @@ th {
     <input type="text" id="q" placeholder="Buscar por departamento…">
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-    <a href="/" class="btn-home" style="text-decoration:none; display:inline-block; line-height:38px;">Volver</a>
+    <a href="/" class="btn-tertiary">Volver</a>
   </div>
 
   <div id="resultados"></div>
@@ -211,7 +217,7 @@ function buscar() {
         html += `
         <tr>
           <td>${r.nombre || ""}</td>
-          <td>${r.cargo || ""}</td>
+          <td>${r.cargo ? r.cargo : "—"}</td>
           <td>${r.departamento || ""}</td>
 
           <td>
@@ -225,7 +231,7 @@ function buscar() {
           </td>
 
           <td>
-            ${r.secretaria_nombre || "sin secretaria"}<br>
+            ${r.secretaria_nombre || "sin secretaría"}<br>
             <span class="tooltip-container">
               <a href="mailto:${r.secretaria_correo}">${r.secretaria_correo || "no informado"}</a>
               <span class="tooltip-box">
