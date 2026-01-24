@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from supabase import create_client
+import os
 
 app = Flask(__name__)
 
@@ -19,7 +20,7 @@ def home():
     return render_template("home.html")
 
 # =========================
-# ESCUELAS (NO SE TOCA)
+# ESCUELAS (SE MANTIENE)
 # =========================
 @app.route("/escuelas")
 def escuelas():
@@ -50,8 +51,8 @@ def api_escuelas():
             consultar_antes_de_entregar_contactos
         """)
         .or_(
-            f"nombre.ilike.%{q}%,"
-            f"cargo.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%," +
+            f"cargo.ilike.%{q}%," +
             f"escuela_busqueda.ilike.%{q}%"
         )
     )
@@ -63,7 +64,7 @@ def api_escuelas():
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS (CORREGIDO)
+# ACADÉMICOS (DESDE CERO, CORRECTO)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -80,16 +81,12 @@ def api_academicos():
         supabase
         .table("otros_contactos_academicos")
         .select("""
-            nombre,
-            cargo,
             departamento,
+            nombre,
             correo_director,
-            secretaria_nombre,
-            secretaria_correo,
-            anexo_director,
-            anexo_secretaria,
-            consultar_antes_de_entregar_contactos,
-            sede
+            cargo,
+            restriccion,
+            anexo
         """)
         .ilike("departamento_busqueda", f"%{q}%")
     )
@@ -97,9 +94,9 @@ def api_academicos():
     result = query.execute()
     return jsonify(result.data or [])
 
-import os
-
+# =========================
+# EJECUCIÓN (RENDER)
+# =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
