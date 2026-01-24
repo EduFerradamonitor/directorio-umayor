@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Directorio General Umayor{% endblock %}
+
+{% block content提醒 %}{% endblock %}
+
+{% block content %}
+<h2 style="margin-top: 10px;">
+    Uso exclusivo SAT
+</h2>
+
+<p style="margin-bottom: 30px; color: #555;">
+    Plataforma interna para consulta rápida de contactos institucionales.
+</p>
+
+<!-- Links de uso frecuente -->
+<details style="margin-bottom: 30px;">
+    <summary style="cursor: pointer; font-weight: bold; font-size: 16px;">
+        🔗 Links de uso frecuente
+    </summary>
+    <ul style="margin-top: 15px; line-height: 1.8;">
+        <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE – Registro de Estudiantes</a></li>
+        <li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+        <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+        <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+        <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+        <li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+    </ul>
+</details>
+
+<!-- Botones principales -->
+<div style="display: flex; gap: 20px; flex-wrap: wrap;">
+    <a href="/escuelas" class="btn">📘 Directorio de Escuelas</a>
+    <a href="/academicos" class="btn">🎓 Otros Contactos Académicos</a>
+</div>
+
+{% endblock %}
