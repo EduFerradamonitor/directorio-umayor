@@ -19,7 +19,7 @@ def home():
     return render_template("home.html")
 
 # =========================
-# ESCUELAS (NO SE ROMPE)
+# ESCUELAS (NO SE TOCA)
 # =========================
 @app.route("/escuelas")
 def escuelas():
@@ -60,7 +60,7 @@ def api_escuelas():
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS (DESDE CERO, LIMPIO)
+# ACADÉMICOS (FUNCIONAL)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -79,7 +79,7 @@ def api_academicos():
         .table("otros_contactos_academicos")
         .select("""
             nombre,
-            cargo:coalesce(cargo,''),
+            cargo,
             departamento,
             correo_director,
             secretaria_nombre,
@@ -96,9 +96,8 @@ def api_academicos():
     return jsonify(result.data or [])
 
 # =========================
-# EJECUCIÓN LOCAL / RENDER
+# EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
