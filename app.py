@@ -20,7 +20,7 @@ def home():
     return render_template("home.html")
 
 # =========================
-# ESCUELAS (SE MANTIENE)
+# ESCUELAS (NO SE TOCA)
 # =========================
 @app.route("/escuelas")
 def escuelas():
@@ -50,21 +50,17 @@ def api_escuelas():
             anexo_secretaria,
             consultar_antes_de_entregar_contactos
         """)
-        .or_(
-            f"nombre.ilike.%{q}%," +
-            f"cargo.ilike.%{q}%," +
-            f"escuela_busqueda.ilike.%{q}%"
-        )
+        .or_(f"nombre.ilike.%{q}%,cargo.ilike.%{q}%,escuela_busqueda.ilike.%{q}%")
     )
 
     if sede:
-        query = query.ilike("sede", sede)
+        query = query.ilike("sede", f"%{sede}%")
 
     result = query.execute()
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS (DESDE CERO, CORRECTO)
+# ACADÉMICOS (DESDE CERO, ESTABLE)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -85,8 +81,10 @@ def api_academicos():
             nombre,
             correo_director,
             cargo,
-            restriccion,
-            anexo
+            anexo_director,
+            anexo_secretaria,
+            consultar_antes_de_entregar_contactos,
+            sede
         """)
         .ilike("departamento_busqueda", f"%{q}%")
     )
