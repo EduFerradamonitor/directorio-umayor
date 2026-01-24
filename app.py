@@ -7,7 +7,7 @@ app = Flask(__name__)
 # CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
+SUPABASE_KEY = "ACA_VA_TU_SUPABASE_KEY_OPERATIVA"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -63,7 +63,7 @@ def api_escuelas():
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS (DESDE CERO, LIMPIO)
+# ACADÉMICOS (CORREGIDO)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -96,16 +96,3 @@ def api_academicos():
 
     result = query.execute()
     return jsonify(result.data or [])
-
-
-# =========================
-# EJECUCIÓN
-# =========================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-
-
-
-
