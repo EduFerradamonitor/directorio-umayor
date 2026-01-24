@@ -2,33 +2,66 @@
 {% block content %}
 
 <style>
-.page-header {
+/* ===== Encabezado ===== */
+.top-bar {
+    height: 6px;
+    background: #f2b705;
+    margin-bottom: 20px;
+}
+
+.header-escuelas {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-.page-header img {
-    height: 48px;
+.header-escuelas img {
+    height: 70px;
 }
 
-.page-header h2 {
+.header-escuelas h2 {
     margin: 0;
+    font-size: 28px;
 }
 
+/* ===== Botón volver ===== */
+.btn-volver {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 8px 14px;
+    background: #e6e6e6;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+}
+
+.btn-volver:hover {
+    background: #d4d4d4;
+}
+
+/* ===== Buscador ===== */
 .toolbar {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 25px;
 }
 
-.toolbar input,
+.toolbar input {
+    width: 420px;
+    padding: 8px;
+}
+
 .toolbar select {
     padding: 8px;
-    width: 300px;
 }
 
+.toolbar button {
+    padding: 8px 14px;
+}
+
+/* ===== Tabla ===== */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -44,16 +77,18 @@ th {
 td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
+    vertical-align: top;
 }
 
+/* ===== Correos ===== */
 .correo a {
     color: #005baa;
     text-decoration: underline;
 }
 
+/* ===== Tooltip ===== */
 .tooltip {
     position: relative;
-    cursor: help;
 }
 
 .tooltip .tooltip-box {
@@ -66,14 +101,16 @@ td {
     top: 100%;
     left: 0;
     z-index: 10;
-    width: max-content;
-    max-width: 280px;
     font-size: 13px;
+    width: max-content;
+    max-width: 260px;
 }
 
 .tooltip:hover .tooltip-box {
     visibility: visible;
 }
+
+/* ===== Footer ===== */
 .footer {
     margin-top: 40px;
     text-align: center;
@@ -82,11 +119,13 @@ td {
 }
 </style>
 
-<a href="/" style="text-decoration:none;">⬅️ Volver al inicio</a>
+<div class="top-bar"></div>
 
-<div class="page-header">
+<a href="/" class="btn-volver">⬅ Volver al inicio</a>
+
+<div class="header-escuelas">
     <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
-    <h2>📘 Directorio de Escuelas</h2>
+    <h2>Directorio de Escuelas</h2>
 </div>
 
 <div class="toolbar">
@@ -161,12 +200,13 @@ function render(data) {
 
         const tooltipSecretaria =
             `<div class="tooltip-box">
-                Anexo: ${r.secretaria_anexo || "No informado"}
+                Anexo: ${r.anexo_secretaria || "No informado"}<br>
+                Restricción: ${r.restriccion || "Sin restricción"}
             </div>`;
 
         tbody.innerHTML += `
         <tr>
-            <td>${r.escuela || ""}</td>
+            <td>${r.escuela_busqueda || ""}</td>
             <td>${r.sede || ""}</td>
             <td>${r.campus || ""}</td>
 
@@ -182,12 +222,12 @@ function render(data) {
             </td>
 
             <td class="tooltip">
-                ${r.secretaria_nombre || "No informado"}
+                ${r.secretaria || "No informado"}
                 ${tooltipSecretaria}
             </td>
 
             <td class="correo">
-                ${r.secretaria_correo ? `<a href="mailto:${r.secretaria_correo}">${r.secretaria_correo}</a>` : "No informado"}
+                ${r.correo_secretaria ? `<a href="mailto:${r.correo_secretaria}">${r.correo_secretaria}</a>` : "No informado"}
             </td>
         </tr>`;
     });
