@@ -1,11 +1,10 @@
 from flask import Flask, request, jsonify, url_for
-
 from supabase import create_client
 
 app = Flask(__name__)
 
 # =========================
-# CONFIGURACIÓN SUPABASE
+# SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -41,22 +40,13 @@ body {{
 }}
 
 .logo {{
-    max-height: 260px;
+    max-height: 230px;
 }}
 
 .linea-amarilla {{
     height: 6px;
     background: #f2a900;
-    margin: 20px 0 30px 0;
-}}
-
-h1 {{
-    margin-bottom: 10px;
-}}
-
-.subtitle {{
-    color: #555;
-    margin-bottom: 30px;
+    margin: 20px 0 30px;
 }}
 
 .btn {{
@@ -67,11 +57,6 @@ h1 {{
     color: white;
     text-decoration: none;
     border-radius: 6px;
-    font-size: 16px;
-}}
-
-.btn:hover {{
-    background: #004080;
 }}
 
 details {{
@@ -79,12 +64,7 @@ details {{
     text-align: left;
 }}
 
-summary {{
-    cursor: pointer;
-    font-weight: bold;
-}}
-
-.footer {{
+footer {{
     margin-top: 40px;
     font-size: 13px;
     color: #555;
@@ -102,26 +82,22 @@ summary {{
 <div class="linea-amarilla"></div>
 
 <h1>Directorio General Umayor</h1>
-<div class="subtitle">Uso exclusivo SAT</div>
+<p>Uso exclusivo SAT</p>
 
-<a href="/escuelas" class="btn">Directorio de Escuelas</a>
-<a href="/academicos" class="btn">Otros Contactos Académicos</a>
+<a class="btn" href="/escuelas">Directorio de Escuelas</a>
+<a class="btn" href="/academicos">Otros Contactos Académicos</a>
 
 <details>
 <summary>🔗 Links de uso frecuente</summary>
 <ul>
 <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
-<li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
-<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
-<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
 <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
-<li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
 </ul>
 </details>
 
-<div class="footer">
+<footer>
 Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
-</div>
+</footer>
 
 </div>
 </body>
@@ -129,16 +105,11 @@ Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
 """
 
 # =========================
-# DIRECTORIO ESCUELAS
+# ESCUELAS
 # =========================
 @app.route("/escuelas")
 def escuelas():
-    return plantilla_busqueda(
-        titulo="Directorio de Escuelas",
-        endpoint="/api/escuelas",
-        mostrar_sede=True,
-        columna_extra=""
-    )
+    return plantilla_busqueda("Directorio de Escuelas", "/api/escuelas", True)
 
 @app.route("/api/escuelas")
 def api_escuelas():
@@ -148,17 +119,8 @@ def api_escuelas():
     if len(q) < 2:
         return jsonify([])
 
-    query = (
-        supabase
-        .table("directorio_escuelas_umayor")
-        .select("*")
-        .or_(
-            f"escuela_busqueda.ilike.%{q}%,"
-            f"escuela.ilike.%{q}%,"
-            f"nombre.ilike.%{q}%,"
-            f"cargo.ilike.%{q}%"
-        )
-    )
+    query = supabase.table("directorio_escuelas_umayor").select("*") \
+        .or_(f"escuela_busqueda.ilike.%{q}%,nombre.ilike.%{q}%,cargo.ilike.%{q}%")
 
     if sede:
         query = query.ilike("sede", sede)
@@ -166,16 +128,11 @@ def api_escuelas():
     return jsonify(query.execute().data or [])
 
 # =========================
-# OTROS CONTACTOS ACADÉMICOS
+# ACADÉMICOS
 # =========================
 @app.route("/academicos")
 def academicos():
-    return plantilla_busqueda(
-        titulo="Otros Contactos Académicos",
-        endpoint="/api/academicos",
-        mostrar_sede=False,
-        columna_extra="<th>Departamento</th>"
-    )
+    return plantilla_busqueda("Otros Contactos Académicos", "/api/academicos", False)
 
 @app.route("/api/academicos")
 def api_academicos():
@@ -184,75 +141,65 @@ def api_academicos():
     if len(q) < 2:
         return jsonify([])
 
-    query = (
-        supabase
-        .table("otros_contactos_academicos")
-        .select("*")
-        .or_(
-            f"nombre_busqueda.ilike.%{q}%,"
-            f"cargo.ilike.%{q}%"
-        )
-    )
+    query = supabase.table("otros_contactos_academicos").select("*") \
+        .or_(f"nombre_busqueda.ilike.%{q}%,cargo.ilike.%{q}%")
 
     return jsonify(query.execute().data or [])
 
 # =========================
-# PLANTILLA REUTILIZABLE
+# PLANTILLA
 # =========================
-def plantilla_busqueda(titulo, endpoint, mostrar_sede, columna_extra):
-    sede_html = ""
-    if mostrar_sede:
-        sede_html = """
-        <select id="sede">
-            <option value="">Todas las sedes</option>
-            <option value="santiago">Santiago</option>
-            <option value="temuco">Temuco</option>
-        </select>
-        """
+def plantilla_busqueda(titulo, endpoint, con_sede):
+    sede_html = """
+    <select id="sede">
+        <option value="">Todas las sedes</option>
+        <option value="santiago">Santiago</option>
+        <option value="temuco">Temuco</option>
+    </select>
+    """ if con_sede else ""
 
     return f"""
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>{titulo}</title>
 
 <style>
-body {{
-    font-family: Calibri, Arial, sans-serif;
-    background: #f3f6f9;
-}}
+body {{ font-family: Calibri; background:#f3f6f9; }}
+.card {{ max-width:1200px; margin:40px auto; background:white; padding:30px; border-radius:12px; }}
 
-.card {{
-    max-width: 1200px;
-    margin: 40px auto;
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-}}
+input {{ width:60%; padding:12px; }}
+button, select {{ padding:12px; }}
 
-input {{
-    width: 60%;
-    padding: 12px;
-}}
+table {{ width:100%; border-collapse:collapse; margin-top:20px; }}
+th, td {{ border:1px solid #ddd; padding:8px; }}
 
-select, button {{
-    padding: 12px;
-}}
-
-table {{
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}}
-
-th, td {{
-    border: 1px solid #ddd;
-    padding: 8px;
-}}
-
-.info {{
+.tooltip {{
+    position: relative;
     cursor: pointer;
+}}
+
+.tooltip .tooltiptext {{
+    visibility: hidden;
+    background: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 10;
+    top: 20px;
+    left: 0;
+    width: 260px;
+}}
+
+.tooltip:hover .tooltiptext {{
+    visibility: visible;
+}}
+
+.copy {{
+    cursor:pointer;
+    margin-left:6px;
 }}
 </style>
 </head>
@@ -261,11 +208,9 @@ th, td {{
 <div class="card">
 
 <a href="/"><button>⬅ Volver al inicio</button></a>
-
 <h1>{titulo}</h1>
 
-<p><strong>ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.  
-Haz clic en el ícono ℹ️ para ver anexos y restricciones.</strong></p>
+<p><strong>ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.</strong></p>
 
 <input id="q" placeholder="Buscar..." onkeydown="if(event.key==='Enter')buscar();">
 {sede_html}
@@ -274,46 +219,49 @@ Haz clic en el ícono ℹ️ para ver anexos y restricciones.</strong></p>
 
 <div id="res"></div>
 
-<p style="margin-top:30px;font-size:13px;color:#555;">
+<footer style="margin-top:30px;font-size:13px;color:#555;">
 Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
-</p>
+</footer>
 
 </div>
 
 <script>
+function copiar(txt) {{
+    navigator.clipboard.writeText(txt);
+    alert("Correo copiado");
+}}
+
 function buscar() {{
     const q = document.getElementById("q").value;
     const sede = document.getElementById("sede") ? document.getElementById("sede").value : "";
-    fetch("{endpoint}?q=" + encodeURIComponent(q) + "&sede=" + encodeURIComponent(sede))
-    .then(r => r.json())
-    .then(d => {{
-        const res = document.getElementById("res");
-        if(!d.length){{
-            res.innerHTML = "Sin resultados";
-            return;
-        }}
-
-        let h = "<table><tr><th>Nombre</th><th>Cargo</th><th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>{columna_extra}<th>ℹ️</th></tr>";
-
-        d.forEach(r => {{
-            h += "<tr>" +
-                 "<td>" + (r.nombre || "") + "</td>" +
-                 "<td>" + (r.cargo || "") + "</td>" +
-                 "<td><a href='mailto:" + (r.correo_director || "") + "'>" + (r.correo_director || "") + "</a></td>" +
-                 "<td>" + (r.secretaria_nombre || r.secretaria || "") + "</td>" +
-                 "<td><a href='mailto:" + (r.secretaria_correo || "") + "'>" + (r.secretaria_correo || "") + "</a></td>" +
-                 "{'<td>' + (r.departamento || '') + '</td>' if columna_extra else ''}" +
-                 "<td class='info' onclick=\\"alert('Anexo director: ' + (r.anexo_director || 'Sin info') + '\\nAnexo secretaria: ' + (r.anexo_secretaria || 'Sin info') + '\\n' + (r.consultar_antes_de_entregar_contactos || ''))\\">ℹ️</td></tr>";
+    fetch("{endpoint}?q="+encodeURIComponent(q)+"&sede="+encodeURIComponent(sede))
+    .then(r=>r.json())
+    .then(d=>{{
+        let h="<table><tr><th>Nombre</th><th>Cargo</th><th>Correo</th><th>ℹ️</th></tr>";
+        d.forEach(r=>{{
+            h+=`<tr>
+<td>${{r.nombre||""}}</td>
+<td>${{r.cargo||""}}</td>
+<td>
+<a href="mailto:${{r.correo_director||""}}">${{r.correo_director||""}}</a>
+<span class="copy" onclick="copiar('${{r.correo_director||""}}')">📋</span>
+</td>
+<td class="tooltip">ℹ️
+<div class="tooltiptext">
+<b>Anexo director:</b> ${{r.anexo_director||"Sin info"}}<br>
+<b>Restricción:</b> ${{r.consultar_antes_de_entregar_contactos||"—"}}
+</div>
+</td>
+</tr>`;
         }});
-
-        h += "</table>";
-        res.innerHTML = h;
-    }});
+        h+="</table>";
+        document.getElementById("res").innerHTML=h;
+    });
 }}
 
 function limpiar() {{
-    document.getElementById("q").value = "";
-    document.getElementById("res").innerHTML = "";
+    document.getElementById("q").value="";
+    document.getElementById("res").innerHTML="";
 }}
 </script>
 
@@ -322,7 +270,7 @@ function limpiar() {{
 """
 
 # =========================
-# EJECUCIÓN
+# RUN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
