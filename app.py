@@ -83,7 +83,7 @@ def api_academicos():
             nombre,
             cargo,
             departamento,
-            correo_director,
+            "correo director",
             secretaria_nombre,
             secretaria_correo,
             anexo_director,
@@ -102,6 +102,7 @@ def api_academicos():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
