@@ -20,7 +20,7 @@ def home():
     return render_template("home.html")
 
 # =========================
-# ESCUELAS (NO SE TOCA)
+# ESCUELAS (SE MANTIENE TAL CUAL)
 # =========================
 @app.route("/escuelas")
 def escuelas():
@@ -60,7 +60,7 @@ def api_escuelas():
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS (DESDE CERO, ESTABLE)
+# ACADÉMICOS (DESDE CERO)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -80,11 +80,12 @@ def api_academicos():
             departamento,
             nombre,
             correo_director,
-            cargo,
+            secretaria_nombre,
+            secretaria_correo,
+            sede,
             anexo_director,
             anexo_secretaria,
-            consultar_antes_de_entregar_contactos,
-            sede
+            consultar_antes_de_entregar_contactos
         """)
         .ilike("departamento_busqueda", f"%{q}%")
     )
@@ -98,3 +99,4 @@ def api_academicos():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
