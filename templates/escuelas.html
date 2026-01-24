@@ -63,12 +63,17 @@ body {
   flex: 1;
 }
 
-.search-bar button {
+.search-bar button,
+.search-bar a {
   padding: 12px 18px;
   font-size: 15px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary {
@@ -84,7 +89,6 @@ body {
 .btn-home {
   background: #005baa;
   color: #fff;
-  margin-bottom: 15px;
 }
 
 /* =========================
@@ -169,17 +173,19 @@ th {
 ========================= -->
 <div class="container">
 
-  <a href="/" class="btn-home">⬅ Volver al inicio</a>
-
   <div class="search-bar">
     <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
+
     <select id="sede">
       <option value="">Todas las sedes</option>
       <option value="santiago">Santiago</option>
       <option value="temuco">Temuco</option>
     </select>
+
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+
+    <a href="/" class="btn-home">⬅ Volver</a>
   </div>
 
   <div id="resultados"></div>
@@ -265,4 +271,3 @@ function limpiar() {
 
 </body>
 </html>
-
