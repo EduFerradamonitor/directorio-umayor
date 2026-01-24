@@ -3,156 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <title>Directorio General Umayor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <style>
-        body {
-            margin: 0;
+        :root{
+            --um-amarillo:#f2b705;
+            --um-azul:#005aa9;
+            --um-gris:#f5f7fa;
+        }
+
+        body{
+            margin:0;
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #f5f7f9;
-            color: #1a1a1a;
+            background:#ffffff;
+            color:#222;
         }
 
-        /* Header */
-        .header {
-            background-color: #ffffff;
-            padding: 40px 20px 20px 20px;
-            text-align: center;
+        /* ===== Franja amarilla superior ===== */
+        .top-bar{
+            background:var(--um-amarillo);
+            padding:10px 30px;
+            display:flex;
+            align-items:center;
+            position:relative;
+            font-size:14px;
         }
 
-        .logo {
-            max-width: 420px; /* ~40% protagonismo visual */
-            width: 100%;
-            margin-bottom: 20px;
+        .links-hover{
+            position:relative;
+            cursor:pointer;
+            font-weight:600;
         }
 
-        .yellow-line {
-            height: 6px;
-            background-color: #f2b705; /* amarillo UM */
-            margin: 0 auto 30px auto;
-            max-width: 900px;
+        .links-hover span{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
         }
 
-        h1 {
-            font-size: 36px; /* ~15% */
-            margin: 10px 0;
-            font-weight: bold;
+        .links-hover ul{
+            list-style:none;
+            margin:0;
+            padding:10px 0;
+            position:absolute;
+            top:100%;
+            left:0;
+            background:#fff;
+            min-width:260px;
+            box-shadow:0 6px 18px rgba(0,0,0,.15);
+            border-radius:6px;
+            display:none;
+            z-index:10;
         }
 
-        h2 {
-            font-size: 20px; /* ~5% */
-            font-weight: normal;
-            margin: 5px 0 25px 0;
+        .links-hover:hover ul{
+            display:block;
         }
 
-        /* Main content */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 30px 20px;
-            text-align: center;
+        .links-hover ul li{
+            padding:8px 16px;
         }
 
-        /* Buttons */
-        .buttons {
-            margin: 30px 0;
+        .links-hover ul li a{
+            text-decoration:none;
+            color:#222;
+            display:block;
         }
 
-        .btn {
-            display: inline-block;
-            background-color: #005baa;
-            color: #ffffff;
-            padding: 14px 26px;
-            margin: 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: bold;
+        .links-hover ul li a:hover{
+            background:#f0f0f0;
         }
 
-        .btn:hover {
-            background-color: #004a8c;
+        /* ===== Contenedor principal ===== */
+        .container{
+            max-width:1100px;
+            margin:0 auto;
+            padding:30px 20px 10px;
+            text-align:center;
         }
 
-        /* Links desplegables */
-        details {
-            margin-top: 30px;
-            text-align: left;
-            display: inline-block;
-            width: 100%;
-            max-width: 600px;
+        /* ===== Logo ===== */
+        .logo{
+            margin-top:10px;
         }
 
-        summary {
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
+        .logo img{
+            max-width:300px; /* ajustado para no forzar scroll */
+            width:100%;
+            height:auto;
         }
 
-        .links {
-            margin-top: 15px;
-            padding-left: 20px;
+        /* ===== Línea amarilla decorativa ===== */
+        .divider{
+            width:70%;
+            height:4px;
+            background:var(--um-amarillo);
+            margin:30px auto;
         }
 
-        .links a {
-            display: block;
-            margin: 8px 0;
-            color: #005baa;
-            text-decoration: none;
+        /* ===== Títulos ===== */
+        h1{
+            font-size:32px;
+            margin:10px 0 6px;
         }
 
-        .links a:hover {
-            text-decoration: underline;
+        h2{
+            font-size:18px;
+            font-weight:normal;
+            margin:0 0 18px;
         }
 
-        /* Footer */
-        footer {
-            margin-top: 60px;
-            padding: 20px;
-            font-size: 13px;
-            color: #555;
-            text-align: center;
+        .descripcion{
+            font-size:15px;
+            color:#444;
+            margin-bottom:30px;
+        }
+
+        /* ===== Botones de módulos ===== */
+        .buttons{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:25px;
+        }
+
+        .btn{
+            background:var(--um-azul);
+            color:#fff;
+            padding:14px 26px;
+            border-radius:6px;
+            text-decoration:none;
+            font-size:16px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .btn:hover{
+            opacity:.9;
+        }
+
+        /* ===== Footer ===== */
+        footer{
+            text-align:center;
+            font-size:13px;
+            color:#666;
+            margin:40px 0 20px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <a href="https://www.umayor.cl" target="_blank">
-            <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor" class="logo">
-        </a>
+    <!-- Franja amarilla con links -->
+    <div class="top-bar">
+        <div class="links-hover">
+            <span>🔗 Links de uso frecuente ▾</span>
+            <ul>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
+                <li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+                <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+                <li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+                <li><a href="https://mayorcl.sharepoint.com/sites/IntranetServiciodeAtencin" target="_blank">Intranet SAT</a></li>
+            </ul>
+        </div>
+    </div>
 
-        <div class="yellow-line"></div>
+    <!-- Contenido principal -->
+    <div class="container">
+
+        <!-- Logo -->
+        <div class="logo">
+            <a href="https://www.umayor.cl" target="_blank">
+                <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+            </a>
+        </div>
+
+        <div class="divider"></div>
 
         <h1>Directorio General Umayor</h1>
         <h2>Uso exclusivo SAT</h2>
-    </div>
 
-    <div class="container">
+        <p class="descripcion">
+            Plataforma interna para consulta rápida de contactos institucionales.
+        </p>
 
-        <p>Plataforma interna para consulta rápida de contactos institucionales.</p>
-
+        <!-- Botones -->
         <div class="buttons">
             <a href="/escuelas" class="btn">📘 Directorio de Escuelas</a>
             <a href="/academicos" class="btn">🎓 Otros Contactos Académicos</a>
         </div>
 
-        <details>
-            <summary>🔗 Links de uso frecuente</summary>
-            <div class="links">
-                <a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a>
-                <a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a>
-                <a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a>
-                <a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a>
-                <a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a>
-                <a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a>
-                <a href="https://mayorcl.sharepoint.com/sites/IntranetServiciodeAtencin" target="_blank">Intranet SAT</a>
-            </div>
-        </details>
-
     </div>
 
+    <!-- Footer -->
     <footer>
         Desarrollado por <strong>Eduardo Ferrada</strong><br>
         Universidad Mayor · Enero 2026
