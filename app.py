@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify, url_for
+
 from supabase import create_client
 
 app = Flask(__name__)
 
 # =========================
-# SUPABASE
+# CONFIGURACIÓN SUPABASE
 # =========================
 SUPABASE_URL = "https://wkbltctqqsuxqhlbnoeg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrYmx0Y3RxcXN1eHFobGJub2VnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkwMDI1NzYsImV4cCI6MjA4NDU3ODU3Nn0.QLl8XI79jOC_31RjtTMCwrKAXNg-Y1Bt_x2JQL9rnEM"
@@ -12,22 +13,7 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# UTIL
-# =========================
-def badge_restriccion(texto):
-    if not texto:
-        return "🟢 Sin restricción"
-    t = texto.lower()
-    if "solo correo" in t:
-        return "🟢 Solo correo secretaría"
-    if "validacion" in t:
-        return "🟠 Validación previa"
-    if "autorizacion" in t:
-        return "🔴 Autorización expresa"
-    return "🟡 Información sensible"
-
-# =========================
-# HOME
+# PORTADA
 # =========================
 @app.route("/")
 def home():
@@ -37,114 +23,104 @@ def home():
 <head>
 <meta charset="UTF-8">
 <title>Directorio General Umayor</title>
+
 <style>
 body {{
     font-family: Calibri, Arial, sans-serif;
     background: #f3f6f9;
 }}
+
 .container {{
     max-width: 1100px;
     margin: 40px auto;
     background: white;
     padding: 40px;
     border-radius: 12px;
-}}
-.logo {{
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
     text-align: center;
 }}
-.logo img {{
-    height: 220px;
+
+.logo {{
+    max-height: 260px;
 }}
-.linea {{
+
+.linea-amarilla {{
     height: 6px;
-    background: #f2b705;
+    background: #f2a900;
     margin: 20px 0 30px 0;
 }}
+
 h1 {{
-    text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }}
+
 .subtitle {{
-    text-align: center;
     color: #555;
     margin-bottom: 30px;
 }}
-.links {{
-    margin-bottom: 30px;
+
+.btn {{
+    display: inline-block;
+    margin: 10px;
+    padding: 14px 28px;
+    background: #005baa;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 16px;
 }}
-.links summary {{
+
+.btn:hover {{
+    background: #004080;
+}}
+
+details {{
+    margin-top: 30px;
+    text-align: left;
+}}
+
+summary {{
     cursor: pointer;
     font-weight: bold;
 }}
-.links a {{
-    display: block;
-    margin: 6px 0;
-}}
-.buttons {{
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-}}
-button {{
-    padding: 14px 30px;
-    font-size: 16px;
-    cursor: pointer;
-    background: #005baa;
-    color: white;
-    border: none;
-    border-radius: 6px;
-}}
+
 .footer {{
     margin-top: 40px;
-    text-align: center;
     font-size: 13px;
     color: #555;
 }}
-.info {{
-    font-weight: bold;
-    font-size: 15px;
-    margin-bottom: 20px;
-}}
 </style>
 </head>
+
 <body>
 <div class="container">
 
-<div class="logo">
-<a href="https://www.umayor.cl" target="_blank">
-<img src="{url_for('static', filename='img/logoum.jpg')}">
+<a href="https://www.umayor.cl/" target="_blank">
+<img src="{url_for('static', filename='img/logoum.jpg')}" class="logo">
 </a>
-</div>
 
-<div class="linea"></div>
+<div class="linea-amarilla"></div>
 
 <h1>Directorio General Umayor</h1>
-<div class="subtitle">Uso interno – Servicio de Atención a Estudiantes</div>
+<div class="subtitle">Uso exclusivo SAT</div>
 
-<div class="info">
-ℹ️ Al primer ingreso del día la carga puede demorar unos segundos.  
-Si no ves el buscador de inmediato, espera o actualiza la página.  
-Haz clic en el ícono ℹ️ para ver más información.
-</div>
+<a href="/escuelas" class="btn">Directorio de Escuelas</a>
+<a href="/academicos" class="btn">Otros Contactos Académicos</a>
 
-<details class="links">
+<details>
 <summary>🔗 Links de uso frecuente</summary>
-<a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a>
-<a href="https://certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a>
-<a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a>
-<a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a>
-<a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a>
-<a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a>
+<ul>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
+<li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+<li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+<li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+<li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+</ul>
 </details>
 
-<div class="buttons">
-<a href="/escuelas"><button>Directorio de Escuelas</button></a>
-<a href="/academicos"><button>Otros Contactos Académicos</button></a>
-</div>
-
 <div class="footer">
-Desarrollado por <strong>Eduardo Ferrada</strong><br>
-Universidad Mayor · Enero 2026
+Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
 </div>
 
 </div>
@@ -157,21 +133,32 @@ Universidad Mayor · Enero 2026
 # =========================
 @app.route("/escuelas")
 def escuelas():
-    return pagina_busqueda(
+    return plantilla_busqueda(
         titulo="Directorio de Escuelas",
-        endpoint="/api/escuelas"
+        endpoint="/api/escuelas",
+        mostrar_sede=True,
+        columna_extra=""
     )
 
 @app.route("/api/escuelas")
 def api_escuelas():
-    q = request.args.get("q", "").lower()
-    sede = request.args.get("sede", "").lower()
+    q = request.args.get("q", "").lower().strip()
+    sede = request.args.get("sede", "").lower().strip()
 
-    if len(q) < 3:
+    if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("directorio_escuelas_umayor").select("*") \
-        .ilike("escuela_busqueda", f"%{q}%")
+    query = (
+        supabase
+        .table("directorio_escuelas_umayor")
+        .select("*")
+        .or_(
+            f"escuela_busqueda.ilike.%{q}%,"
+            f"escuela.ilike.%{q}%,"
+            f"nombre.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
+    )
 
     if sede:
         query = query.ilike("sede", sede)
@@ -179,33 +166,49 @@ def api_escuelas():
     return jsonify(query.execute().data or [])
 
 # =========================
-# OTROS ACADEMICOS
+# OTROS CONTACTOS ACADÉMICOS
 # =========================
 @app.route("/academicos")
 def academicos():
-    return pagina_busqueda(
+    return plantilla_busqueda(
         titulo="Otros Contactos Académicos",
         endpoint="/api/academicos",
-        academicos=True
+        mostrar_sede=False,
+        columna_extra="<th>Departamento</th>"
     )
 
 @app.route("/api/academicos")
 def api_academicos():
-    q = request.args.get("q", "").lower()
-    if len(q) < 3:
+    q = request.args.get("q", "").lower().strip()
+
+    if len(q) < 2:
         return jsonify([])
 
-    query = supabase.table("otros_contactos_academicos").select("*") \
-        .ilike("nombre_busqueda", f"%{q}%")
+    query = (
+        supabase
+        .table("otros_contactos_academicos")
+        .select("*")
+        .or_(
+            f"nombre_busqueda.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%"
+        )
+    )
 
     return jsonify(query.execute().data or [])
 
 # =========================
-# TEMPLATE BUSQUEDA
+# PLANTILLA REUTILIZABLE
 # =========================
-def pagina_busqueda(titulo, endpoint, academicos=False):
-    columna_extra = "<th>Departamento</th>" if academicos else ""
-    columna_extra_td = "<td>"+("{r.departamento}" if academicos else "")+"</td>"
+def plantilla_busqueda(titulo, endpoint, mostrar_sede, columna_extra):
+    sede_html = ""
+    if mostrar_sede:
+        sede_html = """
+        <select id="sede">
+            <option value="">Todas las sedes</option>
+            <option value="santiago">Santiago</option>
+            <option value="temuco">Temuco</option>
+        </select>
+        """
 
     return f"""
 <!DOCTYPE html>
@@ -213,65 +216,113 @@ def pagina_busqueda(titulo, endpoint, academicos=False):
 <head>
 <meta charset="UTF-8">
 <title>{titulo}</title>
+
 <style>
-body {{ font-family: Calibri, Arial; background:#f3f6f9; }}
-.container {{ max-width:1200px; margin:30px auto; background:white; padding:30px; border-radius:12px; }}
-.header {{ display:flex; justify-content:space-between; align-items:center; }}
-.header img {{ height:80px; }}
-input {{ width:60%; padding:12px; }}
-button {{ padding:12px 20px; margin-left:10px; }}
-table {{ width:100%; border-collapse:collapse; margin-top:20px; }}
-th,td {{ border:1px solid #ddd; padding:8px; }}
-.tooltip {{ cursor:pointer; }}
-.footer {{ margin-top:30px; text-align:center; font-size:13px; color:#555; }}
+body {{
+    font-family: Calibri, Arial, sans-serif;
+    background: #f3f6f9;
+}}
+
+.card {{
+    max-width: 1200px;
+    margin: 40px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+}}
+
+input {{
+    width: 60%;
+    padding: 12px;
+}}
+
+select, button {{
+    padding: 12px;
+}}
+
+table {{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}}
+
+th, td {{
+    border: 1px solid #ddd;
+    padding: 8px;
+}}
+
+.info {{
+    cursor: pointer;
+}}
 </style>
 </head>
+
 <body>
-<div class="container">
+<div class="card">
 
-<div class="header">
-<h2>{titulo}</h2>
-<img src="{url_for('static', filename='img/logoum.jpg')}">
-</div>
+<a href="/"><button>⬅ Volver al inicio</button></a>
 
-<input id="q" placeholder="Escribe al menos 3 letras" onkeydown="if(event.key==='Enter') buscar()">
+<h1>{titulo}</h1>
+
+<p><strong>ℹ️ Al primer ingreso del día, la carga puede demorar unos segundos.  
+Haz clic en el ícono ℹ️ para ver anexos y restricciones.</strong></p>
+
+<input id="q" placeholder="Buscar..." onkeydown="if(event.key==='Enter')buscar();">
+{sede_html}
 <button onclick="buscar()">Buscar</button>
-<button onclick="limpiar()">Limpiar</button>
-<button onclick="window.location='/'">Volver al inicio</button>
+<button onclick="limpiar()">Borrar</button>
 
 <div id="res"></div>
 
-<div class="footer">
-Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · Enero 2026
-</div>
+<p style="margin-top:30px;font-size:13px;color:#555;">
+Desarrollado por <strong>Eduardo Ferrada</strong> · Enero 2026
+</p>
 
 </div>
 
 <script>
 function buscar() {{
-fetch("{endpoint}?q="+encodeURIComponent(q.value))
-.then(r=>r.json())
-.then(d=>{
-if(!d.length){{res.innerHTML="Sin resultados";return;}}
-let h="<table><tr><th>Nombre</th><th>Cargo</th><th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>{columna_extra}<th>ℹ️</th></tr>";
-d.forEach(r=>{
-h+="<tr>"+
-"<td>"+(r.nombre||"")+"</td>"+
-"<td>"+(r.cargo||"")+"</td>"+
-"<td><a href='mailto:"+ (r.correo_director||"") +"'>"+(r.correo_director||"")+"</a></td>"+
-"<td>"+(r.secretaria||r.secretaria_nombre||"")+"</td>"+
-"<td><a href='mailto:"+ (r.correo_secretaria||r.secretaria_correo||"") +"'>"+(r.correo_secretaria||r.secretaria_correo||"")+"</a></td>"+
-"{columna_extra_td}"+
-"<td class='tooltip' title='Anexo director: "+(r.anexo_director||"Sin info")+" | Anexo secretaria: "+(r.anexo_secretaria||"Sin info")+" | "+(r.consultar_antes_de_entregar_contactos||"")+"'>ℹ️</td>"+
-"</tr>";
-});
-h+="</table>";
-res.innerHTML=h;
-});
-}
-function limpiar(){{q.value="";res.innerHTML="";}}
+    const q = document.getElementById("q").value;
+    const sede = document.getElementById("sede") ? document.getElementById("sede").value : "";
+    fetch("{endpoint}?q=" + encodeURIComponent(q) + "&sede=" + encodeURIComponent(sede))
+    .then(r => r.json())
+    .then(d => {{
+        const res = document.getElementById("res");
+        if(!d.length){{
+            res.innerHTML = "Sin resultados";
+            return;
+        }}
+
+        let h = "<table><tr><th>Nombre</th><th>Cargo</th><th>Correo Director</th><th>Secretaria</th><th>Correo Secretaria</th>{columna_extra}<th>ℹ️</th></tr>";
+
+        d.forEach(r => {{
+            h += "<tr>" +
+                 "<td>" + (r.nombre || "") + "</td>" +
+                 "<td>" + (r.cargo || "") + "</td>" +
+                 "<td><a href='mailto:" + (r.correo_director || "") + "'>" + (r.correo_director || "") + "</a></td>" +
+                 "<td>" + (r.secretaria_nombre || r.secretaria || "") + "</td>" +
+                 "<td><a href='mailto:" + (r.secretaria_correo || "") + "'>" + (r.secretaria_correo || "") + "</a></td>" +
+                 "{'<td>' + (r.departamento || '') + '</td>' if columna_extra else ''}" +
+                 "<td class='info' onclick=\\"alert('Anexo director: ' + (r.anexo_director || 'Sin info') + '\\nAnexo secretaria: ' + (r.anexo_secretaria || 'Sin info') + '\\n' + (r.consultar_antes_de_entregar_contactos || ''))\\">ℹ️</td></tr>";
+        }});
+
+        h += "</table>";
+        res.innerHTML = h;
+    }});
+}}
+
+function limpiar() {{
+    document.getElementById("q").value = "";
+    document.getElementById("res").innerHTML = "";
+}}
 </script>
 
 </body>
 </html>
 """
+
+# =========================
+# EJECUCIÓN
+# =========================
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
