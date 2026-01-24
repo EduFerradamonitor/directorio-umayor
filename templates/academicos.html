@@ -1,204 +1,252 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Otros Contactos Académicos</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-        }
+<meta charset="UTF-8">
+<title>Otros Contactos Académicos – Universidad Mayor</title>
 
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            background: #fff;
-            padding: 25px;
-            border-radius: 12px;
-        }
+<style>
+/* =========================
+   ESTILOS GENERALES
+========================= */
+body {
+  font-family: Calibri, Arial, sans-serif;
+  background: #f3f6f9;
+  margin: 0;
+}
 
-        .header {
-            background: #ffcc00;
-            padding: 25px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
+/* =========================
+   HEADER
+========================= */
+.header {
+  background: #f2b705;
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
 
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
+.header img {
+  height: 90px;
+}
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #002f6c;
+}
 
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-        }
+/* =========================
+   CONTENEDOR
+========================= */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
 
-        button {
-            padding: 10px 16px;
-            font-size: 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* =========================
+   BUSCADOR
+========================= */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
-        .btn-primary {
-            background: #005baa;
-            color: white;
-        }
+.search-bar input {
+  padding: 12px;
+  font-size: 16px;
+  flex: 1;
+}
 
-        .btn-secondary {
-            background: #777;
-            color: white;
-        }
+.search-bar button {
+  padding: 12px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-        .btn-volver {
-            background: #e0e0e0;
-        }
+.btn-primary {
+  background: #005baa;
+  color: #fff;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+.btn-secondary {
+  background: #999;
+  color: #fff;
+}
 
-        th {
-            background: #005baa;
-            color: white;
-            padding: 10px;
-        }
+.btn-home {
+  background: #005baa;
+  color: #fff;
+}
 
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
+/* =========================
+   TABLA
+========================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
 
-        a {
-            color: #005baa;
-            text-decoration: none;
-        }
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  vertical-align: top;
+  font-size: 14px;
+}
 
-        /* Tooltip */
-        .info {
-            position: relative;
-            cursor: pointer;
-        }
+th {
+  background: #005baa;
+  color: white;
+  text-align: left;
+}
 
-        .tooltip {
-            display: none;
-            position: fixed;
-            background: #222;
-            color: #fff;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            width: 260px;
-            z-index: 9999;
-        }
+/* =========================
+   TOOLTIP (MISMO ESTILO ESCUELAS)
+========================= */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
 
-        .info:hover .tooltip {
-            display: block;
-        }
+.tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 20;
+  top: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  font-size: 13px;
+}
 
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 13px;
-            color: #555;
-        }
-    </style>
+.tooltip-container:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+</style>
 </head>
+
 <body>
 
+<!-- =========================
+     HEADER
+========================= -->
+<div class="header">
+  <a href="https://www.umayor.cl" target="_blank">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+  </a>
+  <h1>Otros Contactos Académicos</h1>
+</div>
+
+<!-- =========================
+     CONTENIDO
+========================= -->
 <div class="container">
 
-    <div class="header">
-        <h1>Otros Contactos Académicos</h1>
-        <img src="{{ url_for('static', filename='img/logoum.jpg') }}" height="60">
-    </div>
+  <div class="search-bar">
+    <input type="text" id="q" placeholder="Buscar por departamento…">
+    <button class="btn-primary" onclick="buscar()">Buscar</button>
+    <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+    <a href="/" class="btn-home" style="text-decoration:none; display:inline-block; line-height:38px;">Volver</a>
+  </div>
 
-    <div class="controls">
-        <input type="text" id="q" placeholder="Buscar por departamento…">
-        <button class="btn-primary" onclick="buscar()">Buscar</button>
-        <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-        <button class="btn-volver" onclick="window.location.href='/'">Volver</button>
-    </div>
+  <div id="resultados"></div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Cargo</th>
-                <th>Departamento</th>
-                <th>Correo Director</th>
-                <th>Secretaría</th>
-                <th>Sede</th>
-                <th>Info</th>
-            </tr>
-        </thead>
-        <tbody id="resultados"></tbody>
-    </table>
+</div>
 
-    <footer>
-        Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026
-    </footer>
-
+<div class="footer">
+  Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · Enero 2026
 </div>
 
 <script>
 function buscar() {
-    const q = document.getElementById("q").value.trim();
-    if (q.length < 2) return;
+  const q = document.getElementById("q").value;
 
-    fetch(`/api/academicos?q=${encodeURIComponent(q)}`)
-        .then(r => r.json())
-        .then(data => {
-            const tbody = document.getElementById("resultados");
-            tbody.innerHTML = "";
+  fetch(`/api/academicos?q=${encodeURIComponent(q)}`)
+    .then(r => r.json())
+    .then(data => {
+      const res = document.getElementById("resultados");
 
-            if (!data.length) {
-                tbody.innerHTML = "<tr><td colspan='7'>Sin resultados</td></tr>";
-                return;
-            }
+      if (!data.length) {
+        res.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+      }
 
-            data.forEach(r => {
-                tbody.innerHTML += `
-                <tr>
-                    <td>${r.nombre || ""}</td>
-                    <td>${r.cargo || ""}</td>
-                    <td>${r.departamento || ""}</td>
-                    <td><a href="mailto:${r.correo_director}">${r.correo_director || ""}</a></td>
-                    <td>
-                        ${r.secretaria_nombre || "sin secretaria"}<br>
-                        <a href="mailto:${r.secretaria_correo}">${r.secretaria_correo || "no informado"}</a>
-                    </td>
-                    <td>${r.sede || ""}</td>
-                    <td class="info">ℹ️
-                        <div class="tooltip">
-                            <strong>Anexo director:</strong> ${r.anexo_director || "no informado"}<br>
-                            <strong>Anexo secretaria:</strong> ${r.anexo_secretaria || "no informado"}<br><br>
-                            <strong>Restricción:</strong><br>
-                            ${r.consultar_antes_de_entregar_contactos || "sin restricción"}
-                        </div>
-                    </td>
-                </tr>`;
-            });
-        });
+      let html = `
+      <table>
+        <tr>
+          <th>Nombre</th>
+          <th>Cargo</th>
+          <th>Departamento</th>
+          <th>Correo Director</th>
+          <th>Secretaría</th>
+          <th>Sede</th>
+        </tr>`;
+
+      data.forEach(r => {
+        html += `
+        <tr>
+          <td>${r.nombre || ""}</td>
+          <td>${r.cargo || ""}</td>
+          <td>${r.departamento || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_director ? "📞 <strong>Anexo:</strong> " + r.anexo_director + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+
+          <td>
+            ${r.secretaria_nombre || "sin secretaria"}<br>
+            <span class="tooltip-container">
+              <a href="mailto:${r.secretaria_correo}">${r.secretaria_correo || "no informado"}</a>
+              <span class="tooltip-box">
+                ${r.anexo_secretaria ? "📞 <strong>Anexo:</strong> " + r.anexo_secretaria + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+
+          <td>${r.sede || ""}</td>
+        </tr>`;
+      });
+
+      html += "</table>";
+      res.innerHTML = html;
+    });
 }
 
 function limpiar() {
-    document.getElementById("q").value = "";
-    document.getElementById("resultados").innerHTML = "";
+  document.getElementById("q").value = "";
+  document.getElementById("resultados").innerHTML = "";
 }
 </script>
 
