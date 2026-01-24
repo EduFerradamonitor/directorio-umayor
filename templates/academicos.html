@@ -24,30 +24,32 @@ body {
     align-items: center;
     justify-content: space-between;
     background: #ffcc00;
-    padding: 15px 20px;
+    padding: 15px 25px;
     border-radius: 10px;
+    margin-bottom: 25px;
 }
 
-.logo {
+.logo-um {
     height: 70px;
 }
 
 h1 {
     margin: 0;
-    font-size: 24px;
 }
 
 .controls {
-    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 input, button {
-    padding: 10px;
-    font-size: 15px;
+    padding: 12px;
+    font-size: 16px;
 }
 
 input {
-    width: 60%;
+    flex: 1;
 }
 
 button {
@@ -55,7 +57,7 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    margin-left: 5px;
+    border-radius: 6px;
 }
 
 button.secondary {
@@ -65,7 +67,7 @@ button.secondary {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 25px;
+    margin-top: 20px;
 }
 
 th, td {
@@ -82,28 +84,28 @@ th {
 .tooltip {
     position: relative;
     cursor: help;
+    font-weight: bold;
 }
 
-.tooltip .tooltip-box {
-    display: none;
-    position: absolute;
+.tooltip .tooltip-text {
+    visibility: hidden;
     background: #333;
-    color: white;
+    color: #fff;
     padding: 8px;
     border-radius: 6px;
+    position: absolute;
+    z-index: 10;
     top: 20px;
     left: 0;
-    width: 220px;
-    z-index: 10;
-    font-size: 13px;
+    width: 260px;
 }
 
-.tooltip:hover .tooltip-box {
-    display: block;
+.tooltip:hover .tooltip-text {
+    visibility: visible;
 }
 
 .footer {
-    margin-top: 30px;
+    margin-top: 25px;
     text-align: center;
     font-size: 13px;
     color: #555;
@@ -112,36 +114,39 @@ th {
 </head>
 
 <body>
+
 <div class="card">
 
-    <div class="header">
-        <h1>Otros Contactos Académicos</h1>
-        <a href="/"><img src="/static/img/logoum.jpg" class="logo"></a>
-    </div>
+<div class="header">
+    <h1>Otros Contactos Académicos</h1>
+    <a href="/"><img src="/static/img/logoum.jpg" class="logo-um"></a>
+</div>
 
-    <div class="controls">
-        <input id="busqueda" placeholder="Buscar por nombre…" onkeydown="if(event.key==='Enter') buscar();">
-        <button onclick="buscar()">Buscar</button>
-        <button class="secondary" onclick="limpiar()">Limpiar</button>
-        <button class="secondary" onclick="window.location.href='/'">Volver al inicio</button>
-    </div>
+<div class="controls">
+    <input id="busqueda" placeholder="Buscar por departamento"
+           onkeydown="if(event.key==='Enter') buscar();">
+    <button onclick="buscar()">Buscar</button>
+    <button class="secondary" onclick="limpiar()">Limpiar</button>
+</div>
 
-    <div id="resultados"></div>
+<div id="resultados"></div>
 
-    <div class="footer">
-        Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · Enero 2026
-    </div>
+<div class="footer">
+    Desarrollado por <strong>Eduardo Ferrada</strong><br>
+    Universidad Mayor · Enero 2026
+</div>
 
 </div>
 
 <script>
-function buscar() {
+function buscar(){
     const q = document.getElementById("busqueda").value;
+
     fetch(`/api/academicos?q=${encodeURIComponent(q)}`)
     .then(r => r.json())
     .then(data => {
-        if (!data.length) {
-            document.getElementById("resultados").innerHTML = "<p>Sin resultados.</p>";
+        if (!data.length){
+            document.getElementById("resultados").innerHTML = "<p>Sin resultados</p>";
             return;
         }
 
@@ -150,8 +155,10 @@ function buscar() {
             <th>Nombre</th>
             <th>Cargo</th>
             <th>Departamento</th>
+            <th>Correo Director</th>
+            <th>Secretaría</th>
             <th>Sede</th>
-            <th>Contacto</th>
+            <th>Info</th>
         </tr>`;
 
         data.forEach(r => {
@@ -159,15 +166,16 @@ function buscar() {
                 <td>${r.nombre || ""}</td>
                 <td>${r.cargo || ""}</td>
                 <td>${r.departamento || ""}</td>
+                <td><a href="mailto:${r.correo_director}">${r.correo_director || ""}</a></td>
+                <td>
+                    ${r.secretaria_nombre || ""}<br>
+                    <a href="mailto:${r.secretaria_correo}">${r.secretaria_correo || ""}</a>
+                </td>
                 <td>${r.sede || ""}</td>
                 <td class="tooltip">ℹ️
-                    <div class="tooltip-box">
-                        <strong>Correo director:</strong><br>${r.correo_director || "Sin información"}<br><br>
-                        <strong>Secretaría:</strong><br>${r.secretaria_nombre || "Sin información"}<br>
-                        ${r.secretaria_correo || ""}<br><br>
-                        <strong>Anexos:</strong><br>
-                        Director: ${r.anexo_director || "—"}<br>
-                        Secretaría: ${r.anexo_secretaria || "—"}<br><br>
+                    <div class="tooltip-text">
+                        <strong>Anexo director:</strong> ${r.anexo_director || "Sin info"}<br>
+                        <strong>Anexo secretaria:</strong> ${r.anexo_secretaria || "Sin info"}<br><br>
                         <strong>Restricción:</strong><br>
                         ${r.consultar_antes_de_entregar_contactos || "Sin restricción"}
                     </div>
@@ -180,7 +188,7 @@ function buscar() {
     });
 }
 
-function limpiar() {
+function limpiar(){
     document.getElementById("busqueda").value = "";
     document.getElementById("resultados").innerHTML = "";
 }
@@ -189,8 +197,3 @@ function limpiar() {
 </body>
 </html>
 
-        .ilike("departamento_busqueda", f"%{q}%")
-    )
-
-    result = query.execute()
-    return jsonify(result.data or [])
