@@ -2,6 +2,9 @@ from flask import Flask, request, jsonify, url_for
 from supabase import create_client
 
 app = Flask(__name__)
+@app.route("/")
+def home():
+    return render_template("home.html")
 
 # =========================
 # SUPABASE
@@ -274,3 +277,4 @@ function limpiar() {{
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
