@@ -83,7 +83,7 @@ def api_academicos():
             nombre,
             cargo,
             departamento,
-            "correo director",
+            correo_director,
             secretaria_nombre,
             secretaria_correo,
             anexo_director,
@@ -97,11 +97,13 @@ def api_academicos():
     result = query.execute()
     return jsonify(result.data or [])
 
+
 # =========================
 # EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
