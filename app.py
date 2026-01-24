@@ -12,14 +12,14 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # =========================
-# PORTADA
+# HOME
 # =========================
 @app.route("/")
 def home():
     return render_template("home.html")
 
 # =========================
-# ESCUELAS
+# ESCUELAS (NO SE TOCA)
 # =========================
 @app.route("/escuelas")
 def escuelas():
@@ -40,26 +40,30 @@ def api_escuelas():
             nombre,
             cargo,
             correo_director,
+            secretaria,
+            correo_secretaria,
             escuela_busqueda,
             sede,
             campus,
-            secretaria,
-            correo_secretaria,
             anexo_director,
             anexo_secretaria,
             consultar_antes_de_entregar_contactos
         """)
-        .ilike("escuela_busqueda", f"%{q}%")
+        .or_(
+            f"nombre.ilike.%{q}%,"
+            f"cargo.ilike.%{q}%,"
+            f"escuela_busqueda.ilike.%{q}%"
+        )
     )
 
     if sede:
-        query = query.ilike("sede", f"%{sede}%")
+        query = query.ilike("sede", sede)
 
     result = query.execute()
     return jsonify(result.data or [])
 
 # =========================
-# ACADÉMICOS
+# ACADÉMICOS (DESDE CERO, LIMPIO)
 # =========================
 @app.route("/academicos")
 def academicos():
@@ -84,7 +88,8 @@ def api_academicos():
             secretaria_correo,
             anexo_director,
             anexo_secretaria,
-            consultar_antes_de_entregar_contactos
+            consultar_antes_de_entregar_contactos,
+            sede
         """)
         .ilike("departamento_busqueda", f"%{q}%")
     )
@@ -97,6 +102,7 @@ def api_academicos():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
 
 
 
