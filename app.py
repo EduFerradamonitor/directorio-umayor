@@ -117,12 +117,10 @@ def api_contactos_administrativos():
             nombre,
             cargo_rol,
             area,
+            area_busqueda,
             campus,
             correo,
             anexo,
-            asistente_secretaria,
-            correo_asistente,
-            anexo_asistente,
             observaciones,
             restricciones
         """)
@@ -137,5 +135,6 @@ def api_contactos_administrativos():
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
