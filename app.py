@@ -96,8 +96,38 @@ def api_academicos():
     return jsonify(result.data or [])
 
 # =========================
+# CONTACTOS ADMINISTRATIVOS (NUEVO)
+# =========================
+@app.route("/contactos-administrativos")
+def contactos_administrativos():
+    return render_template("contactos_administrativos.html")
+
+
+@app.route("/api/contactos-administrativos")
+def api_contactos_administrativos():
+    q = request.args.get("q", "").strip().lower()
+
+    if len(q) < 2:
+        return jsonify([])
+
+    query = (
+        supabase
+        .table("contactos_administrativos")
+        .select("""
+            nombre,
+            cargo_rol,
+            area,
+            campus,
+            correo
+        """)
+        .ilike("area_busqueda", f"%{q}%")
+    )
+
+    result = query.execute()
+    return jsonify(result.data or [])
+
+# =========================
 # EJECUCIÓN
 # =========================
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
