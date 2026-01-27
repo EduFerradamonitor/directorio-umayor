@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Directorio de Escuelas – Universidad Mayor</title>
+<title>Contactos Administrativos – Universidad Mayor</title>
 
 <style>
 /* =========================
@@ -56,8 +56,7 @@ body {
   margin-bottom: 20px;
 }
 
-.search-bar input,
-.search-bar select {
+.search-bar input {
   padding: 12px;
   font-size: 16px;
   flex: 1;
@@ -124,7 +123,7 @@ th {
 .tooltip-box {
   visibility: hidden;
   opacity: 0;
-  width: 260px;
+  width: 280px;
   background-color: #ffffff;
   color: #000;
   border: 1px solid #ccc;
@@ -165,7 +164,7 @@ th {
   <a href="https://www.umayor.cl" target="_blank">
     <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
   </a>
-  <h1>Directorio de Escuelas</h1>
+  <h1>Contactos Administrativos</h1>
 </div>
 
 <!-- =========================
@@ -174,13 +173,7 @@ th {
 <div class="container">
 
   <div class="search-bar">
-    <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
-
-    <select id="sede">
-      <option value="">Todas las sedes</option>
-      <option value="santiago">Santiago</option>
-      <option value="temuco">Temuco</option>
-    </select>
+    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, tesorería…)">
 
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
@@ -199,9 +192,8 @@ th {
 <script>
 function buscar() {
   const q = document.getElementById("q").value;
-  const sede = document.getElementById("sede").value;
 
-  fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
+  fetch(`/api/contactos-administrativos?q=${encodeURIComponent(q)}`)
     .then(r => r.json())
     .then(data => {
       const res = document.getElementById("resultados");
@@ -215,42 +207,28 @@ function buscar() {
       <table>
         <tr>
           <th>Nombre</th>
-          <th>Cargo</th>
-          <th>Escuela</th>
-          <th>Sede</th>
+          <th>Cargo / Rol</th>
+          <th>Área</th>
           <th>Campus</th>
-          <th>Correo Director</th>
-          <th>Secretaría</th>
-          <th>Correo Secretaría</th>
+          <th>Correo</th>
         </tr>`;
 
       data.forEach(r => {
         html += `
         <tr>
           <td>${r.nombre || ""}</td>
-          <td>${r.cargo || ""}</td>
-          <td>${r.escuela_busqueda || ""}</td>
-          <td>${r.sede || ""}</td>
+          <td>${r.cargo_rol || ""}</td>
+          <td>${r.area || ""}</td>
           <td>${r.campus || ""}</td>
 
           <td>
             <span class="tooltip-container">
-              <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
+              <a href="mailto:${r.correo}">${r.correo || ""}</a>
               <span class="tooltip-box">
-                ${r.anexo_director ? "📞 <strong>Anexo:</strong> " + r.anexo_director + "<br>" : ""}
-                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
-              </span>
-            </span>
-          </td>
-
-          <td>${r.secretaria || ""}</td>
-
-          <td>
-            <span class="tooltip-container">
-              <a href="mailto:${r.correo_secretaria}">${r.correo_secretaria || ""}</a>
-              <span class="tooltip-box">
-                ${r.anexo_secretaria ? "📞 <strong>Anexo:</strong> " + r.anexo_secretaria + "<br>" : ""}
-                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+                ${r.anexo ? "📞 <strong>Anexo:</strong> " + r.anexo + "<br>" : ""}
+                ${r.asistente_secretaria ? "👤 <strong>Asistente:</strong> " + r.asistente_secretaria + "<br>" : ""}
+                ${r.correo_asistente ? "✉️ <strong>Correo asistente:</strong> " + r.correo_asistente + "<br>" : ""}
+                ${r.anexo_asistente ? "📞 <strong>Anexo asistente:</strong> " + r.anexo_asistente : ""}
               </span>
             </span>
           </td>
@@ -264,10 +242,10 @@ function buscar() {
 
 function limpiar() {
   document.getElementById("q").value = "";
-  document.getElementById("sede").value = "";
   document.getElementById("resultados").innerHTML = "";
 }
 </script>
 
 </body>
 </html>
+
