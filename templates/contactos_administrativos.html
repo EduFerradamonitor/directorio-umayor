@@ -5,18 +5,12 @@
 <title>Contactos Administrativos – Universidad Mayor</title>
 
 <style>
-/* =========================
-   ESTILOS GENERALES
-========================= */
 body {
   font-family: Calibri, Arial, sans-serif;
   background: #f3f6f9;
   margin: 0;
 }
 
-/* =========================
-   HEADER
-========================= */
 .header {
   background: #f2b705;
   padding: 20px 30px;
@@ -35,9 +29,6 @@ body {
   color: #002f6c;
 }
 
-/* =========================
-   CONTENEDOR
-========================= */
 .container {
   max-width: 1200px;
   margin: 30px auto;
@@ -47,9 +38,6 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* =========================
-   BUSCADOR
-========================= */
 .search-bar {
   display: flex;
   gap: 10px;
@@ -90,9 +78,6 @@ body {
   color: #fff;
 }
 
-/* =========================
-   TABLA
-========================= */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -112,9 +97,7 @@ th {
   text-align: left;
 }
 
-/* =========================
-   TOOLTIP
-========================= */
+/* TOOLTIP */
 .tooltip-container {
   position: relative;
   display: inline-block;
@@ -143,9 +126,7 @@ th {
   opacity: 1;
 }
 
-/* =========================
-   MODAL (TERCERA CAPA)
-========================= */
+/* MODAL */
 .modal {
   display: none;
   position: fixed;
@@ -161,7 +142,7 @@ th {
   background: #fff;
   margin: 10% auto;
   padding: 25px;
-  width: 500px;
+  width: 520px;
   border-radius: 10px;
 }
 
@@ -183,9 +164,6 @@ th {
   cursor: pointer;
 }
 
-/* =========================
-   FOOTER
-========================= */
 .footer {
   margin-top: 40px;
   text-align: center;
@@ -207,7 +185,7 @@ th {
 <div class="container">
 
   <div class="search-bar">
-    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, becas y creditos, ofigen)">
+    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, tesorería…)">
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
     <a href="/" class="btn-home">Volver</a>
@@ -225,7 +203,7 @@ th {
 <div id="modalInfo" class="modal">
   <div class="modal-content">
     <h3>Información adicional</h3>
-    <p id="modalTexto"></p>
+    <div id="modalTexto"></div>
     <div class="modal-close">
       <button onclick="cerrarModal()">Cerrar</button>
     </div>
@@ -233,7 +211,7 @@ th {
 </div>
 
 <script>
-/* Buscar con ENTER */
+// Buscar con ENTER
 document.getElementById("q").addEventListener("keydown", function(e) {
   if (e.key === "Enter") {
     buscar();
@@ -283,9 +261,13 @@ function buscar() {
             </span>
           </td>
           <td>
-            ${(r.observaciones || r.restricciones)
-              ? `<button onclick="abrirModal('${(r.observaciones || "") + "<br>" + (r.restricciones || "")}')">ℹ️</button>`
-              : ""
+            ${(r.observaciones || r.restricciones) ? `
+              <button
+                data-observaciones="${(r.observaciones || "").replace(/"/g, '&quot;')}"
+                data-restricciones="${(r.restricciones || "").replace(/"/g, '&quot;')}"
+                onclick="abrirModalDesdeBoton(this)">
+                ℹ️
+              </button>` : ""
             }
           </td>
         </tr>`;
@@ -301,7 +283,19 @@ function limpiar() {
   document.getElementById("resultados").innerHTML = "";
 }
 
-function abrirModal(texto) {
+function abrirModalDesdeBoton(btn) {
+  const obs = btn.getAttribute("data-observaciones");
+  const res = btn.getAttribute("data-restricciones");
+
+  let texto = "";
+
+  if (obs) {
+    texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
+  }
+  if (res) {
+    texto += "<strong>Restricciones:</strong><br>" + res;
+  }
+
   document.getElementById("modalTexto").innerHTML = texto;
   document.getElementById("modalInfo").style.display = "block";
 }
@@ -313,3 +307,4 @@ function cerrarModal() {
 
 </body>
 </html>
+
