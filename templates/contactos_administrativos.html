@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Directorio de Escuelas – Universidad Mayor</title>
+
+<style>
+/* =========================
+   ESTILOS GENERALES
+========================= */
+body {
+  font-family: Calibri, Arial, sans-serif;
+  background: #f3f6f9;
+  margin: 0;
+}
+
+/* =========================
+   HEADER
+========================= */
+.header {
+  background: #f2b705; /* amarillo UM */
+  padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.header img {
+  height: 90px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #002f6c;
+}
+
+/* =========================
+   CONTENEDOR
+========================= */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* =========================
+   BUSCADOR
+========================= */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input,
+.search-bar select {
+  padding: 12px;
+  font-size: 16px;
+  flex: 1;
+}
+
+.search-bar button,
+.search-bar a {
+  padding: 12px 18px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #005baa;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #999;
+  color: #fff;
+}
+
+.btn-home {
+  background: #005baa;
+  color: #fff;
+}
+
+/* =========================
+   TABLA
+========================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+th {
+  background: #005baa;
+  color: white;
+  text-align: left;
+}
+
+/* =========================
+   TOOLTIP
+========================= */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  width: 260px;
+  background-color: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 10;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  font-size: 13px;
+}
+
+.tooltip-container:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* =========================
+   FOOTER
+========================= */
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+<div class="header">
+  <a href="https://www.umayor.cl" target="_blank">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+  </a>
+  <h1>Directorio de Escuelas</h1>
+</div>
+
+<!-- =========================
+     CONTENIDO
+========================= -->
+<div class="container">
+
+  <div class="search-bar">
+    <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
+
+    <select id="sede">
+      <option value="">Todas las sedes</option>
+      <option value="santiago">Santiago</option>
+      <option value="temuco">Temuco</option>
+    </select>
+
+    <button class="btn-primary" onclick="buscar()">Buscar</button>
+    <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+
+    <a href="/" class="btn-home">Volver</a>
+  </div>
+
+  <div id="resultados"></div>
+
+</div>
+
+<div class="footer">
+  Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
+</div>
+
+<script>
+function buscar() {
+  const q = document.getElementById("q").value;
+  const sede = document.getElementById("sede").value;
+
+  fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
+    .then(r => r.json())
+    .then(data => {
+      const res = document.getElementById("resultados");
+
+      if (!data.length) {
+        res.innerHTML = "<p>No se encontraron resultados.</p>";
+        return;
+      }
+
+      let html = `
+      <table>
+        <tr>
+          <th>Nombre</th>
+          <th>Cargo</th>
+          <th>Escuela</th>
+          <th>Sede</th>
+          <th>Campus</th>
+          <th>Correo Director</th>
+          <th>Secretaría</th>
+          <th>Correo Secretaría</th>
+        </tr>`;
+
+      data.forEach(r => {
+        html += `
+        <tr>
+          <td>${r.nombre || ""}</td>
+          <td>${r.cargo || ""}</td>
+          <td>${r.escuela_busqueda || ""}</td>
+          <td>${r.sede || ""}</td>
+          <td>${r.campus || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_director ? "📞 <strong>Anexo:</strong> " + r.anexo_director + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+
+          <td>${r.secretaria || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_secretaria}">${r.correo_secretaria || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_secretaria ? "📞 <strong>Anexo:</strong> " + r.anexo_secretaria + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+        </tr>`;
+      });
+
+      html += "</table>";
+      res.innerHTML = html;
+    });
+}
+
+function limpiar() {
+  document.getElementById("q").value = "";
+  document.getElementById("sede").value = "";
+  document.getElementById("resultados").innerHTML = "";
+}
+</script>
+
+</body>
+</html>
