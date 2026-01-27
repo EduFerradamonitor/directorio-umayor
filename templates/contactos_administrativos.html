@@ -11,6 +11,7 @@ body {
   margin: 0;
 }
 
+/* HEADER */
 .header {
   background: #f2b705;
   padding: 20px 30px;
@@ -29,6 +30,7 @@ body {
   color: #002f6c;
 }
 
+/* CONTENEDOR */
 .container {
   max-width: 1200px;
   margin: 30px auto;
@@ -38,10 +40,12 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
+/* BUSCADOR */
 .search-bar {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  align-items: center;
 }
 
 .search-bar input {
@@ -78,6 +82,19 @@ body {
   color: #fff;
 }
 
+/* ÍCONO INFO */
+.info-help {
+  background: #e9eef4;
+  color: #005baa;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+}
+
+/* TABLA */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -130,7 +147,7 @@ th {
 .modal {
   display: none;
   position: fixed;
-  z-index: 100;
+  z-index: 200;
   left: 0;
   top: 0;
   width: 100%;
@@ -164,6 +181,7 @@ th {
   cursor: pointer;
 }
 
+/* FOOTER */
 .footer {
   margin-top: 40px;
   text-align: center;
@@ -185,9 +203,10 @@ th {
 <div class="container">
 
   <div class="search-bar">
-    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, tesorería…)">
+    <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, admisión…)">
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+    <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
     <a href="/" class="btn-home">Volver</a>
   </div>
 
@@ -199,7 +218,7 @@ th {
   Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
-<!-- MODAL -->
+<!-- MODAL INFO CONTACTO -->
 <div id="modalInfo" class="modal">
   <div class="modal-content">
     <h3>Información adicional</h3>
@@ -210,12 +229,35 @@ th {
   </div>
 </div>
 
+<!-- MODAL AYUDA -->
+<div id="modalAyuda" class="modal">
+  <div class="modal-content">
+    <h3>¿Cómo buscar un contacto?</h3>
+    <p>
+      La búsqueda funciona principalmente por <strong>área</strong>.<br>
+      Prueba con <strong>palabras clave simples</strong>, por ejemplo:
+    </p>
+    <ul>
+      <li><strong>Becas y Créditos</strong> → escribe <em>becas</em></li>
+      <li><strong>Oficina de Partes</strong> → escribe <em>partes</em></li>
+      <li><strong>Admisión</strong> → escribe <em>admisión</em></li>
+      <li><strong>Registro Estudiantil</strong> → escribe <em>registro</em> u <em>oficina</em></li>
+      <li><strong>Gestión Financiera</strong> → escribe <em>financiera</em></li>
+      <li><strong>Remuneraciones</strong> → escribe <em>remuneraciones</em></li>
+    </ul>
+    <p>
+      Si no encuentras resultados a la primera, intenta con otra palabra relacionada al área.
+    </p>
+    <div class="modal-close">
+      <button onclick="cerrarAyuda()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // Buscar con ENTER
 document.getElementById("q").addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    buscar();
-  }
+  if (e.key === "Enter") buscar();
 });
 
 function buscar() {
@@ -225,7 +267,6 @@ function buscar() {
     .then(r => r.json())
     .then(data => {
       const res = document.getElementById("resultados");
-
       if (!data.length) {
         res.innerHTML = "<p>No se encontraron resultados.</p>";
         return;
@@ -255,8 +296,7 @@ function buscar() {
               <span class="tooltip-box">
                 ${r.anexo ? "📞 <strong>Anexo:</strong> " + r.anexo + "<br>" : ""}
                 ${r.asistente_secretaria ? "👤 <strong>Asistente:</strong> " + r.asistente_secretaria + "<br>" : ""}
-                ${r.correo_asistente ? "✉️ <strong>Correo asistente:</strong> " + r.correo_asistente + "<br>" : ""}
-                ${r.anexo_asistente ? "📞 <strong>Anexo asistente:</strong> " + r.anexo_asistente : ""}
+                ${r.correo_asistente ? "✉️ <strong>Correo asistente:</strong> " + r.correo_asistente : ""}
               </span>
             </span>
           </td>
@@ -288,13 +328,8 @@ function abrirModalDesdeBoton(btn) {
   const res = btn.getAttribute("data-restricciones");
 
   let texto = "";
-
-  if (obs) {
-    texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
-  }
-  if (res) {
-    texto += "<strong>Restricciones:</strong><br>" + res;
-  }
+  if (obs) texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
+  if (res) texto += "<strong>Restricciones:</strong><br>" + res;
 
   document.getElementById("modalTexto").innerHTML = texto;
   document.getElementById("modalInfo").style.display = "block";
@@ -303,8 +338,15 @@ function abrirModalDesdeBoton(btn) {
 function cerrarModal() {
   document.getElementById("modalInfo").style.display = "none";
 }
+
+function abrirAyuda() {
+  document.getElementById("modalAyuda").style.display = "block";
+}
+
+function cerrarAyuda() {
+  document.getElementById("modalAyuda").style.display = "none";
+}
 </script>
 
 </body>
 </html>
-
