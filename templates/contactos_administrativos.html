@@ -18,7 +18,7 @@ body {
    HEADER
 ========================= */
 .header {
-  background: #f2b705; /* amarillo UM */
+  background: #f2b705;
   padding: 20px 30px;
   display: flex;
   align-items: center;
@@ -144,6 +144,46 @@ th {
 }
 
 /* =========================
+   MODAL (TERCERA CAPA)
+========================= */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 25px;
+  width: 500px;
+  border-radius: 10px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #005baa;
+}
+
+.modal-close {
+  text-align: right;
+}
+
+.modal-close button {
+  background: #999;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================
    FOOTER
 ========================= */
 .footer {
@@ -157,27 +197,19 @@ th {
 
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
 <div class="header">
   <a href="https://www.umayor.cl" target="_blank">
-    <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
   </a>
   <h1>Contactos Administrativos</h1>
 </div>
 
-<!-- =========================
-     CONTENIDO
-========================= -->
 <div class="container">
 
   <div class="search-bar">
-    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, tesorería…)">
-
+    <input type="text" id="q" placeholder="Buscar por área (ej: remuneraciones, becas y creditos, ofigen)">
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-
     <a href="/" class="btn-home">Volver</a>
   </div>
 
@@ -189,7 +221,25 @@ th {
   Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
+<!-- MODAL -->
+<div id="modalInfo" class="modal">
+  <div class="modal-content">
+    <h3>Información adicional</h3>
+    <p id="modalTexto"></p>
+    <div class="modal-close">
+      <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
+/* Buscar con ENTER */
+document.getElementById("q").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    buscar();
+  }
+});
+
 function buscar() {
   const q = document.getElementById("q").value;
 
@@ -211,6 +261,7 @@ function buscar() {
           <th>Área</th>
           <th>Campus</th>
           <th>Correo</th>
+          <th>Info</th>
         </tr>`;
 
       data.forEach(r => {
@@ -220,7 +271,6 @@ function buscar() {
           <td>${r.cargo_rol || ""}</td>
           <td>${r.area || ""}</td>
           <td>${r.campus || ""}</td>
-
           <td>
             <span class="tooltip-container">
               <a href="mailto:${r.correo}">${r.correo || ""}</a>
@@ -231,6 +281,12 @@ function buscar() {
                 ${r.anexo_asistente ? "📞 <strong>Anexo asistente:</strong> " + r.anexo_asistente : ""}
               </span>
             </span>
+          </td>
+          <td>
+            ${(r.observaciones || r.restricciones)
+              ? `<button onclick="abrirModal('${(r.observaciones || "") + "<br>" + (r.restricciones || "")}')">ℹ️</button>`
+              : ""
+            }
           </td>
         </tr>`;
       });
@@ -244,8 +300,16 @@ function limpiar() {
   document.getElementById("q").value = "";
   document.getElementById("resultados").innerHTML = "";
 }
+
+function abrirModal(texto) {
+  document.getElementById("modalTexto").innerHTML = texto;
+  document.getElementById("modalInfo").style.display = "block";
+}
+
+function cerrarModal() {
+  document.getElementById("modalInfo").style.display = "none";
+}
 </script>
 
 </body>
 </html>
-
