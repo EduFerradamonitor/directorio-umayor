@@ -1,421 +1,214 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Contactos Administrativos – Universidad Mayor</title>
+    <meta charset="UTF-8">
+    <title>Directorio General Umayor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<style>
-body {
-  font-family: Calibri, Arial, sans-serif;
-  background: #f3f6f9;
-  margin: 0;
-}
+    <style>
+        :root{
+            --um-amarillo:#f2b705;
+            --um-azul:#005aa9;
+            --um-gris:#f5f7fa;
+        }
 
-/* HEADER */
-.header {
-  background: #f2b705;
-  padding: 20px 30px;
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
+        body{
+            margin:0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:#ffffff;
+            color:#222;
+        }
 
-.header img { height: 90px; }
+        /* ===== Franja amarilla superior ===== */
+        .top-bar{
+            background:var(--um-amarillo);
+            padding:10px 30px;
+            display:flex;
+            align-items:center;
+            position:relative;
+            font-size:14px;
+        }
 
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #002f6c;
-}
+        .links-hover{
+            position:relative;
+            cursor:pointer;
+            font-weight:600;
+        }
 
-/* CONTENEDOR */
-.container {
-  max-width: 1200px;
-  margin: 30px auto;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
+        .links-hover span{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+        }
 
-/* BUSCADOR */
-.search-wrapper { position: relative; }
+        .links-hover ul{
+            list-style:none;
+            margin:0;
+            padding:10px 0;
+            position:absolute;
+            top:100%;
+            left:0;
+            background:#fff;
+            min-width:260px;
+            box-shadow:0 6px 18px rgba(0,0,0,.15);
+            border-radius:6px;
+            display:none;
+            z-index:10;
+        }
 
-.search-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 5px;
-  align-items: center;
-}
+        .links-hover:hover ul{
+            display:block;
+        }
 
-.search-bar input {
-  padding: 12px;
-  font-size: 16px;
-  flex: 1;
-}
+        .links-hover ul li{
+            padding:8px 16px;
+        }
 
-.search-bar button,
-.search-bar a {
-  padding: 12px 18px;
-  font-size: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
+        .links-hover ul li a{
+            text-decoration:none;
+            color:#222;
+            display:block;
+        }
 
-.btn-primary { background: #005baa; color: #fff; }
-.btn-secondary { background: #999; color: #fff; }
-.btn-home { background: #005baa; color: #fff; }
+        .links-hover ul li a:hover{
+            background:#f0f0f0;
+        }
 
-/* ÍCONO INFO */
-.info-help {
-  background: #e9eef4;
-  color: #005baa;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-}
+        /* ===== Contenedor principal ===== */
+        .container{
+            max-width:1100px;
+            margin:0 auto;
+            padding:30px 20px 10px;
+            text-align:center;
+        }
 
-/* SUGERENCIAS NIVEL 1 */
-.suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 6px 14px rgba(0,0,0,.12);
-  z-index: 50;
-  display: none;
-}
+        /* ===== Logo ===== */
+        .logo{
+            margin-top:10px;
+        }
 
-.suggestion-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 14px;
-}
+        .logo img{
+            max-width:300px;
+            width:100%;
+            height:auto;
+        }
 
-.suggestion-item:hover {
-  background: #f0f4f8;
-}
+        /* ===== Línea amarilla decorativa ===== */
+        .divider{
+            width:70%;
+            height:4px;
+            background:var(--um-amarillo);
+            margin:30px auto;
+        }
 
-/* TABLA */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
+        /* ===== Títulos ===== */
+        h1{
+            font-size:32px;
+            margin:10px 0 6px;
+        }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  vertical-align: top;
-  font-size: 14px;
-}
+        h2{
+            font-size:18px;
+            font-weight:normal;
+            margin:0 0 18px;
+        }
 
-th {
-  background: #005baa;
-  color: white;
-  text-align: left;
-}
+        .descripcion{
+            font-size:15px;
+            color:#444;
+            margin-bottom:30px;
+        }
 
-/* TOOLTIP */
-.tooltip-container { position: relative; display: inline-block; }
+        /* ===== Botones de módulos ===== */
+        .buttons{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:25px;
+        }
 
-.tooltip-box {
-  visibility: hidden;
-  opacity: 0;
-  width: 280px;
-  background-color: #ffffff;
-  color: #000;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px 10px;
-  position: absolute;
-  z-index: 10;
-  top: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  font-size: 13px;
-}
+        .btn{
+            background:var(--um-azul);
+            color:#fff;
+            padding:14px 26px;
+            border-radius:6px;
+            text-decoration:none;
+            font-size:16px;
+            font-weight:600;
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+        }
 
-.tooltip-container:hover .tooltip-box {
-  visibility: visible;
-  opacity: 1;
-}
+        .btn:hover{
+            opacity:.9;
+        }
 
-/* MODALES */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 200;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-}
-
-.modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 25px;
-  width: 520px;
-  border-radius: 10px;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  color: #005baa;
-}
-
-.modal-close {
-  text-align: right;
-}
-
-.modal-close button {
-  background: #999;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* FOOTER */
-.footer {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 13px;
-  color: #666;
-}
-</style>
+        /* ===== Footer ===== */
+        footer{
+            text-align:center;
+            font-size:13px;
+            color:#666;
+            margin:40px 0 20px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="header">
-  <a href="https://www.umayor.cl" target="_blank">
-    <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
-  </a>
-  <h1>Contactos Administrativos</h1>
-</div>
-
-<div class="container">
-
-  <div class="search-wrapper">
-    <div class="search-bar">
-      <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, admisión…)">
-      <button class="btn-primary" onclick="buscar()">Buscar</button>
-      <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-      <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
-      <a href="/" class="btn-home">Volver</a>
+    <!-- Franja amarilla con links -->
+    <div class="top-bar">
+        <div class="links-hover">
+            <span>🔗 Links de uso frecuente ▾</span>
+            <ul>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
+                <li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+                <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+                <li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+                <li><a href="https://mayorcl.sharepoint.com/sites/IntranetServiciodeAtencin" target="_blank">Intranet SAT</a></li>
+                <li><a href="https://www.umayor.cl/um/bundles/umayor/descargables/um/calendario/calendario-pregrado-diurno.pdf" target="_blank">Calendario Pregrado Diurno</a></li>
+                <li><a href="https://www.umayor.cl/um/bundles/umayor/descargables/um/calendario/calendario-tec-advance.pdf" target="_blank">Calendario TEC y Advance</a></li>
+            </ul>
+        </div>
     </div>
 
-    <!-- SUGERENCIAS -->
-    <div id="suggestions" class="suggestions"></div>
-  </div>
+    <!-- Contenido principal -->
+    <div class="container">
 
-  <div id="resultados"></div>
+        <!-- Logo -->
+        <div class="logo">
+            <a href="https://www.umayor.cl" target="_blank">
+                <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+            </a>
+        </div>
 
-</div>
+        <div class="divider"></div>
 
-<div class="footer">
-  Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
-</div>
+        <h1>Directorio General Umayor</h1>
+        <h2>Uso exclusivo SAT</h2>
 
-<!-- MODAL INFO -->
-<div id="modalInfo" class="modal">
-  <div class="modal-content">
-    <h3>Información adicional</h3>
-    <div id="modalTexto"></div>
-    <div class="modal-close">
-      <button onclick="cerrarModal()">Cerrar</button>
+        <p class="descripcion">
+            Plataforma interna para consulta rápida de contactos institucionales.
+        </p>
+
+        <!-- Botones -->
+        <div class="buttons">
+            <a href="/escuelas" class="btn">📘 Directorio de Escuelas</a>
+            <a href="/academicos" class="btn">🎓 Contactos Académicos Núcleos</a>
+            <a href="/contactos-administrativos" class="btn">🏢 Contactos Administrativos</a>
+        </div>
+
     </div>
-  </div>
-</div>
 
-<!-- MODAL AYUDA -->
-<div id="modalAyuda" class="modal">
-  <div class="modal-content">
-    <h3>¿Cómo buscar un contacto?</h3>
-    <p>
-      La búsqueda funciona principalmente por <strong>área</strong>.  
-      Usa palabras clave simples como:
-    </p>
-    <ul>
-      <li><strong>Becas y Créditos</strong> → becas</li>
-      <li><strong>Oficina de Partes</strong> → partes</li>
-      <li><strong>Registro Estudiantil</strong> → registro / oficina</li>
-      <li><strong>Gestión Financiera</strong> → financiera</li>
-      <li><strong>Remuneraciones</strong> → remuneraciones</li>
-    </ul>
-    <div class="modal-close">
-      <button onclick="cerrarAyuda()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-// ===== SUGERENCIAS NIVEL 1 =====
-const sugerenciasBase = [
-  { label: "Becas y Créditos", value: "becas" },
-  { label: "Admisión", value: "admision" },
-  { label: "Matrícula", value: "matricula" },
-  { label: "Registro Estudiantil", value: "registro" },
-  { label: "Oficina de Partes", value: "partes" },
-  { label: "Gestión Financiera", value: "financiera" },
-  { label: "Remuneraciones", value: "remuneraciones" },
-  { label: "Abastecimiento / Compras", value: "compras" },
-  { label: "Biblioteca", value: "biblioteca" },
-  { label: "Beneficios y Calidad de Vida", value: "beneficios" },
-  { label: "Soporte Computacional", value: "soporte" }
-];
-
-const input = document.getElementById("q");
-const suggestionsBox = document.getElementById("suggestions");
-
-input.addEventListener("input", () => {
-  const val = input.value.toLowerCase();
-  suggestionsBox.innerHTML = "";
-
-  if (val.length < 2) {
-    suggestionsBox.style.display = "none";
-    return;
-  }
-
-  const matches = sugerenciasBase.filter(s =>
-    s.label.toLowerCase().includes(val) || s.value.includes(val)
-  );
-
-  if (!matches.length) {
-    suggestionsBox.style.display = "none";
-    return;
-  }
-
-  matches.forEach(s => {
-    const div = document.createElement("div");
-    div.className = "suggestion-item";
-    div.textContent = s.label;
-    div.onclick = () => {
-      input.value = s.value;
-      suggestionsBox.style.display = "none";
-      buscar();
-    };
-    suggestionsBox.appendChild(div);
-  });
-
-  suggestionsBox.style.display = "block";
-});
-
-// Cerrar sugerencias al hacer clic fuera
-document.addEventListener("click", e => {
-  if (!e.target.closest(".search-wrapper")) {
-    suggestionsBox.style.display = "none";
-  }
-});
-
-// Buscar con ENTER
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") buscar();
-});
-
-// ===== BÚSQUEDA =====
-function buscar() {
-  const q = input.value;
-  suggestionsBox.style.display = "none";
-
-  fetch(`/api/contactos-administrativos?q=${encodeURIComponent(q)}`)
-    .then(r => r.json())
-    .then(data => {
-      const res = document.getElementById("resultados");
-      if (!data.length) {
-        res.innerHTML = "<p>No se encontraron resultados.</p>";
-        return;
-      }
-
-      let html = `
-      <table>
-        <tr>
-          <th>Nombre</th>
-          <th>Cargo / Rol</th>
-          <th>Área</th>
-          <th>Campus</th>
-          <th>Correo</th>
-          <th>Info</th>
-        </tr>`;
-
-      data.forEach(r => {
-        html += `
-        <tr>
-          <td>${r.nombre || ""}</td>
-          <td>${r.cargo_rol || ""}</td>
-          <td>${r.area || ""}</td>
-          <td>${r.campus || ""}</td>
-          <td>
-            <span class="tooltip-container">
-              <a href="mailto:${r.correo}">${r.correo || ""}</a>
-              <span class="tooltip-box">
-                ${r.anexo ? "📞 <strong>Anexo:</strong> " + r.anexo + "<br>" : ""}
-                ${r.asistente_secretaria ? "👤 <strong>Asistente:</strong> " + r.asistente_secretaria : ""}
-              </span>
-            </span>
-          </td>
-          <td>
-            ${(r.observaciones || r.restricciones) ? `
-              <button
-                data-observaciones="${(r.observaciones || "").replace(/"/g, '&quot;')}"
-                data-restricciones="${(r.restricciones || "").replace(/"/g, '&quot;')}"
-                onclick="abrirModalDesdeBoton(this)">ℹ️</button>` : ""}
-          </td>
-        </tr>`;
-      });
-
-      html += "</table>";
-      res.innerHTML = html;
-    });
-}
-
-function limpiar() {
-  input.value = "";
-  document.getElementById("resultados").innerHTML = "";
-  suggestionsBox.style.display = "none";
-}
-
-// ===== MODALES =====
-function abrirModalDesdeBoton(btn) {
-  let texto = "";
-  const obs = btn.getAttribute("data-observaciones");
-  const res = btn.getAttribute("data-restricciones");
-
-  if (obs) texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
-  if (res) texto += "<strong>Restricciones:</strong><br>" + res;
-
-  document.getElementById("modalTexto").innerHTML = texto;
-  document.getElementById("modalInfo").style.display = "block";
-}
-
-function cerrarModal() {
-  document.getElementById("modalInfo").style.display = "none";
-}
-
-function abrirAyuda() {
-  document.getElementById("modalAyuda").style.display = "block";
-}
-
-function cerrarAyuda() {
-  document.getElementById("modalAyuda").style.display = "none";
-}
-</script>
+    <!-- Footer -->
+    <footer>
+        Desarrollado por <strong>Eduardo Ferrada</strong><br>
+        Universidad Mayor · Enero 2026
+    </footer>
 
 </body>
 </html>
+
