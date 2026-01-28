@@ -21,7 +21,6 @@ body {
 }
 
 .header img { height: 90px; }
-<p style="color:red">VERSION NUEVA CON SINONIMOS</p>
 
 .header h1 {
   margin: 0;
@@ -215,14 +214,13 @@ th {
 
   <div class="search-wrapper">
     <div class="search-bar">
-      <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, admisión…)">
+      <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, financiera…)">
       <button class="btn-primary" onclick="buscar()">Buscar</button>
       <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
       <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
       <a href="/" class="btn-home">Volver</a>
     </div>
 
-    <!-- SUGERENCIAS -->
     <div id="suggestions" class="suggestions"></div>
   </div>
 
@@ -250,16 +248,10 @@ th {
   <div class="modal-content">
     <h3>¿Cómo buscar un contacto?</h3>
     <p>
-      La búsqueda funciona principalmente por <strong>área</strong>.  
-      Usa palabras clave simples como:
+      La búsqueda funciona principalmente por <strong>área</strong>.<br><br>
+      Usa palabras simples (becas, partes, financiera).<br>
+      Prueba distintas combinaciones si no aparece a la primera.
     </p>
-    <ul>
-      <li><strong>Becas y Créditos</strong> → becas</li>
-      <li><strong>Oficina de Partes</strong> → partes</li>
-      <li><strong>Registro Estudiantil</strong> → registro / oficina</li>
-      <li><strong>Gestión Financiera</strong> → financiera</li>
-      <li><strong>Remuneraciones</strong> → remuneraciones</li>
-    </ul>
     <div class="modal-close">
       <button onclick="cerrarAyuda()">Cerrar</button>
     </div>
@@ -267,19 +259,17 @@ th {
 </div>
 
 <script>
-// ===== SUGERENCIAS NIVEL 1 =====
+// ===== SUGERENCIAS CON SINÓNIMOS =====
 const sugerenciasBase = [
-  { label: "Becas y Créditos", value: "becas" },
-  { label: "Admisión", value: "admision" },
-  { label: "Matrícula", value: "matricula" },
-  { label: "Registro Estudiantil", value: "registro" },
-  { label: "Oficina de Partes", value: "partes" },
-  { label: "Gestión Financiera", value: "financiera" },
-  { label: "Remuneraciones", value: "remuneraciones" },
-  { label: "Abastecimiento / Compras", value: "compras" },
-  { label: "Biblioteca", value: "biblioteca" },
-  { label: "Beneficios y Calidad de Vida", value: "beneficios" },
-  { label: "Soporte Computacional", value: "soporte" }
+  { label: "Becas y Créditos", value: "becas", aliases: ["byc","creditos"] },
+  { label: "Admisión", value: "admision", aliases: ["admin"] },
+  { label: "Matrícula", value: "matricula", aliases: ["matri"] },
+  { label: "Registro Estudiantil", value: "registro", aliases: ["ore","oficina"] },
+  { label: "Oficina de Partes", value: "partes", aliases: [] },
+  { label: "Gestión Financiera", value: "financiera", aliases: ["gf","plata","dinero"] },
+  { label: "Remuneraciones", value: "remuneraciones", aliases: ["honorarios"] },
+  { label: "Abogados", value: "abogados", aliases: ["tribunal","oficio","demanda"] },
+  { label: "Biblioteca", value: "biblioteca", aliases: ["libros"] }
 ];
 
 const input = document.getElementById("q");
@@ -295,7 +285,9 @@ input.addEventListener("input", () => {
   }
 
   const matches = sugerenciasBase.filter(s =>
-    s.label.toLowerCase().includes(val) || s.value.includes(val)
+    s.label.toLowerCase().includes(val) ||
+    s.value.includes(val) ||
+    (s.aliases || []).some(a => a.includes(val))
   );
 
   if (!matches.length) {
@@ -318,14 +310,6 @@ input.addEventListener("input", () => {
   suggestionsBox.style.display = "block";
 });
 
-// Cerrar sugerencias al hacer clic fuera
-document.addEventListener("click", e => {
-  if (!e.target.closest(".search-wrapper")) {
-    suggestionsBox.style.display = "none";
-  }
-});
-
-// Buscar con ENTER
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") buscar();
 });
@@ -339,6 +323,7 @@ function buscar() {
     .then(r => r.json())
     .then(data => {
       const res = document.getElementById("resultados");
+
       if (!data.length) {
         res.innerHTML = "<p>No se encontraron resultados.</p>";
         return;
@@ -373,10 +358,10 @@ function buscar() {
           </td>
           <td>
             ${(r.observaciones || r.restricciones) ? `
-              <button
-                data-observaciones="${(r.observaciones || "").replace(/"/g, '&quot;')}"
-                data-restricciones="${(r.restricciones || "").replace(/"/g, '&quot;')}"
-                onclick="abrirModalDesdeBoton(this)">ℹ️</button>` : ""}
+            <button
+              data-observaciones="${(r.observaciones || "").replace(/"/g, '&quot;')}"
+              data-restricciones="${(r.restricciones || "").replace(/"/g, '&quot;')}"
+              onclick="abrirModalDesdeBoton(this)">ℹ️</button>` : ""}
           </td>
         </tr>`;
       });
@@ -395,11 +380,10 @@ function limpiar() {
 // ===== MODALES =====
 function abrirModalDesdeBoton(btn) {
   let texto = "";
-  const obs = btn.getAttribute("data-observaciones");
-  const res = btn.getAttribute("data-restricciones");
-
-  if (obs) texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
-  if (res) texto += "<strong>Restricciones:</strong><br>" + res;
+  if (btn.dataset.observaciones)
+    texto += "<strong>Observaciones:</strong><br>" + btn.dataset.observaciones + "<br><br>";
+  if (btn.dataset.restricciones)
+    texto += "<strong>Restricciones:</strong><br>" + btn.dataset.restricciones;
 
   document.getElementById("modalTexto").innerHTML = texto;
   document.getElementById("modalInfo").style.display = "block";
