@@ -21,6 +21,7 @@ body {
 }
 
 .header img { height: 90px; }
+<p style="color:red">VERSION NUEVA CON SINONIMOS</p>
 
 .header h1 {
   margin: 0;
@@ -44,6 +45,7 @@ body {
 .search-bar {
   display: flex;
   gap: 10px;
+  margin-bottom: 5px;
   align-items: center;
 }
 
@@ -61,12 +63,16 @@ body {
   border-radius: 6px;
   cursor: pointer;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary { background: #005baa; color: #fff; }
 .btn-secondary { background: #999; color: #fff; }
 .btn-home { background: #005baa; color: #fff; }
 
+/* ÍCONO INFO */
 .info-help {
   background: #e9eef4;
   color: #005baa;
@@ -106,12 +112,13 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 th, td {
   border: 1px solid #ddd;
   padding: 10px;
+  vertical-align: top;
   font-size: 14px;
 }
 
@@ -119,6 +126,70 @@ th {
   background: #005baa;
   color: white;
   text-align: left;
+}
+
+/* TOOLTIP */
+.tooltip-container { position: relative; display: inline-block; }
+
+.tooltip-box {
+  visibility: hidden;
+  opacity: 0;
+  width: 280px;
+  background-color: #ffffff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 10;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  font-size: 13px;
+}
+
+.tooltip-container:hover .tooltip-box {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* MODALES */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 200;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 25px;
+  width: 520px;
+  border-radius: 10px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #005baa;
+}
+
+.modal-close {
+  text-align: right;
+}
+
+.modal-close button {
+  background: #999;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 /* FOOTER */
@@ -134,7 +205,9 @@ th {
 <body>
 
 <div class="header">
-  <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
+  <a href="https://www.umayor.cl" target="_blank">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
+  </a>
   <h1>Contactos Administrativos</h1>
 </div>
 
@@ -142,11 +215,14 @@ th {
 
   <div class="search-wrapper">
     <div class="search-bar">
-      <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, financiera…)">
+      <input type="text" id="q" placeholder="Buscar por área (ej: becas, partes, admisión…)">
       <button class="btn-primary" onclick="buscar()">Buscar</button>
       <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
+      <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
       <a href="/" class="btn-home">Volver</a>
     </div>
+
+    <!-- SUGERENCIAS -->
     <div id="suggestions" class="suggestions"></div>
   </div>
 
@@ -158,37 +234,57 @@ th {
   Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
+<!-- MODAL INFO -->
+<div id="modalInfo" class="modal">
+  <div class="modal-content">
+    <h3>Información adicional</h3>
+    <div id="modalTexto"></div>
+    <div class="modal-close">
+      <button onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AYUDA -->
+<div id="modalAyuda" class="modal">
+  <div class="modal-content">
+    <h3>¿Cómo buscar un contacto?</h3>
+    <p>
+      La búsqueda funciona principalmente por <strong>área</strong>.  
+      Usa palabras clave simples como:
+    </p>
+    <ul>
+      <li><strong>Becas y Créditos</strong> → becas</li>
+      <li><strong>Oficina de Partes</strong> → partes</li>
+      <li><strong>Registro Estudiantil</strong> → registro / oficina</li>
+      <li><strong>Gestión Financiera</strong> → financiera</li>
+      <li><strong>Remuneraciones</strong> → remuneraciones</li>
+    </ul>
+    <div class="modal-close">
+      <button onclick="cerrarAyuda()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// =========================
-// SUGERENCIAS NIVEL 1
-// =========================
+// ===== SUGERENCIAS NIVEL 1 =====
 const sugerenciasBase = [
-  { label: "Becas y Créditos", value: "becas", aliases: ["byc","creditos"] },
-  { label: "Admisión", value: "admision", aliases: ["admin"] },
-  { label: "Matrícula", value: "matricula", aliases: ["matri"] },
-  { label: "Registro Estudiantil", value: "registro", aliases: ["ore"] },
-  { label: "Oficina de Partes", value: "partes", aliases: [] },
-
-  { label: "Gestión Financiera", value: "financiera", aliases: ["plata","dinero","gf"] },
-  { label: "Pago a Proveedores", value: "proveedores", aliases: ["facturacion","pago facturas"] },
-  { label: "Departamento de Personal", value: "personal", aliases: [] },
-  { label: "Remuneraciones", value: "remuneraciones", aliases: ["honorarios"] },
-
-  { label: "Dirección de Asuntos Estudiantiles (DAE)", value: "dae", aliases: [] },
-  { label: "Dirección de Comunicación Estratégica", value: "comunicacion", aliases: ["dce","difusion"] },
-  { label: "Relaciones Internacionales", value: "relaciones", aliases: ["rrii"] },
-
-  { label: "Clínicas", value: "clinicas", aliases: ["dental","fono","veterinaria","psico"] },
-  { label: "Guardias", value: "guardias", aliases: ["guard"] },
-  { label: "Abogados", value: "abogados", aliases: ["oficio","tribunal","demanda","legal"] },
-  { label: "Impresiones", value: "impresiones", aliases: ["impresoras"] },
-  { label: "Biblioteca", value: "biblioteca", aliases: ["libros"] }
+  { label: "Becas y Créditos", value: "becas" },
+  { label: "Admisión", value: "admision" },
+  { label: "Matrícula", value: "matricula" },
+  { label: "Registro Estudiantil", value: "registro" },
+  { label: "Oficina de Partes", value: "partes" },
+  { label: "Gestión Financiera", value: "financiera" },
+  { label: "Remuneraciones", value: "remuneraciones" },
+  { label: "Abastecimiento / Compras", value: "compras" },
+  { label: "Biblioteca", value: "biblioteca" },
+  { label: "Beneficios y Calidad de Vida", value: "beneficios" },
+  { label: "Soporte Computacional", value: "soporte" }
 ];
 
 const input = document.getElementById("q");
 const suggestionsBox = document.getElementById("suggestions");
 
-// Mostrar sugerencias
 input.addEventListener("input", () => {
   const val = input.value.toLowerCase();
   suggestionsBox.innerHTML = "";
@@ -199,9 +295,7 @@ input.addEventListener("input", () => {
   }
 
   const matches = sugerenciasBase.filter(s =>
-    s.label.toLowerCase().includes(val) ||
-    s.value.includes(val) ||
-    (s.aliases || []).some(a => a.includes(val))
+    s.label.toLowerCase().includes(val) || s.value.includes(val)
   );
 
   if (!matches.length) {
@@ -224,14 +318,19 @@ input.addEventListener("input", () => {
   suggestionsBox.style.display = "block";
 });
 
+// Cerrar sugerencias al hacer clic fuera
+document.addEventListener("click", e => {
+  if (!e.target.closest(".search-wrapper")) {
+    suggestionsBox.style.display = "none";
+  }
+});
+
 // Buscar con ENTER
 input.addEventListener("keydown", e => {
   if (e.key === "Enter") buscar();
 });
 
-// =========================
-// BÚSQUEDA
-// =========================
+// ===== BÚSQUEDA =====
 function buscar() {
   const q = input.value;
   suggestionsBox.style.display = "none";
@@ -240,7 +339,6 @@ function buscar() {
     .then(r => r.json())
     .then(data => {
       const res = document.getElementById("resultados");
-
       if (!data.length) {
         res.innerHTML = "<p>No se encontraron resultados.</p>";
         return;
@@ -254,6 +352,7 @@ function buscar() {
           <th>Área</th>
           <th>Campus</th>
           <th>Correo</th>
+          <th>Info</th>
         </tr>`;
 
       data.forEach(r => {
@@ -263,7 +362,22 @@ function buscar() {
           <td>${r.cargo_rol || ""}</td>
           <td>${r.area || ""}</td>
           <td>${r.campus || ""}</td>
-          <td><a href="mailto:${r.correo}">${r.correo || ""}</a></td>
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo}">${r.correo || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo ? "📞 <strong>Anexo:</strong> " + r.anexo + "<br>" : ""}
+                ${r.asistente_secretaria ? "👤 <strong>Asistente:</strong> " + r.asistente_secretaria : ""}
+              </span>
+            </span>
+          </td>
+          <td>
+            ${(r.observaciones || r.restricciones) ? `
+              <button
+                data-observaciones="${(r.observaciones || "").replace(/"/g, '&quot;')}"
+                data-restricciones="${(r.restricciones || "").replace(/"/g, '&quot;')}"
+                onclick="abrirModalDesdeBoton(this)">ℹ️</button>` : ""}
+          </td>
         </tr>`;
       });
 
@@ -276,6 +390,31 @@ function limpiar() {
   input.value = "";
   document.getElementById("resultados").innerHTML = "";
   suggestionsBox.style.display = "none";
+}
+
+// ===== MODALES =====
+function abrirModalDesdeBoton(btn) {
+  let texto = "";
+  const obs = btn.getAttribute("data-observaciones");
+  const res = btn.getAttribute("data-restricciones");
+
+  if (obs) texto += "<strong>Observaciones:</strong><br>" + obs + "<br><br>";
+  if (res) texto += "<strong>Restricciones:</strong><br>" + res;
+
+  document.getElementById("modalTexto").innerHTML = texto;
+  document.getElementById("modalInfo").style.display = "block";
+}
+
+function cerrarModal() {
+  document.getElementById("modalInfo").style.display = "none";
+}
+
+function abrirAyuda() {
+  document.getElementById("modalAyuda").style.display = "block";
+}
+
+function cerrarAyuda() {
+  document.getElementById("modalAyuda").style.display = "none";
 }
 </script>
 
