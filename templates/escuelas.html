@@ -18,16 +18,14 @@ body {
    HEADER
 ========================= */
 .header {
-  background: #f2b705; /* amarillo UM */
+  background: #f2b705;
   padding: 20px 30px;
   display: flex;
   align-items: center;
   gap: 25px;
 }
 
-.header img {
-  height: 90px;
-}
+.header img { height: 90px; }
 
 .header h1 {
   margin: 0;
@@ -54,6 +52,7 @@ body {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
+  align-items: center;
 }
 
 .search-bar input,
@@ -76,19 +75,20 @@ body {
   justify-content: center;
 }
 
-.btn-primary {
-  background: #005baa;
-  color: #fff;
-}
+.btn-primary { background: #005baa; color: #fff; }
+.btn-secondary { background: #999; color: #fff; }
+.btn-home { background: #005baa; color: #fff; }
 
-.btn-secondary {
-  background: #999;
-  color: #fff;
-}
-
-.btn-home {
-  background: #005baa;
-  color: #fff;
+/* ÍCONO INFO */
+.info-help {
+  background: #e9eef4;
+  color: #005baa;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
 }
 
 /* =========================
@@ -145,6 +145,46 @@ th {
 }
 
 /* =========================
+   MODAL AYUDA
+========================= */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 200;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 25px;
+  width: 520px;
+  border-radius: 10px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #005baa;
+}
+
+.modal-close {
+  text-align: right;
+}
+
+.modal-close button {
+  background: #999;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* =========================
    FOOTER
 ========================= */
 .footer {
@@ -158,9 +198,7 @@ th {
 
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
+<!-- HEADER -->
 <div class="header">
   <a href="https://www.umayor.cl" target="_blank">
     <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
@@ -168,11 +206,9 @@ th {
   <h1>Directorio de Escuelas</h1>
 </div>
 
-<!-- =========================
-     CONTENIDO
-========================= -->
 <div class="container">
 
+  <!-- BUSCADOR -->
   <div class="search-bar">
     <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
 
@@ -184,7 +220,7 @@ th {
 
     <button class="btn-primary" onclick="buscar()">Buscar</button>
     <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-
+    <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
     <a href="/" class="btn-home">Volver</a>
   </div>
 
@@ -196,7 +232,32 @@ th {
   Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
+<!-- MODAL AYUDA -->
+<div id="modalAyuda" class="modal">
+  <div class="modal-content">
+    <h3>¿Cómo usar el buscador?</h3>
+    <p>
+      Puedes buscar por <strong>nombre de la escuela</strong>, <strong>cargo</strong> o <strong>nombre de la persona</strong>.
+    </p>
+    <ul>
+      <li>Escribe una palabra clave y presiona <strong>Buscar</strong> o la tecla <strong>Enter</strong>.</li>
+      <li>Puedes filtrar por <strong>sede</strong> si lo necesitas.</li>
+      <li>Al pasar el mouse sobre los correos, verás <strong>anexos y restricciones</strong> cuando existan.</li>
+    </ul>
+    <div class="modal-close">
+      <button onclick="cerrarAyuda()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// Buscar con ENTER
+document.getElementById("q").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    buscar();
+  }
+});
+
 function buscar() {
   const q = document.getElementById("q").value;
   const sede = document.getElementById("sede").value;
@@ -267,7 +328,17 @@ function limpiar() {
   document.getElementById("sede").value = "";
   document.getElementById("resultados").innerHTML = "";
 }
+
+function abrirAyuda() {
+  document.getElementById("modalAyuda").style.display = "block";
+}
+
+function cerrarAyuda() {
+  document.getElementById("modalAyuda").style.display = "none";
+}
 </script>
 
 </body>
 </html>
+
+
