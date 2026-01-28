@@ -5,22 +5,29 @@
 <title>Directorio de Escuelas – Universidad Mayor</title>
 
 <style>
+/* =========================
+   ESTILOS GENERALES
+========================= */
 body {
   font-family: Calibri, Arial, sans-serif;
   background: #f3f6f9;
   margin: 0;
 }
 
-/* ===== HEADER ===== */
+/* =========================
+   HEADER
+========================= */
 .header {
-  background: #f2b705;
+  background: #f2b705; /* amarillo UM */
   padding: 20px 30px;
   display: flex;
   align-items: center;
   gap: 25px;
 }
 
-.header img { height: 90px; }
+.header img {
+  height: 90px;
+}
 
 .header h1 {
   margin: 0;
@@ -28,7 +35,9 @@ body {
   color: #002f6c;
 }
 
-/* ===== CONTENEDOR ===== */
+/* =========================
+   CONTENEDOR
+========================= */
 .container {
   max-width: 1200px;
   margin: 30px auto;
@@ -38,23 +47,21 @@ body {
   box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* ===== BUSCADOR ===== */
-.search-wrapper { position: relative; }
-
+/* =========================
+   BUSCADOR
+========================= */
 .search-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
-  align-items: center;
+  margin-bottom: 20px;
 }
 
 .search-bar input,
 .search-bar select {
   padding: 12px;
   font-size: 16px;
+  flex: 1;
 }
-
-.search-bar input { flex: 1; }
 
 .search-bar button,
 .search-bar a {
@@ -69,51 +76,28 @@ body {
   justify-content: center;
 }
 
-.btn-primary { background: #005baa; color: #fff; }
-.btn-secondary { background: #999; color: #fff; }
-.btn-home { background: #005baa; color: #fff; }
-
-/* ===== ICONO INFO ===== */
-.info-help {
-  background: #e9eef4;
-  color: #005baa;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
+.btn-primary {
+  background: #005baa;
+  color: #fff;
 }
 
-/* ===== SUGERENCIAS ===== */
-.suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 6px 14px rgba(0,0,0,.12);
-  z-index: 50;
-  display: none;
+.btn-secondary {
+  background: #999;
+  color: #fff;
 }
 
-.suggestion-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 14px;
+.btn-home {
+  background: #005baa;
+  color: #fff;
 }
 
-.suggestion-item:hover {
-  background: #f0f4f8;
-}
-
-/* ===== TABLA ===== */
+/* =========================
+   TABLA
+========================= */
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 th, td {
@@ -129,8 +113,13 @@ th {
   text-align: left;
 }
 
-/* ===== TOOLTIP ===== */
-.tooltip-container { position: relative; display: inline-block; }
+/* =========================
+   TOOLTIP
+========================= */
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
 
 .tooltip-box {
   visibility: hidden;
@@ -143,7 +132,7 @@ th {
   padding: 8px 10px;
   position: absolute;
   z-index: 10;
-  top: 120%;
+  top: 125%;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -155,45 +144,9 @@ th {
   opacity: 1;
 }
 
-/* ===== MODALES ===== */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 200;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-}
-
-.modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 25px;
-  width: 520px;
-  border-radius: 10px;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  color: #005baa;
-}
-
-.modal-close {
-  text-align: right;
-}
-
-.modal-close button {
-  background: #999;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* ===== FOOTER ===== */
+/* =========================
+   FOOTER
+========================= */
 .footer {
   margin-top: 40px;
   text-align: center;
@@ -205,123 +158,48 @@ th {
 
 <body>
 
-<!-- HEADER -->
+<!-- =========================
+     HEADER
+========================= -->
 <div class="header">
   <a href="https://www.umayor.cl" target="_blank">
-    <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
+    <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
   </a>
   <h1>Directorio de Escuelas</h1>
 </div>
 
+<!-- =========================
+     CONTENIDO
+========================= -->
 <div class="container">
 
-  <!-- BUSCADOR -->
-  <div class="search-wrapper">
-    <div class="search-bar">
-      <input type="text" id="q" placeholder="Buscar por escuela o área (ej: ingeniería, salud…)">
+  <div class="search-bar">
+    <input type="text" id="q" placeholder="Buscar escuela, nombre o cargo…">
 
-      <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
-      </select>
+    <select id="sede">
+      <option value="">Todas las sedes</option>
+      <option value="santiago">Santiago</option>
+      <option value="temuco">Temuco</option>
+    </select>
 
-      <button class="btn-primary" onclick="buscar()">Buscar</button>
-      <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
-      <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
-      <a href="/" class="btn-home">Volver</a>
-    </div>
+    <button class="btn-primary" onclick="buscar()">Buscar</button>
+    <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
 
-    <div id="suggestions" class="suggestions"></div>
+    <a href="/" class="btn-home">Volver</a>
   </div>
 
   <div id="resultados"></div>
+
 </div>
 
 <div class="footer">
   Desarrollado por <strong>Eduardo Ferrada</strong> · Universidad Mayor · 2026
 </div>
 
-<!-- MODAL AYUDA -->
-<div id="modalAyuda" class="modal">
-  <div class="modal-content">
-    <h3>¿Cómo usar el buscador?</h3>
-    <p>
-      Puedes buscar por <strong>categorías generales</strong> o por <strong>escuelas específicas</strong>.
-    </p>
-    <ul>
-      <li>Si escribes <strong>ingeniería</strong> o <strong>ing</strong>, verás todas las ingenierías.</li>
-      <li>Si escribes <strong>ingeniería civil</strong>, verás esa escuela específica.</li>
-      <li>Si escribes <strong>salud</strong>, se mostrará el área completa.</li>
-    </ul>
-    <p>
-      💡 Mientras escribes, el sistema te mostrará sugerencias para ayudarte.
-    </p>
-    <div class="modal-close">
-      <button onclick="cerrarAyuda()">Cerrar</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// ===== SUGERENCIAS NIVEL 1 =====
-const sugerenciasBase = [
-  { label: "Ingeniería y Tecnología", value: "ingeniería", aliases: ["ing","inge"] },
-  { label: "Ciencias de la Salud", value: "salud" },
-  { label: "Educación y Pedagogía", value: "educación", aliases:["pedagogía"] },
-  { label: "Negocios y Administración", value: "negocios", aliases:["comercial","administración"] },
-  { label: "Ciencias Sociales y Humanidades", value: "sociales", aliases:["derecho","psicología"] },
-  { label: "Artes, Diseño y Humanidades", value: "artes", aliases:["diseño","cine"] },
-  { label: "Ciencias Agrarias", value: "agrarias", aliases:["agro","veterinaria"] }
-];
-
-const input = document.getElementById("q");
-const suggestionsBox = document.getElementById("suggestions");
-
-input.addEventListener("input", () => {
-  const val = input.value.toLowerCase();
-  suggestionsBox.innerHTML = "";
-
-  if (val.length < 2) {
-    suggestionsBox.style.display = "none";
-    return;
-  }
-
-  const matches = sugerenciasBase.filter(s =>
-    s.label.toLowerCase().includes(val) ||
-    s.value.includes(val) ||
-    (s.aliases || []).some(a => a.includes(val))
-  );
-
-  if (!matches.length) {
-    suggestionsBox.style.display = "none";
-    return;
-  }
-
-  matches.forEach(s => {
-    const div = document.createElement("div");
-    div.className = "suggestion-item";
-    div.textContent = s.label;
-    div.onclick = () => {
-      input.value = s.value;
-      suggestionsBox.style.display = "none";
-      buscar();
-    };
-    suggestionsBox.appendChild(div);
-  });
-
-  suggestionsBox.style.display = "block";
-});
-
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") buscar();
-});
-
-// ===== BÚSQUEDA =====
 function buscar() {
-  const q = input.value;
+  const q = document.getElementById("q").value;
   const sede = document.getElementById("sede").value;
-  suggestionsBox.style.display = "none";
 
   fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
     .then(r => r.json())
@@ -341,7 +219,9 @@ function buscar() {
           <th>Escuela</th>
           <th>Sede</th>
           <th>Campus</th>
-          <th>Correo</th>
+          <th>Correo Director</th>
+          <th>Secretaría</th>
+          <th>Correo Secretaría</th>
         </tr>`;
 
       data.forEach(r => {
@@ -352,11 +232,25 @@ function buscar() {
           <td>${r.escuela_busqueda || ""}</td>
           <td>${r.sede || ""}</td>
           <td>${r.campus || ""}</td>
+
           <td>
             <span class="tooltip-container">
               <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
               <span class="tooltip-box">
-                ${r.anexo_director ? "📞 Anexo: " + r.anexo_director : ""}
+                ${r.anexo_director ? "📞 <strong>Anexo:</strong> " + r.anexo_director + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
+              </span>
+            </span>
+          </td>
+
+          <td>${r.secretaria || ""}</td>
+
+          <td>
+            <span class="tooltip-container">
+              <a href="mailto:${r.correo_secretaria}">${r.correo_secretaria || ""}</a>
+              <span class="tooltip-box">
+                ${r.anexo_secretaria ? "📞 <strong>Anexo:</strong> " + r.anexo_secretaria + "<br>" : ""}
+                ${r.consultar_antes_de_entregar_contactos ? "⚠️ <strong>Restricción:</strong> " + r.consultar_antes_de_entregar_contactos : ""}
               </span>
             </span>
           </td>
@@ -369,18 +263,9 @@ function buscar() {
 }
 
 function limpiar() {
-  input.value = "";
+  document.getElementById("q").value = "";
+  document.getElementById("sede").value = "";
   document.getElementById("resultados").innerHTML = "";
-  suggestionsBox.style.display = "none";
-}
-
-// ===== MODAL AYUDA =====
-function abrirAyuda() {
-  document.getElementById("modalAyuda").style.display = "block";
-}
-
-function cerrarAyuda() {
-  document.getElementById("modalAyuda").style.display = "none";
 }
 </script>
 
