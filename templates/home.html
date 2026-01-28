@@ -93,7 +93,7 @@
             height:auto;
         }
 
-        /* ===== Línea amarilla decorativa ===== */
+        /* ===== Línea amarilla ===== */
         .divider{
             width:70%;
             height:4px;
@@ -119,7 +119,7 @@
             margin-bottom:30px;
         }
 
-        /* ===== Botones de módulos ===== */
+        /* ===== Botones ===== */
         .buttons{
             display:flex;
             justify-content:center;
@@ -152,62 +152,154 @@
             color:#666;
             margin:40px 0 20px;
         }
+
+        /* =================================================
+           POP-UP AVISO (80% – LECTURA OBLIGATORIA)
+           ================================================= */
+        .modal-aviso{
+            display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,0.6);
+            z-index:500;
+        }
+
+        .modal-aviso-content{
+            background:#ffffff;
+            width:80%;
+            max-width:900px;
+            margin:5% auto;
+            padding:40px;
+            border-radius:14px;
+            border-top:10px solid var(--um-amarillo);
+            box-shadow:0 15px 40px rgba(0,0,0,0.35);
+            text-align:left;
+            font-size:16px;
+            line-height:1.5;
+        }
+
+        .modal-aviso-content h3{
+            margin-top:0;
+            color:var(--um-azul);
+            font-size:24px;
+        }
+
+        .modal-aviso-content ul{
+            margin-left:20px;
+        }
+
+        .modal-aviso-actions{
+            text-align:center;
+            margin-top:30px;
+        }
+
+        .modal-aviso-actions button{
+            background:var(--um-azul);
+            color:#fff;
+            border:none;
+            padding:14px 32px;
+            font-size:16px;
+            font-weight:600;
+            border-radius:8px;
+            cursor:pointer;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Franja amarilla con links -->
-    <div class="top-bar">
-        <div class="links-hover">
-            <span>🔗 Links de uso frecuente ▾</span>
-            <ul>
-                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
-                <li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
-                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
-                <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
-                <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
-                <li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
-                <li><a href="https://mayorcl.sharepoint.com/sites/IntranetServiciodeAtencin" target="_blank">Intranet SAT</a></li>
-                <li><a href="https://www.umayor.cl/um/bundles/umayor/descargables/um/calendario/calendario-pregrado-diurno.pdf" target="_blank">Calendario Pregrado Diurno</a></li>
-                <li><a href="https://www.umayor.cl/um/bundles/umayor/descargables/um/calendario/calendario-tec-advance.pdf" target="_blank">Calendario TEC y Advance</a></li>
-            </ul>
-        </div>
-    </div>
+<!-- ================= POP-UP AVISO ================= -->
+<div id="modalAviso" class="modal-aviso">
+    <div class="modal-aviso-content">
+        <h3>Aviso de uso y confidencialidad</h3>
 
-    <!-- Contenido principal -->
-    <div class="container">
-
-        <!-- Logo -->
-        <div class="logo">
-            <a href="https://www.umayor.cl" target="_blank">
-                <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
-            </a>
-        </div>
-
-        <div class="divider"></div>
-
-        <h1>Directorio General Umayor</h1>
-        <h2>Uso exclusivo SAT</h2>
-
-        <p class="descripcion">
-            Plataforma interna para consulta rápida de contactos institucionales.
+        <p>
+            Esta plataforma es de <strong>uso interno exclusivo del Servicio de Atención (SAT)</strong>
+            de la Universidad Mayor.
         </p>
 
-        <!-- Botones -->
-        <div class="buttons">
-            <a href="/escuelas" class="btn">📘 Directorio de Escuelas</a>
-            <a href="/academicos" class="btn">🎓 Contactos Académicos Núcleos</a>
-            <a href="/contactos-administrativos" class="btn">🏢 Contactos Administrativos</a>
-        </div>
+        <p>
+            La información aquí contenida es <strong>confidencial</strong>, se actualiza directamente
+            desde las áreas responsables y <strong>no debe ser compartida ni utilizada fuera del ámbito institucional</strong>.
+        </p>
 
+        <ul>
+            <li>Utiliza siempre el directorio en línea.</li>
+            <li>Evita guardar o distribuir copias externas.</li>
+            <li>Ante dudas, verifica la información directamente en esta plataforma.</li>
+        </ul>
+
+        <p>
+            <strong>Importante:</strong><br>
+            En el primer acceso del día, la plataforma puede tardar algunos segundos en cargar.
+            Si la pantalla demora en responder, espera brevemente y refresca el navegador.
+        </p>
+
+        <div class="modal-aviso-actions">
+            <button onclick="cerrarAviso()">Entendido</button>
+        </div>
+    </div>
+</div>
+
+<!-- Franja amarilla -->
+<div class="top-bar">
+    <div class="links-hover">
+        <span>🔗 Links de uso frecuente ▾</span>
+        <ul>
+            <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Registro-Estudiantes" target="_blank">ORE</a></li>
+            <li><a href="https://sso.umayor.cl/authentication/SignIn?SID=13&app_url=certificadosalumnos.umayor.cl" target="_blank">Portal de Certificados</a></li>
+            <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gratuidad-Becas-y-ayudas-estudiantiles" target="_blank">Becas y Créditos</a></li>
+            <li><a href="https://www.umayor.cl/um/servicios-estudiantiles/Gestion-Financiera" target="_blank">Gestión Financiera</a></li>
+            <li><a href="https://www.umayor.cl/um/oferta-academica" target="_blank">Oferta Académica</a></li>
+            <li><a href="https://www.admisionmayor.cl/preguntas-frecuentes" target="_blank">Preguntas Frecuentes Admisión</a></li>
+            <li><a href="https://mayorcl.sharepoint.com/sites/IntranetServiciodeAtencin" target="_blank">Intranet SAT</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Contenido -->
+<div class="container">
+
+    <div class="logo">
+        <a href="https://www.umayor.cl" target="_blank">
+            <img src="{{ url_for('static', filename='img/logoum.jpg') }}" alt="Universidad Mayor">
+        </a>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        Desarrollado por <strong>Eduardo Ferrada</strong><br>
-        Universidad Mayor · Enero 2026
-    </footer>
+    <div class="divider"></div>
+
+    <h1>Directorio General Umayor</h1>
+    <h2>Uso exclusivo SAT</h2>
+
+    <p class="descripcion">
+        Plataforma interna para consulta rápida de contactos institucionales.
+    </p>
+
+    <div class="buttons">
+        <a href="/escuelas" class="btn">📘 Directorio de Escuelas</a>
+        <a href="/academicos" class="btn">🎓 Contactos Académicos Núcleos</a>
+        <a href="/contactos-administrativos" class="btn">🏢 Contactos Administrativos</a>
+    </div>
+
+</div>
+
+<footer>
+    Desarrollado por <strong>Eduardo Ferrada</strong><br>
+    Universidad Mayor · Enero 2026
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if (!sessionStorage.getItem("avisoSATVisto")) {
+            document.getElementById("modalAviso").style.display = "block";
+        }
+    });
+
+    function cerrarAviso(){
+        document.getElementById("modalAviso").style.display = "none";
+        sessionStorage.setItem("avisoSATVisto","true");
+    }
+</script>
 
 </body>
 </html>
