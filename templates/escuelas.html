@@ -5,207 +5,165 @@
 <title>Directorio de Escuelas – Universidad Mayor</title>
 
 <style>
-body {
+body{
   font-family: Calibri, Arial, sans-serif;
-  background: #f3f6f9;
-  margin: 0;
+  background:#f3f6f9;
+  margin:0;
 }
 
-/* ===== HEADER ===== */
-.header {
-  background: #f2b705;
-  padding: 20px 30px;
-  display: flex;
-  align-items: center;
-  gap: 25px;
+/* HEADER */
+.header{
+  background:#f2b705;
+  padding:20px 30px;
+  display:flex;
+  align-items:center;
+  gap:25px;
+}
+.header img{ height:90px; }
+.header h1{
+  margin:0;
+  font-size:28px;
+  color:#002f6c;
 }
 
-.header img { height: 90px; }
-
-.header h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #002f6c;
+/* CONTENEDOR */
+.container{
+  max-width:1200px;
+  margin:30px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 0 20px rgba(0,0,0,.1);
 }
 
-/* ===== CONTENEDOR ===== */
-.container {
-  max-width: 1200px;
-  margin: 30px auto;
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+/* BUSCADOR */
+.search-wrapper{ position:relative; }
+
+.search-bar{
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
 
-/* ===== BUSCADOR ===== */
-.search-wrapper { position: relative; }
-
-.search-bar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-  align-items: center;
+.search-bar input{
+  padding:12px;
+  font-size:16px;
+  flex:1;
 }
-
-.search-bar input,
-.search-bar select {
-  padding: 12px;
-  font-size: 16px;
-}
-
-.search-bar input { flex: 1; }
 
 .search-bar button,
-.search-bar a {
-  padding: 12px 18px;
-  font-size: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.search-bar a{
+  padding:12px 18px;
+  font-size:15px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  text-decoration:none;
 }
 
-.btn-primary { background: #005baa; color: #fff; }
-.btn-secondary { background: #999; color: #fff; }
-.btn-home { background: #005baa; color: #fff; }
+.btn-primary{ background:#005baa; color:#fff; }
+.btn-secondary{ background:#999; color:#fff; }
+.btn-home{ background:#005baa; color:#fff; }
 
-/* ===== ICONO INFO ===== */
-.info-help {
-  background: #e9eef4;
-  color: #005baa;
-  border-radius: 50%;
-  width: 34px;
-  height: 34px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
+.info-help{
+  background:#e9eef4;
+  color:#005baa;
+  border-radius:50%;
+  width:34px;
+  height:34px;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
 }
 
-/* ===== SUGERENCIAS ===== */
-.suggestions {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 6px 14px rgba(0,0,0,.12);
-  z-index: 50;
-  display: none;
+/* SUGERENCIAS */
+.suggestions{
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:6px;
+  box-shadow:0 6px 14px rgba(0,0,0,.12);
+  display:none;
+  z-index:50;
 }
 
-.suggestion-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  font-size: 14px;
+.suggestion-item{
+  padding:10px 14px;
+  cursor:pointer;
+  font-size:14px;
+}
+.suggestion-item:hover{ background:#f0f4f8; }
+
+/* TABLA */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th, td{
+  border:1px solid #ddd;
+  padding:10px;
+  font-size:14px;
+}
+th{
+  background:#005baa;
+  color:#fff;
+  text-align:left;
 }
 
-.suggestion-item:hover {
-  background: #f0f4f8;
+/* MODALES */
+.modal{
+  display:none;
+  position:fixed;
+  z-index:200;
+  left:0;
+  top:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,.45);
 }
 
-/* ===== TABLA ===== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+.modal-content{
+  background:#fff;
+  margin:8% auto;
+  padding:25px;
+  width:520px;
+  border-radius:10px;
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  vertical-align: top;
-  font-size: 14px;
+.modal-content h3{
+  margin-top:0;
+  color:#005baa;
 }
 
-th {
-  background: #005baa;
-  color: white;
-  text-align: left;
+.modal-close{
+  text-align:right;
 }
 
-/* ===== TOOLTIP ===== */
-.tooltip-container { position: relative; display: inline-block; }
-
-.tooltip-box {
-  visibility: hidden;
-  opacity: 0;
-  width: 260px;
-  background-color: #ffffff;
-  color: #000;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 8px 10px;
-  position: absolute;
-  z-index: 10;
-  top: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  font-size: 13px;
+.modal-close button{
+  background:#999;
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-.tooltip-container:hover .tooltip-box {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* ===== MODALES ===== */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 200;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.45);
-}
-
-.modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 25px;
-  width: 520px;
-  border-radius: 10px;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  color: #005baa;
-}
-
-.modal-close {
-  text-align: right;
-}
-
-.modal-close button {
-  background: #999;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* ===== FOOTER ===== */
-.footer {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 13px;
-  color: #666;
+/* FOOTER */
+.footer{
+  margin-top:40px;
+  text-align:center;
+  font-size:13px;
+  color:#666;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
   <a href="https://www.umayor.cl" target="_blank">
     <img src="{{ url_for('static', filename='img/logoum.jpg') }}">
@@ -215,17 +173,9 @@ th {
 
 <div class="container">
 
-  <!-- BUSCADOR -->
   <div class="search-wrapper">
     <div class="search-bar">
-      <input type="text" id="q" placeholder="Buscar por escuela o área (ej: ingeniería, salud…)">
-
-      <select id="sede">
-        <option value="">Todas las sedes</option>
-        <option value="santiago">Santiago</option>
-        <option value="temuco">Temuco</option>
-      </select>
-
+      <input type="text" id="q" placeholder="Buscar escuela o carrera (ej: ingeniería, enfermería, civil…)">
       <button class="btn-primary" onclick="buscar()">Buscar</button>
       <button class="btn-secondary" onclick="limpiar()">Limpiar</button>
       <button class="info-help" onclick="abrirAyuda()">ℹ️</button>
@@ -236,6 +186,7 @@ th {
   </div>
 
   <div id="resultados"></div>
+
 </div>
 
 <div class="footer">
@@ -246,17 +197,12 @@ th {
 <div id="modalAyuda" class="modal">
   <div class="modal-content">
     <h3>¿Cómo usar el buscador?</h3>
-    <p>
-      Puedes buscar por <strong>categorías generales</strong> o por <strong>escuelas específicas</strong>.
-    </p>
     <ul>
-      <li>Si escribes <strong>ingeniería</strong> o <strong>ing</strong>, verás todas las ingenierías.</li>
-      <li>Si escribes <strong>ingeniería civil</strong>, verás esa escuela específica.</li>
-      <li>Si escribes <strong>salud</strong>, se mostrará el área completa.</li>
+      <li>Escribe palabras generales como <strong>ingeniería</strong> para ver todas.</li>
+      <li>Si escribes algo más específico como <strong>ingeniería civil</strong>, verás esa opción.</li>
+      <li>Puedes usar abreviaciones como <strong>inge</strong>, <strong>enfer</strong>, <strong>odonto</strong>.</li>
+      <li>A medida que escribes, la lista se reduce automáticamente.</li>
     </ul>
-    <p>
-      💡 Mientras escribes, el sistema te mostrará sugerencias para ayudarte.
-    </p>
     <div class="modal-close">
       <button onclick="cerrarAyuda()">Cerrar</button>
     </div>
@@ -264,123 +210,108 @@ th {
 </div>
 
 <script>
-// ===== SUGERENCIAS NIVEL 1 =====
-const sugerenciasBase = [
-  { label: "Ingeniería y Tecnología", value: "ingeniería", aliases: ["ing","inge"] },
-  { label: "Ciencias de la Salud", value: "salud" },
-  { label: "Educación y Pedagogía", value: "educación", aliases:["pedagogía"] },
-  { label: "Negocios y Administración", value: "negocios", aliases:["comercial","administración"] },
-  { label: "Ciencias Sociales y Humanidades", value: "sociales", aliases:["derecho","psicología"] },
-  { label: "Artes, Diseño y Humanidades", value: "artes", aliases:["diseño","cine"] },
-  { label: "Ciencias Agrarias", value: "agrarias", aliases:["agro","veterinaria"] }
+// ===== LISTA DE ESCUELAS + ALIASES =====
+const escuelas = [
+  { nombre:"Ingeniería Civil", aliases:["ingenieria civil","inge civil","civil"] },
+  { nombre:"Ingeniería Civil Industrial", aliases:["industrial","inge industrial"] },
+  { nombre:"Ingeniería en Computación e Informática", aliases:["computacion","informatica","ti","sistemas"] },
+  { nombre:"Ingeniería en Inteligencia Artificial", aliases:["inteligencia artificial","ia","artificial"] },
+  { nombre:"Ingeniería en Ciberseguridad", aliases:["ciberseguridad","ciber","seguridad"] },
+  { nombre:"Ingeniería Comercial", aliases:["comercial","negocios"] },
+  { nombre:"Ingeniería en Administración de Empresas", aliases:["administracion","adm empresas"] },
+
+  { nombre:"Medicina", aliases:["medicina","med"] },
+  { nombre:"Enfermería", aliases:["enfermeria","enfer"] },
+  { nombre:"Kinesiología", aliases:["kinesiologia","kine"] },
+  { nombre:"Fonoaudiología", aliases:["fonoaudiologia","fono"] },
+  { nombre:"Odontología", aliases:["odontologia","odonto","dental"] },
+  { nombre:"Nutrición y Dietética", aliases:["nutricion","dietista"] },
+
+  { nombre:"Derecho", aliases:["derecho","leyes"] },
+  { nombre:"Psicología", aliases:["psicologia","psico"] },
+  { nombre:"Periodismo", aliases:["periodismo","comunicacion"] },
+
+  { nombre:"Arquitectura", aliases:["arquitectura","arqui"] },
+  { nombre:"Diseño", aliases:["diseno","grafico"] },
+  { nombre:"Teatro", aliases:["teatro","artes"] }
 ];
 
 const input = document.getElementById("q");
 const suggestionsBox = document.getElementById("suggestions");
 
-input.addEventListener("input", () => {
+input.addEventListener("input", ()=>{
   const val = input.value.toLowerCase();
   suggestionsBox.innerHTML = "";
 
-  if (val.length < 2) {
-    suggestionsBox.style.display = "none";
+  if(val.length < 2){
+    suggestionsBox.style.display="none";
     return;
   }
 
-  const matches = sugerenciasBase.filter(s =>
-    s.label.toLowerCase().includes(val) ||
-    s.value.includes(val) ||
-    (s.aliases || []).some(a => a.includes(val))
+  const matches = escuelas.filter(e =>
+    e.nombre.toLowerCase().includes(val) ||
+    e.aliases.some(a => a.includes(val))
   );
 
-  if (!matches.length) {
-    suggestionsBox.style.display = "none";
+  if(!matches.length){
+    suggestionsBox.style.display="none";
     return;
   }
 
-  matches.forEach(s => {
-    const div = document.createElement("div");
-    div.className = "suggestion-item";
-    div.textContent = s.label;
-    div.onclick = () => {
-      input.value = s.value;
-      suggestionsBox.style.display = "none";
+  matches.forEach(e=>{
+    const div=document.createElement("div");
+    div.className="suggestion-item";
+    div.textContent=e.nombre;
+    div.onclick=()=>{
+      input.value=e.nombre;
+      suggestionsBox.style.display="none";
       buscar();
     };
     suggestionsBox.appendChild(div);
   });
 
-  suggestionsBox.style.display = "block";
+  suggestionsBox.style.display="block";
 });
 
-input.addEventListener("keydown", e => {
-  if (e.key === "Enter") buscar();
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter") buscar();
 });
 
-// ===== BÚSQUEDA =====
-function buscar() {
-  const q = input.value;
-  const sede = document.getElementById("sede").value;
-  suggestionsBox.style.display = "none";
-
-  fetch(`/api/escuelas?q=${encodeURIComponent(q)}&sede=${encodeURIComponent(sede)}`)
-    .then(r => r.json())
-    .then(data => {
-      const res = document.getElementById("resultados");
-
-      if (!data.length) {
-        res.innerHTML = "<p>No se encontraron resultados.</p>";
+function buscar(){
+  const q=input.value;
+  fetch(`/api/escuelas?q=${encodeURIComponent(q)}`)
+    .then(r=>r.json())
+    .then(data=>{
+      const res=document.getElementById("resultados");
+      if(!data.length){
+        res.innerHTML="<p>No se encontraron resultados.</p>";
         return;
       }
 
-      let html = `
-      <table>
-        <tr>
-          <th>Nombre</th>
-          <th>Cargo</th>
-          <th>Escuela</th>
-          <th>Sede</th>
-          <th>Campus</th>
-          <th>Correo</th>
-        </tr>`;
-
-      data.forEach(r => {
-        html += `
-        <tr>
+      let html="<table><tr><th>Escuela / Carrera</th><th>Campus</th><th>Correo</th></tr>";
+      data.forEach(r=>{
+        html+=`<tr>
           <td>${r.nombre || ""}</td>
-          <td>${r.cargo || ""}</td>
-          <td>${r.escuela_busqueda || ""}</td>
-          <td>${r.sede || ""}</td>
           <td>${r.campus || ""}</td>
-          <td>
-            <span class="tooltip-container">
-              <a href="mailto:${r.correo_director}">${r.correo_director || ""}</a>
-              <span class="tooltip-box">
-                ${r.anexo_director ? "📞 Anexo: " + r.anexo_director : ""}
-              </span>
-            </span>
-          </td>
+          <td><a href="mailto:${r.correo}">${r.correo || ""}</a></td>
         </tr>`;
       });
-
-      html += "</table>";
-      res.innerHTML = html;
+      html+="</table>";
+      res.innerHTML=html;
     });
 }
 
-function limpiar() {
-  input.value = "";
-  document.getElementById("resultados").innerHTML = "";
-  suggestionsBox.style.display = "none";
+function limpiar(){
+  input.value="";
+  document.getElementById("resultados").innerHTML="";
+  suggestionsBox.style.display="none";
 }
 
-// ===== MODAL AYUDA =====
-function abrirAyuda() {
-  document.getElementById("modalAyuda").style.display = "block";
+function abrirAyuda(){
+  document.getElementById("modalAyuda").style.display="block";
 }
-
-function cerrarAyuda() {
-  document.getElementById("modalAyuda").style.display = "none";
+function cerrarAyuda(){
+  document.getElementById("modalAyuda").style.display="none";
 }
 </script>
 
